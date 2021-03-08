@@ -2,8 +2,8 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>example</groupId>
-	<artifactId>example</artifactId>
+	<groupId>com.example.myapp</groupId>
+	<artifactId>myapp</artifactId>
 	<version>0.0.1</version>
 	<build>
 		<resources>
@@ -34,6 +34,30 @@
 				</excludes>
 			</testResource>
 		</testResources>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<release>11</release>
+				</configuration>
+			</plugin>
+			<plugin>
+				<!-- libraryを出力 -->
+				<artifactId>maven-dependency-plugin</artifactId>
+	            <executions>
+	              <execution>
+	                <phase>install</phase>
+	                <goals>
+	                  <goal>copy-dependencies</goal>
+	                </goals>
+	                <configuration>
+	                  <outputDirectory>${project.build.directory}/dependency</outputDirectory>
+	                </configuration>
+	              </execution>
+	            </executions>
+			</plugin>
+		</plugins>
 	</build>
 	<dependencies>
 		<dependency>

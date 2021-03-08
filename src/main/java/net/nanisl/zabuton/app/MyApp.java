@@ -1,12 +1,8 @@
-package net.nanisl.zabuton.myapp;
+package net.nanisl.zabuton.app;
 
 import org.apache.wicket.Page;
 
-import net.nanisl.zabuton.app.ZabuApp;
-
 public class MyApp extends ZabuApp {
-
-
 
 	public Class<? extends Page> getHomePage() {
 		return MyPage.class;

@@ -1,9 +1,7 @@
-package net.nanisl.zabuton.myapp;
+package net.nanisl.zabuton.app;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import net.nanisl.zabuton.app.ZabuPage;
 
 /**
  */

@@ -33,7 +33,7 @@ public class TextDataAccess implements Serializable {
 		for (File file: files) {
 			Map<String, String> map = Generics.newHashMap();
 			maps.add(map);
-			Utf8File f= Utf8File.of(file);
+			Utf8FileObj f= Utf8FileObj.of(file);
 			String head = null;
 			StringBuilder sb = new StringBuilder();
 			for (String line: f.readLines()) {
@@ -69,7 +69,7 @@ public class TextDataAccess implements Serializable {
             sb.append(entry.getValue() + "\n");
         }
         File dir = getSubDir(groupId);
-        Utf8File f= Utf8File.of(new File(dir, fileName + ".txt"));
+        Utf8FileObj f= Utf8FileObj.of(new File(dir, fileName + ".txt"));
         f.writeString(sb.toString());
     }
 
@@ -82,7 +82,7 @@ public class TextDataAccess implements Serializable {
     public Map<String, String> getKeyValues(String entityName) {
         Map<String, String> map = Generics.newHashMap();
         File file = getFile(entityName);
-        for (String line: Utf8File.of(file).readLines()) {
+        for (String line: Utf8FileObj.of(file).readLines()) {
             if (line.contains(":")) {
                 map.put(line.split(":")[0], line.split(":")[1]);
             }
@@ -93,7 +93,7 @@ public class TextDataAccess implements Serializable {
      * １行が key:value で構成されているテキストのファイルにデータを追加する
      */
     public void addKeyValue(String entityName,String key, String value) {
-        Utf8File f = Utf8File.of(getFile(entityName));
+        Utf8FileObj f = Utf8FileObj.of(getFile(entityName));
         String existText = f.readFileToString();
         boolean isNotLnTail = StringUtils.isNotEmpty(existText) && StringUtils.endsWith(existText, "\n") == false;
         String line = key + ":" + value;
@@ -106,7 +106,7 @@ public class TextDataAccess implements Serializable {
      * １行が key:value で構成されているテキストからデータを削除する
      */
     public void removeKeyValue(String entityName, String key) {
-        Utf8File f = Utf8File.of(getFile(entityName));
+        Utf8FileObj f = Utf8FileObj.of(getFile(entityName));
         List<String> lines = Generics.newArrayList();
         for (String line: f.readLines()) {
             if (StringUtils.startsWith(line, key + ":") == false) {

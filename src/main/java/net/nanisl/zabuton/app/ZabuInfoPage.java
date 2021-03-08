@@ -26,15 +26,15 @@ public class ZabuInfoPage extends WebPage {
 
     private static final long serialVersionUID = 1L;
 
-    public static void main(String[] args) throws Exception {
-
-        OutputStreamWriter outStreamWriter = new OutputStreamWriter(System.out, "utf-8");
-
-        Map<String, String> datas = Generics.newHashMap();
-        datas.put(CLASS, "com.example.ExampleApp");
-        datas.put(TITLE, "サンプルアプリケーション");
-        writeXml(outStreamWriter, datas);
-    }
+//    public static void main(String[] args) throws Exception {
+//
+//        OutputStreamWriter outStreamWriter = new OutputStreamWriter(System.out, "utf-8");
+//
+//        Map<String, String> datas = Generics.newHashMap();
+//        datas.put(CLASS, "com.example.ExampleApp");
+//        datas.put(TITLE, "サンプルアプリケーション");
+//        writeXml(outStreamWriter, datas);
+//    }
 
     @Override
     protected void onRender() {

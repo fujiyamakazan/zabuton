@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -11,16 +12,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.lang.Generics;
 
 /**
- * UTF-8のテキストファイルから文字列を取得するユーティリティ
+ * UTF-8のテキストファイルを操作するオブジェクト
  *
  * @author fujiyama
  */
-public class Utf8File implements Serializable {
+public class Utf8FileObj implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String ENCNAME = "UTF-8";
-    public static final Charset CHARSET = Charset.forName(ENCNAME);
+    public static final Charset CHARSET = StandardCharsets.UTF_8;
 
     final private File file;
 
@@ -28,15 +28,18 @@ public class Utf8File implements Serializable {
      * ofメソッドからインスタンス化されることを想定し、コンストラクタはprivateとする
      * @param file
      */
-    private Utf8File(File file) {
+    private Utf8FileObj(File file) {
         this.file = file;
     }
 
-    public static Utf8File of(File file) {
-        return new Utf8File(file);
+    public static Utf8FileObj of(File file) {
+        return new Utf8FileObj(file);
     }
 
     public String readFileToString() {
+    	if (file.exists() == false) {
+    		return null;
+    	}
 
         String text;
         try {
@@ -59,14 +62,14 @@ public class Utf8File implements Serializable {
 
     public void writeString(String text) {
         try {
-            FileUtils.write(file, text, Charset.forName(ENCNAME));
+            FileUtils.write(file, text, CHARSET);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
     public void writeString(String text, boolean append) {
         try {
-            FileUtils.write(file, text, Charset.forName(ENCNAME), append);
+            FileUtils.write(file, text, CHARSET, append);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -74,7 +77,7 @@ public class Utf8File implements Serializable {
 
     public void writeListString(List<String> lines) {
         try {
-            FileUtils.writeLines(file, ENCNAME, lines);
+            FileUtils.writeLines(file, CHARSET.toString(), lines);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -96,6 +99,26 @@ public class Utf8File implements Serializable {
         }
         return lines;
     }
+	/**
+	 * @return 行ごとのリスト。要素はトリムし、空文字は除外したもの。
+	 */
+	public List<String>  readTrimeLinesIgnoreEmpty() {
+		List<String> list = Generics.newArrayList();
+		for (String line: readLines()) {
+			line = line.trim();
+			if (StringUtils.isNotEmpty(line)) {
+				list.add(line);
+			}
+		}
+		return list;
+	}
+
+	@Override
+	public String toString() {
+		return readFileToString();
+	}
+
+
 
 
 }

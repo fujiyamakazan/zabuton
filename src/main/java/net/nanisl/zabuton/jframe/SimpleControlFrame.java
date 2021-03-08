@@ -19,11 +19,16 @@ public class SimpleControlFrame extends JFrame {
     private static final String FONT = "ＭＳ　ゴシック"; // 物理フォント
     //private static final String FONT = "Serif"; // 論理フォント
 
+    private JButton startButton;
 
-    public SimpleControlFrame(String title) {
+    public JButton getStartButton() {
+		return startButton;
+	}
+
+	public SimpleControlFrame(String title) {
         super(title);
-
     }
+
     public void start(Runnable action) {
         SimpleControlFrame controlFrame = this;
       controlFrame.setVisible(true);
@@ -49,11 +54,11 @@ public class SimpleControlFrame extends JFrame {
       panel.setLayout(new BorderLayout());
 
       /* 実行ボタンを配置 */
-      JButton jButton = new JButton("[" + getTitle() + "]へ");
-      panel.add(jButton, BorderLayout.CENTER); // パネルに配置
-      jButton.setSize(150, 80);
-      jButton.setFont(new Font(FONT, Font.PLAIN, 20));
-      jButton.addActionListener(new ActionListener() {
+      this.startButton = new JButton();
+      panel.add(startButton, BorderLayout.CENTER); // パネルに配置
+      startButton.setSize(150, 80);
+      startButton.setFont(new Font(FONT, Font.PLAIN, 20));
+      startButton.addActionListener(new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
               action.run();
@@ -77,7 +82,7 @@ public class SimpleControlFrame extends JFrame {
     /** ランチャー終了処理 */
     private void onLauncherClose(JFrame frame) {
         int ans = JOptionPane.showConfirmDialog(
-                frame, "本当に終了しますか?", "確認", JOptionPane.INFORMATION_MESSAGE);
+                frame, "本当に終了しますか?", "確認", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
         if (ans == JOptionPane.YES_OPTION) {
             System.exit(0);
         }

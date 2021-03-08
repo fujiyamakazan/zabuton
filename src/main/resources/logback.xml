@@ -6,7 +6,7 @@
             <pattern>%date{yyyy-MM-dd HH:mm:ss} [%thread] %level %logger{0} - %msg \(%file:%line\)%n</pattern>
         </encoder>
     </appender>
-    <root level="INFO" additivity="false">
+    <root level="DEBUG" additivity="false">
     <!-- <root level="DEBUG" additivity="false"> -->
         <appender-ref ref="STDOUT" />
     </root>

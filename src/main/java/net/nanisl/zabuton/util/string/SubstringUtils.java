@@ -1,10 +1,10 @@
 package net.nanisl.zabuton.util.string;
 
 /**
- * 文字列の部分取得などを行うユーティリティ
+ * 文字列を部分取得するユーティリティ
  * @author fuijyama
  */
-public class StringCutter {
+public class SubstringUtils {
     /**
      * @return startWordとendWordに挟まれた文字列。引数が不正であればnullを返す。
      */
@@ -61,6 +61,12 @@ public class StringCutter {
     public static String left(String src, String delimiter) {
         return leftCore(src, src.indexOf(delimiter));
     }
+    /**
+     * @return delimiterより左側の部分 (区切り文字は後方一致とする)
+     */
+	public static String leftOfLast(String src, String delimiter) {
+		 return leftCore(src, src.lastIndexOf(delimiter));
+	}
 	private static String leftCore(String src, final int index) {
 		try {
             return src.substring(0, index);
@@ -68,6 +74,7 @@ public class StringCutter {
             throw new RuntimeException(e);
         }
 	}
+
 
     /**
      * @return delimiterより右側の部分
@@ -80,6 +87,9 @@ public class StringCutter {
             throw new RuntimeException(e);
         }
     }
+
+
+
 
 
 

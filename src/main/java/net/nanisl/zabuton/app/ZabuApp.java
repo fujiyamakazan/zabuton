@@ -8,7 +8,6 @@ import org.apache.wicket.request.Response;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import net.nanisl.zabuton.Zabuton;
@@ -18,14 +17,7 @@ public abstract class ZabuApp extends WebApplication {
     @SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(ZabuApp.class);
 
-	public static void main(String[] args) {
-		SpringApplication.run(ZabuApp.class);
-	}
-
     public static final String URL_INFOPATH = "zabinfo";
-
-//	@Autowired
-//	private ApplicationContext applicationContext;
 
     private String title;
 
