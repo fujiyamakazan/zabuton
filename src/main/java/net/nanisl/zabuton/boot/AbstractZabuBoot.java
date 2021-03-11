@@ -43,6 +43,8 @@ public abstract class AbstractZabuBoot {
 
 	private Status status;
 
+    private String subParams;
+
 	private enum Status {
 		Try, Running, Error_Exist, Error;
 	}
@@ -51,8 +53,11 @@ public abstract class AbstractZabuBoot {
 	 * WicketApplicationをjettyで起動する
 	 * @param appClass アプリケーションクラス
 	 * @param appTitle アプリケーション名
+	 * @param subParams
 	 */
-	public void invoke(Class<? extends ZabuApp> appClass, String appTitle) {
+	public void invoke(Class<? extends ZabuApp> appClass, String appTitle, String subParams) {
+
+	    this.subParams = subParams;
 
 		/*
 		 * コントロールパネルの構築
@@ -227,6 +232,11 @@ public abstract class AbstractZabuBoot {
 	protected abstract void startServletContainer(int port, String appClassName, String appTitle) throws Exception;
 
 	private String getUrl() {
+
+	    if (StringUtils.isNotEmpty(subParams)) {
+	        return "http://localhost:" + port + "/" + subParams;
+	    }
+
 		return "http://localhost:" + port;
 	}
 

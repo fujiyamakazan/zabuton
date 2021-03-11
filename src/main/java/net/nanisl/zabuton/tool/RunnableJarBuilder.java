@@ -41,10 +41,10 @@ public class RunnableJarBuilder {
 		/* JREを生成する */
 		createJre(dirTarget, jdk);
 
-		/* build.xmlのzipfilesetを書換えて実行する */
-		BuildXml buildXml = new BuildXml(new File("build.xml"));
-		buildXml.rewriteDependency(dirTarget.getDependency().listFiles());
-		buildXml.exeBuildXml();
+//		/* build.xmlのzipfilesetを書換えて実行する */
+//		BuildXml buildXml = new BuildXml(new File("build.xml"));
+//		buildXml.rewriteDependency(dirTarget.getDependency().listFiles());
+//		buildXml.exeBuildXml();
 
 		/* Jarを起動するためのスクリプトを作成する */
 		createLaunchers(dirTarget);

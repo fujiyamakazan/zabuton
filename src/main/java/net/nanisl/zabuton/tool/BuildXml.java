@@ -1,16 +1,15 @@
 package net.nanisl.zabuton.tool;
 
 import java.io.File;
-import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.BuildLogger;
-import org.apache.tools.ant.DefaultLogger;
-import org.apache.tools.ant.Project;
-import org.apache.tools.ant.ProjectHelper;
+//import org.apache.tools.ant.BuildException;
+//import org.apache.tools.ant.BuildLogger;
+//import org.apache.tools.ant.DefaultLogger;
+//import org.apache.tools.ant.Project;
+//import org.apache.tools.ant.ProjectHelper;
 
 import net.nanisl.zabuton.file.Utf8FileObj;
 import net.nanisl.zabuton.util.string.SubstringUtils;
@@ -53,30 +52,30 @@ public class BuildXml implements Serializable {
 
 	}
 
-	/**
-	 * build.xmlを実行する
-	 */
-	public void exeBuildXml() {
-		try {
-
-			Project project = new Project();
-			project.init();
-
-			File buildFile = new File("build.xml");
-			ProjectHelper.getProjectHelper().parse(project, buildFile);
-			BuildLogger buildLogger = new DefaultLogger();
-			buildLogger.setMessageOutputLevel(Project.MSG_INFO);
-			buildLogger.setOutputPrintStream(new PrintStream(System.out));
-			buildLogger.setErrorPrintStream(new PrintStream(System.err));
-			buildLogger.setEmacsMode(false);
-			project.addBuildListener(buildLogger); // loggerの設定
-
-			project.executeTarget(project.getDefaultTarget());
-
-		} catch (BuildException e) {
-			throw new RuntimeException(e);
-		}
-	}
+//	/**
+//	 * build.xmlを実行する
+//	 */
+//	public void exeBuildXml() {
+//		try {
+//
+//			Project project = new Project();
+//			project.init();
+//
+//			File buildFile = new File("build.xml");
+//			ProjectHelper.getProjectHelper().parse(project, buildFile);
+//			BuildLogger buildLogger = new DefaultLogger();
+//			buildLogger.setMessageOutputLevel(Project.MSG_INFO);
+//			buildLogger.setOutputPrintStream(new PrintStream(System.out));
+//			buildLogger.setErrorPrintStream(new PrintStream(System.err));
+//			buildLogger.setEmacsMode(false);
+//			project.addBuildListener(buildLogger); // loggerの設定
+//
+//			project.executeTarget(project.getDefaultTarget());
+//
+//		} catch (BuildException e) {
+//			throw new RuntimeException(e);
+//		}
+//	}
 
 
 

@@ -30,7 +30,7 @@ public abstract class ZabuApp extends WebApplication {
      }
 
     @Override
-    final protected void init() {
+    protected void init() {
         super.init();
 
         /* 文字コード指定 */

@@ -20,10 +20,11 @@ public class Zabuton {
     /**
      * 起動
      * @param appClass アプリケーションクラス
+     * @param subParams
      * @param appTitle アプリケーションの表示名
      */
-	public static void start(Class<? extends ZabuApp> appClass, String appTtitle) {
-		new ZabuBootByTomcat().invoke(appClass, appTtitle);
+	public static void start(Class<? extends ZabuApp> appClass, String appTtitle, String subParams) {
+		new ZabuBootByTomcat().invoke(appClass, appTtitle, subParams);
 	}
 
 }
