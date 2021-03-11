@@ -1,0 +1,53 @@
+//package net.nanisl.zabuton.boot;
+//
+//import java.io.IOException;
+//import java.util.EnumSet;
+//
+//import javax.servlet.DispatcherType;
+//
+//import org.apache.commons.lang3.StringUtils;
+//import org.apache.wicket.protocol.http.ContextParamWebApplicationFactory;
+//import org.apache.wicket.protocol.http.WicketFilter;
+//import org.eclipse.jetty.server.Server;
+//import org.eclipse.jetty.servlet.FilterHolder;
+//import org.eclipse.jetty.servlet.ServletContextHandler;
+//import org.eclipse.jetty.servlet.ServletHandler;
+//
+//import net.nanisl.zabuton.Zabuton;
+//
+//public class ZabuBootByJetty extends AbstractZabuBoot {
+//
+//	public void startServletContainer(int port, String appClassName, String appTitle) throws Exception {
+//		try {
+//			Server server = new Server(port);
+//
+//			ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+//			context.setContextPath("/");
+//
+//			// FIXME Jettyを11にすると失敗する
+//
+//			ServletHandler handler = new ServletHandler();
+//
+//			FilterHolder holder = handler.addFilterWithMapping(WicketFilter.class, "/*",
+//					EnumSet.of(DispatcherType.REQUEST));
+//			holder.setInitParameter(WicketFilter.FILTER_MAPPING_PARAM, "/*");
+//			holder.setInitParameter(ContextParamWebApplicationFactory.APP_CLASS_PARAM, appClassName);
+//			holder.setInitParameter(Zabuton.PARAM_TITLE, appTitle);
+//
+//			context.addFilter(holder, "/*", EnumSet.of(DispatcherType.REQUEST));
+//
+//			context.setHandler(handler);
+//			server.setHandler(context);
+//
+//			server.start();
+//			//server.join();
+//
+//
+//		} catch (IOException e) {
+//			if (StringUtils.contains(e.getMessage(), "Failed to bind to")) {
+//				throw new PortAlreadyException();
+//			}
+//		}
+//	}
+//
+//}
