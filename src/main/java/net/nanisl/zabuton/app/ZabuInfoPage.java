@@ -26,15 +26,15 @@ public class ZabuInfoPage extends WebPage {
 
     private static final long serialVersionUID = 1L;
 
-//    public static void main(String[] args) throws Exception {
-//
-//        OutputStreamWriter outStreamWriter = new OutputStreamWriter(System.out, "utf-8");
-//
-//        Map<String, String> datas = Generics.newHashMap();
-//        datas.put(CLASS, "com.example.ExampleApp");
-//        datas.put(TITLE, "サンプルアプリケーション");
-//        writeXml(outStreamWriter, datas);
-//    }
+    //    public static void main(String[] args) throws Exception {
+    //
+    //        OutputStreamWriter outStreamWriter = new OutputStreamWriter(System.out, "utf-8");
+    //
+    //        Map<String, String> datas = Generics.newHashMap();
+    //        datas.put(CLASS, "com.example.ExampleApp");
+    //        datas.put(TITLE, "サンプルアプリケーション");
+    //        writeXml(outStreamWriter, datas);
+    //    }
 
     @Override
     protected void onRender() {
@@ -44,7 +44,7 @@ public class ZabuInfoPage extends WebPage {
 
             //HttpServletResponse containerResponse = (HttpServletResponse) getResponse().getContainerResponse();
             //ServletOutputStream outputStream = containerResponse.getOutputStream();
-        	OutputStream outputStream = getResponse().getOutputStream();
+            OutputStream outputStream = getResponse().getOutputStream();
             outStreamWriter = new OutputStreamWriter(outputStream, "utf-8");
 
             Map<String, String> datas = Generics.newHashMap();
@@ -57,8 +57,9 @@ public class ZabuInfoPage extends WebPage {
             throw new RuntimeException(e);
         } finally {
             try {
-                if (outStreamWriter != null)
+                if (outStreamWriter != null) {
                     outStreamWriter.close();
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -73,7 +74,7 @@ public class ZabuInfoPage extends WebPage {
         Document document = domImpl.createDocument("", "root", null);
         Element root = document.getDocumentElement();
 
-        for(Map.Entry<String, String> data: datas.entrySet()) {
+        for (Map.Entry<String, String> data : datas.entrySet()) {
             Element item = document.createElement(data.getKey());
             //item.setAttribute("type", "text");
             item.appendChild(document.createTextNode(data.getValue()));

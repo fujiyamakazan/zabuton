@@ -15,9 +15,9 @@ import net.nanisl.zabuton.file.TextDataAccess;
 @Component
 public class LoginManager implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/** 認証情報のファイル名 */
+    /** 認証情報のファイル名 */
     private static final String DIGESTS = "digests";
 
     /** データアクセスオブジェクト */

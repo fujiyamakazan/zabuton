@@ -5,13 +5,13 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class ZabuPage extends WebPage {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@SpringBean
-	private ZabuTimer zabutimer;
+    @SpringBean
+    private ZabuTimer zabutimer;
 
-	@Override
-	protected void onInitialize() {
-		super.onInitialize();
-	}
+    @Override
+    protected void onInitialize() {
+        super.onInitialize();
+    }
 }

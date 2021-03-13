@@ -6,17 +6,14 @@ import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-
-import net.nanisl.zabuton.Zabuton;
 
 public abstract class ZabuApp extends WebApplication {
 
     @SuppressWarnings("unused")
-	private static final Logger log = LoggerFactory.getLogger(ZabuApp.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ZabuApp.class);
 
+    public static final String INIT_PARAM_TITLE = "net.nanisl.zabuton.Zabuton.PARAM_TITLE";
     public static final String URL_INFOPATH = "zabinfo";
 
     private String title;
@@ -25,9 +22,9 @@ public abstract class ZabuApp extends WebApplication {
         return this.title;
     }
 
-    public static ZabuApp get(){
-         return (ZabuApp)WebApplication.get();
-     }
+    public static ZabuApp get() {
+        return (ZabuApp) WebApplication.get();
+    }
 
     @Override
     protected void init() {
@@ -38,7 +35,7 @@ public abstract class ZabuApp extends WebApplication {
         getMarkupSettings().setDefaultMarkupEncoding("UTF-8");
 
         /* init-parameter */
-        this.title = getInitParameter(Zabuton.PARAM_TITLE);
+        this.title = getInitParameter(ZabuApp.INIT_PARAM_TITLE);
 
         /* 基本URLの設定 */
         mountPage("index", getHomePage());
@@ -47,19 +44,18 @@ public abstract class ZabuApp extends WebApplication {
         /* SpringBeanを利用する */
         AnnotationConfigApplicationContext ctx;
         try {
-        	ctx = new AnnotationConfigApplicationContext();
-			ctx.scan(this.getClass().getPackageName()); // アプリケーションと同じ階層のコンポーネントをスキャンする
-	        ctx.scan(ZabuApp.class.getPackageName()); // ZabuAppと同じ階層のコンポーネントをスキャンする
-	        ctx.refresh();
-			getComponentInstantiationListeners().add(new SpringComponentInjector(this, ctx));
-		} catch (Exception e) {
-			/* アプリケーション実装クラスがデフォルトパッケージの場合にエラーになったことがある */
-			throw new RuntimeException(e);
-		}
+            ctx = new AnnotationConfigApplicationContext();
+            ctx.scan(this.getClass().getPackageName()); // アプリケーションと同じ階層のコンポーネントをスキャンする
+            ctx.scan(ZabuApp.class.getPackageName()); // ZabuAppと同じ階層のコンポーネントをスキャンする
+            ctx.refresh();
+            getComponentInstantiationListeners().add(new SpringComponentInjector(this, ctx));
+        } catch (Exception e) {
+            /* アプリケーション実装クラスがデフォルトパッケージの場合にエラーになったことがある */
+            throw new RuntimeException(e);
+        }
     }
 
-
-	@Override
+    @Override
     public RuntimeConfigurationType getConfigurationType() {
         //return RuntimeConfigurationType.DEVELOPMENT;
         return RuntimeConfigurationType.DEVELOPMENT;
@@ -69,6 +65,5 @@ public abstract class ZabuApp extends WebApplication {
     public Session newSession(Request request, Response response) {
         return new ZabuSession(request);
     }
-
 
 }

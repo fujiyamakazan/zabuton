@@ -22,13 +22,9 @@ public class Utf8FileObj implements Serializable {
 
     public static final Charset CHARSET = StandardCharsets.UTF_8;
 
-    final private File file;
+    protected final File file;
 
-    /**
-     * ofメソッドからインスタンス化されることを想定し、コンストラクタはprivateとする
-     * @param file
-     */
-    private Utf8FileObj(File file) {
+    public Utf8FileObj(File file) {
         this.file = file;
     }
 
@@ -37,9 +33,9 @@ public class Utf8FileObj implements Serializable {
     }
 
     public String readFileToString() {
-    	if (file.exists() == false) {
-    		return null;
-    	}
+        if (file.exists() == false) {
+            return null;
+        }
 
         String text;
         try {
@@ -52,7 +48,7 @@ public class Utf8FileObj implements Serializable {
             // 空は対象外
         } else {
             String first = Integer.toHexString(text.charAt(0));
-            if (StringUtils.equals(first, "feff")){
+            if (StringUtils.equals(first, "feff")) {
                 text = text.substring(1); // 先頭を除去
             }
         }
@@ -67,6 +63,7 @@ public class Utf8FileObj implements Serializable {
             throw new RuntimeException(e);
         }
     }
+
     public void writeString(String text, boolean append) {
         try {
             FileUtils.write(file, text, CHARSET, append);
@@ -86,39 +83,42 @@ public class Utf8FileObj implements Serializable {
     public List<String> readLines() {
         return readLines(null);
     }
+
     public List<String> readLines(String commentHeader) {
         List<String> lines = Generics.newArrayList();
-        for (String line: readFileToString().split("\n")) {
+        for (String line : readFileToString().split("\n")) {
             line = line.trim();
-            if (StringUtils.isEmpty(line)) continue;
+            if (StringUtils.isEmpty(line)) {
+                continue;
+            }
             if (StringUtils.isNotEmpty(commentHeader)) {
-                if (StringUtils.startsWith(line, commentHeader)) continue;
+                if (StringUtils.startsWith(line, commentHeader)) {
+                    continue;
+                }
             }
 
             lines.add(line);
         }
         return lines;
     }
-	/**
-	 * @return 行ごとのリスト。要素はトリムし、空文字は除外したもの。
-	 */
-	public List<String>  readTrimeLinesIgnoreEmpty() {
-		List<String> list = Generics.newArrayList();
-		for (String line: readLines()) {
-			line = line.trim();
-			if (StringUtils.isNotEmpty(line)) {
-				list.add(line);
-			}
-		}
-		return list;
-	}
 
-	@Override
-	public String toString() {
-		return readFileToString();
-	}
+    /**
+     * @return 行ごとのリスト。要素はトリムし、空文字は除外したもの。
+     */
+    public List<String> readTrimeLinesIgnoreEmpty() {
+        List<String> list = Generics.newArrayList();
+        for (String line : readLines()) {
+            line = line.trim();
+            if (StringUtils.isNotEmpty(line)) {
+                list.add(line);
+            }
+        }
+        return list;
+    }
 
-
-
+    @Override
+    public String toString() {
+        return readFileToString();
+    }
 
 }
