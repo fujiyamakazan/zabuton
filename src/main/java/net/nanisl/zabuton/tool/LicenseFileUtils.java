@@ -2,7 +2,7 @@ package net.nanisl.zabuton.tool;
 
 import org.apache.commons.lang3.StringUtils;
 
-import net.nanisl.zabuton.file.Utf8FileObj;
+import net.nanisl.zabuton.util.file.Utf8FileObj;
 
 /**
  * TODO 不要になった処理の除去

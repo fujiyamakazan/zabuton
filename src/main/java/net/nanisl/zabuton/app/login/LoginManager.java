@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import net.nanisl.zabuton.app.ZabuSession;
-import net.nanisl.zabuton.file.TextDataAccess;
+import net.nanisl.zabuton.util.file.TextDataAccess;
 
 @Component
 public class LoginManager implements Serializable {

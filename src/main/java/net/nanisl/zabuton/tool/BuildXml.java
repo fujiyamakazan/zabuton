@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
-import net.nanisl.zabuton.file.Utf8FileObj;
+import net.nanisl.zabuton.util.file.Utf8FileObj;
 import net.nanisl.zabuton.util.string.SubstringUtils;
 
 public class BuildXml implements Serializable {

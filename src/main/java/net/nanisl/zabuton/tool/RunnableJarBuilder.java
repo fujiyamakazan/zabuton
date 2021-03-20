@@ -11,8 +11,8 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.nanisl.zabuton.file.Utf8FileObj;
-import net.nanisl.zabuton.file.XmlFileObj;
+import net.nanisl.zabuton.util.file.Utf8FileObj;
+import net.nanisl.zabuton.util.file.XmlFileObj;
 
 public class RunnableJarBuilder {
 

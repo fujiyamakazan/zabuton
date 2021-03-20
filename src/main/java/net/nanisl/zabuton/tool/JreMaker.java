@@ -10,10 +10,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.nanisl.zabuton.file.Utf8FileObj;
 import net.nanisl.zabuton.util.ListToStringer;
 import net.nanisl.zabuton.util.exec.RuntimeExc;
 import net.nanisl.zabuton.util.file.FileDeleteUtils;
+import net.nanisl.zabuton.util.file.Utf8FileObj;
 
 /**
  * 配布用に最小限のJREを作成する

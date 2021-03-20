@@ -58,7 +58,7 @@ public abstract class ZabuApp extends WebApplication {
     @Override
     public RuntimeConfigurationType getConfigurationType() {
         //return RuntimeConfigurationType.DEVELOPMENT;
-        return RuntimeConfigurationType.DEVELOPMENT;
+        return RuntimeConfigurationType.DEPLOYMENT;
     }
 
     @Override
