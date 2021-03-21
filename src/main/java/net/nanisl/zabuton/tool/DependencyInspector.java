@@ -74,7 +74,7 @@ public class DependencyInspector {
 
             if (jarInfo.exists()) {
                 /* バージョンが異なったら一旦削除 */
-                String verText = verFile.toString();
+                String verText = verFile.readFileToString();
                 if (StringUtils.equals(verText, version) == false) {
                     FileDeleteUtils.delete(jarInfo);
                 }

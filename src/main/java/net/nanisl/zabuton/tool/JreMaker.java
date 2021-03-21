@@ -39,7 +39,7 @@ public class JreMaker {
         File modulesTxt = new File(out, "modules.txt");
 
         Utf8FileObj fileMods = Utf8FileObj.of(modulesTxt);
-        if (out.exists() && StringUtils.equals(strMods, fileMods.toString()) == false) {
+        if (out.exists() && StringUtils.equals(strMods, fileMods.readFileToString()) == false) {
             /* モジュール情報が変更されていれば、一旦削除 */
             FileDeleteUtils.delete(out);
         }

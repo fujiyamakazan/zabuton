@@ -61,7 +61,7 @@ public class RunnableJarBuilder {
         ) {
             /* jdeps.txt */
             Utf8FileObj f = Utf8FileObj.of(jeps);
-            for (String line : f.readTrimeLinesIgnoreEmpty()) {
+            for (String line : f.readLines()) {
                 if (mods.contains(line) == false) {
                     mods.add(line);
                 }

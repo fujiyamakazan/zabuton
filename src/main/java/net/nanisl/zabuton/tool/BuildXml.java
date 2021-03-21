@@ -24,7 +24,7 @@ public class BuildXml implements Serializable {
 
     public void rewriteDependency(List<File> jars) {
 
-        String text = buildXmlFile.toString();
+        String text = buildXmlFile.readFileToString();
 
         String startTag = "<!-- dependency-start -->";
         String endTag = "<!-- dependency-end -->";
