@@ -18,7 +18,7 @@ public class RunnableJarBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(RunnableJarBuilder.class);
 
-    /** ライブラリが使用するJREのモジュールを記録するファイルの名前 */
+    /** ライブラリが使用するJREのモジュールを記録するファイルの名前。 */
     private static final String JDEPS_TXT = "jdeps.txt";
 
     private String projectName;
@@ -32,7 +32,7 @@ public class RunnableJarBuilder {
         this.javaHome = new File(javaHomeStr);
 
         XmlFileObj projectXml = new XmlFileObj(new File(".project"));
-        this.projectName = projectXml.getText("/projectDescription/name");
+        this.projectName = projectXml.getTextOne("/projectDescription/name");
         log.debug("projectName:" + projectName);
 
         File dirTarget = new File("target");
@@ -78,12 +78,14 @@ public class RunnableJarBuilder {
          */
         RunnableJarBuilder.createInvokeJarScripts(dirTarget, projectName, nameJimage);
 
-        //		/* build.xmlのzipfilesetを書換えて実行する */
-        //		BuildXml buildXml = new BuildXml(new File("build.xml"));
-        //		buildXml.rewriteDependency(dirTarget.getDependency().listFiles());
-        //		buildXml.exeBuildXml();
     }
 
+    /**
+     * 実行可能Jarを起動するためのスクリプトを生成します。
+     * @param dirResult 生成場所のディレクトリ
+     * @param appName アプリケーション名
+     * @param nameJimage JVMのファイル名
+     */
     public static void createInvokeJarScripts(File dirResult, String appName, String nameJimage) {
         String bat = ".\\" + nameJimage + "\\bin\\java -jar " + appName + ".jar\n";
         String vbs = "Set ws = CreateObject(\"Wscript.Shell\")\n ws.run \"cmd /c main.bat\", vbhide\n";
