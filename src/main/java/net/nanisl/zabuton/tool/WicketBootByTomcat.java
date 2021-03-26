@@ -97,6 +97,11 @@ public class WicketBootByTomcat extends AbstractWebContainerStarter {
         filterMap.addURLPattern("/*");
         context.addFilterMap(filterMap);
 
+
+        // TODO ホットデプロイ
+        //        tomcat.getHost().setAutoDeploy(true);
+        //        tomcat.getHost().setDeployOnStartup(true);
+
         try {
 
             tomcat.start();
