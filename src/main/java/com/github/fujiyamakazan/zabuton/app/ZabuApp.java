@@ -1,4 +1,4 @@
-package net.nanisl.zabuton.app;
+package com.github.fujiyamakazan.zabuton.app;
 
 import org.apache.wicket.RuntimeConfigurationType;
 import org.apache.wicket.Session;
@@ -13,7 +13,7 @@ public abstract class ZabuApp extends WebApplication {
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ZabuApp.class);
 
-    public static final String INIT_PARAM_TITLE = "net.nanisl.zabuton.Zabuton.PARAM_TITLE";
+    public static final String INIT_PARAM_TITLE = ZabuApp.class.getName() + ".PARAM_TITLE";
     public static final String URL_INFOPATH = "zabinfo";
 
     private String title;

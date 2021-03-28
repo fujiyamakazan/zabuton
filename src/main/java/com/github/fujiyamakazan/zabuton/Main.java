@@ -1,4 +1,4 @@
-package net.nanisl.zabuton;
+package com.github.fujiyamakazan.zabuton;
 
 /**
  * zbuton自身をサーブレットコンテナで起動する

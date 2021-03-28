@@ -1,4 +1,4 @@
-package net.nanisl.zabuton.tool;
+package com.github.fujiyamakazan.zabuton.runnable;
 
 import java.io.File;
 import java.io.Serializable;

@@ -1,4 +1,4 @@
-package net.nanisl.zabuton.app;
+package com.github.fujiyamakazan.zabuton.app;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package net.nanisl.zabuton.app;
+package com.github.fujiyamakazan.zabuton.app;
 
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebSession;
@@ -16,13 +16,4 @@ public class ZabuSession extends WebSession {
         return (ZabuSession)Session.get();
     }
 
-//    private LoginUser loginUser;
-//
-//    public LoginUser getLoginUser() {
-//        return loginUser;
-//    }
-//
-//    public void setLoginUser(LoginUser loginUser) {
-//        this.loginUser = loginUser;
-//    }
 }

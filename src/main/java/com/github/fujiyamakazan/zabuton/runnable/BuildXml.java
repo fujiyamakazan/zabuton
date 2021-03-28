@@ -1,21 +1,21 @@
-package net.nanisl.zabuton.tool;
+package com.github.fujiyamakazan.zabuton.runnable;
 
 import java.io.File;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
-import net.nanisl.zabuton.util.file.Utf8FileObj;
-import net.nanisl.zabuton.util.string.SubstringUtils;
+import com.github.fujiyamakazan.zabuton.util.string.SubstringUtils;
+import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 
 public class BuildXml implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private final Utf8FileObj buildXmlFile;
+    private final Utf8Text buildXmlFile;
 
     public BuildXml(File file) {
-        this.buildXmlFile = Utf8FileObj.of(file);
+        this.buildXmlFile = new Utf8Text(file);
     }
 
     public void rewriteDependency(File[] jars) {
@@ -24,7 +24,7 @@ public class BuildXml implements Serializable {
 
     public void rewriteDependency(List<File> jars) {
 
-        String text = buildXmlFile.readFileToString();
+        String text = buildXmlFile.read();
 
         String startTag = "<!-- dependency-start -->";
         String endTag = "<!-- dependency-end -->";
@@ -43,7 +43,7 @@ public class BuildXml implements Serializable {
         sb.append(endTag + "\n");
         sb.append(tail.trim() + "\n");
 
-        buildXmlFile.writeString(sb.toString());
+        buildXmlFile.write(sb.toString());
 
     }
 

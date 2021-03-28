@@ -1,4 +1,4 @@
-package net.nanisl.zabuton.app;
+package com.github.fujiyamakazan.zabuton.app;
 
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.spring.injection.annot.SpringBean;

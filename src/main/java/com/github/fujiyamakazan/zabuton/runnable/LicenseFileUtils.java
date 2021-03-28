@@ -1,8 +1,8 @@
-package net.nanisl.zabuton.tool;
+package com.github.fujiyamakazan.zabuton.runnable;
 
 import org.apache.commons.lang3.StringUtils;
 
-import net.nanisl.zabuton.util.file.Utf8FileObj;
+import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 
 /**
  * TODO 不要になった処理の除去
@@ -21,7 +21,7 @@ public class LicenseFileUtils {
         return StringUtils.startsWithIgnoreCase(fileName, "LICENSE");
     }
 
-    public static boolean isApache2(Utf8FileObj file) {
+    public static boolean isApache2(Utf8Text file) {
         boolean nextVerCheck = false;
         for (String line : file.readLines()) {
             line = line.trim();
@@ -39,7 +39,7 @@ public class LicenseFileUtils {
         return false;
     }
 
-    public static boolean isEpl1(Utf8FileObj file) {
+    public static boolean isEpl1(Utf8Text file) {
         for (String line : file.readLines()) {
             if (StringUtils.equals(line, "Eclipse Public License - v 1.0")) {
                 return true;
@@ -48,7 +48,7 @@ public class LicenseFileUtils {
         return false;
     }
 
-    public static boolean isCddl1(Utf8FileObj file) {
+    public static boolean isCddl1(Utf8Text file) {
         for (String line : file.readLines()) {
             if (StringUtils.equals(line, "COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0")) {
                 return true;

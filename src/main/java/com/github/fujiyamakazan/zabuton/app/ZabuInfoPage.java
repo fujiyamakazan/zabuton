@@ -1,4 +1,4 @@
-package net.nanisl.zabuton.app;
+package com.github.fujiyamakazan.zabuton.app;
 
 import java.io.IOException;
 import java.io.OutputStream;

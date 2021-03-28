@@ -1,4 +1,4 @@
-package net.nanisl.zabuton.app;
+package com.github.fujiyamakazan.zabuton.app;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

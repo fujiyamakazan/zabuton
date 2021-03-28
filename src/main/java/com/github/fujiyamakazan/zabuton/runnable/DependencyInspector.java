@@ -1,4 +1,4 @@
-package net.nanisl.zabuton.tool;
+package com.github.fujiyamakazan.zabuton.runnable;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,12 +14,12 @@ import org.apache.wicket.util.lang.Generics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.nanisl.zabuton.util.exec.RuntimeExc;
-import net.nanisl.zabuton.util.file.FileDeleteUtils;
-import net.nanisl.zabuton.util.file.Utf8FileObj;
-import net.nanisl.zabuton.util.file.ZipUtils;
-import net.nanisl.zabuton.util.file.ZipUtils.UnzipTask;
-import net.nanisl.zabuton.util.string.SubstringUtils;
+import com.github.fujiyamakazan.zabuton.util.exec.RuntimeExc;
+import com.github.fujiyamakazan.zabuton.util.file.FileDeleteUtils;
+import com.github.fujiyamakazan.zabuton.util.file.ZipUtils;
+import com.github.fujiyamakazan.zabuton.util.file.ZipUtils.UnzipTask;
+import com.github.fujiyamakazan.zabuton.util.string.SubstringUtils;
+import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 
 /**
  * 依存するライブラリ（Jar）の解析
@@ -70,11 +70,11 @@ public class DependencyInspector {
             if (jarInfo.exists() == false) {
                 jarInfo.mkdirs();
             }
-            Utf8FileObj verFile = Utf8FileObj.of(new File(jarInfo, "VERSION.txt"));
+            Utf8Text verFile = new Utf8Text(new File(jarInfo, "VERSION.txt"));
 
             if (jarInfo.exists()) {
                 /* バージョンが異なったら一旦削除 */
-                String verText = verFile.readFileToString();
+                String verText = verFile.read();
                 if (StringUtils.equals(verText, version) == false) {
                     FileDeleteUtils.delete(jarInfo);
                 }
@@ -84,15 +84,15 @@ public class DependencyInspector {
                 jarInfo.mkdir();
 
                 /* バージョンを記録 */
-                verFile.writeString(version);
+                verFile.write(version);
 
                 /* ライセンス関連ファイルを取得する */
                 scanTextInJar(jar, jarName, jarInfo);
 
                 /* 依存するJREのモジュールを検査する */
                 Set<String> modules = invokeJdeps(jdk, jar);
-                Utf8FileObj jreModulesFile = Utf8FileObj.of(new File(jarInfo, jdepsTxt));
-                jreModulesFile.writeListString(new ArrayList<String>(modules));
+                Utf8Text jreModulesFile = new Utf8Text(new File(jarInfo, jdepsTxt));
+                jreModulesFile.writeLines(new ArrayList<String>(modules));
 
             }
         }
@@ -114,7 +114,7 @@ public class DependencyInspector {
 
                 if (LicenseFileUtils.isLicenseFilename(fileName)) {
 
-                    Utf8FileObj f = Utf8FileObj.of(file);
+                    Utf8Text f = new Utf8Text(file);
                     boolean isApache20 = LicenseFileUtils.isApache2(f);
                     boolean isEpl1 = LicenseFileUtils.isEpl1(f);
                     boolean isCddl = LicenseFileUtils.isCddl1(f);
@@ -146,7 +146,7 @@ public class DependencyInspector {
         }
         html.append("</ul>");
         html.append("</body></html>");
-        Utf8FileObj.of(indexHtml).writeString(html.toString());
+        new Utf8Text(indexHtml).write(html.toString());
     }
 
     /**

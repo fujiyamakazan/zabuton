@@ -1,4 +1,4 @@
-package net.nanisl.zabuton.tool;
+package com.github.fujiyamakazan.zabuton.runnable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -10,10 +10,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.nanisl.zabuton.util.ListToStringer;
-import net.nanisl.zabuton.util.exec.RuntimeExc;
-import net.nanisl.zabuton.util.file.FileDeleteUtils;
-import net.nanisl.zabuton.util.file.Utf8FileObj;
+import com.github.fujiyamakazan.zabuton.util.ListToStringer;
+import com.github.fujiyamakazan.zabuton.util.exec.RuntimeExc;
+import com.github.fujiyamakazan.zabuton.util.file.FileDeleteUtils;
+import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 
 /**
  * 配布用に最小限のJREを作成する
@@ -38,8 +38,8 @@ public class JreMaker {
 
         File modulesTxt = new File(out, "modules.txt");
 
-        Utf8FileObj fileMods = Utf8FileObj.of(modulesTxt);
-        if (out.exists() && StringUtils.equals(strMods, fileMods.readFileToString()) == false) {
+        Utf8Text fileMods = new Utf8Text(modulesTxt);
+        if (out.exists() && StringUtils.equals(strMods, fileMods.read()) == false) {
             /* モジュール情報が変更されていれば、一旦削除 */
             FileDeleteUtils.delete(out);
         }
@@ -70,7 +70,7 @@ public class JreMaker {
             }
 
             /* モジュール情報を書出す*/
-            fileMods.writeString(strMods);
+            fileMods.write(strMods);
         }
     }
 }

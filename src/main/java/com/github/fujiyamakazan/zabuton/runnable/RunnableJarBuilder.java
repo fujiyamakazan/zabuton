@@ -1,4 +1,4 @@
-package net.nanisl.zabuton.tool;
+package com.github.fujiyamakazan.zabuton.runnable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -11,8 +11,8 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.nanisl.zabuton.util.file.Utf8FileObj;
-import net.nanisl.zabuton.util.file.XmlFileObj;
+import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
+import com.github.fujiyamakazan.zabuton.util.text.XmlText;
 
 public class RunnableJarBuilder {
 
@@ -31,7 +31,7 @@ public class RunnableJarBuilder {
         log.debug("javaHome:" + javaHomeStr);
         this.javaHome = new File(javaHomeStr);
 
-        XmlFileObj projectXml = new XmlFileObj(new File(".project"));
+        XmlText projectXml = new XmlText(new File(".project"));
         this.projectName = projectXml.getTextOne("/projectDescription/name");
         log.debug("projectName:" + projectName);
 
@@ -60,7 +60,7 @@ public class RunnableJarBuilder {
             TrueFileFilter.INSTANCE) // ディレクトリ名は限定しない
         ) {
             /* jdeps.txt */
-            Utf8FileObj f = Utf8FileObj.of(jeps);
+            Utf8Text f = new Utf8Text(jeps);
             for (String line : f.readLines()) {
                 if (mods.contains(line) == false) {
                     mods.add(line);
@@ -89,8 +89,8 @@ public class RunnableJarBuilder {
     public static void createInvokeJarScripts(File dirResult, String appName, String nameJimage) {
         String bat = ".\\" + nameJimage + "\\bin\\java -jar " + appName + ".jar\n";
         String vbs = "Set ws = CreateObject(\"Wscript.Shell\")\n ws.run \"cmd /c main.bat\", vbhide\n";
-        Utf8FileObj.of(new File(dirResult, "main.bat")).writeString(bat);
-        Utf8FileObj.of(new File(dirResult, "main.vbs")).writeString(vbs);
+        new Utf8Text(new File(dirResult, "main.bat")).write(bat);
+        new Utf8Text(new File(dirResult, "main.vbs")).write(vbs);
     }
 
 }
