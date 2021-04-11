@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html xmlns:wicket="http://wicket.apache.org" lang="ja">
+<head>
+<wicket:head>
+	<script type="text/javascript">
+		/* エリア外へのファイルドロップにブラウザが反応しないようにする */
+		window.addEventListener('dragover', function(ev) {
+			ev.preventDefault();
+		}, false);
+		/* エリア外へのファイルドロップにブラウザが反応しないようにする */
+		window.addEventListener('drop', function(ev) {
+			ev.preventDefault();
+			ev.stopPropagation();
+		}, false);
+	</script>
+</wicket:head>
+</head>
+<body>
+	<wicket:panel>
+		<ul wicket:id="list">
+			<li wicket:id="lv">
+				<span wicket:id="name">abc.txt</span>
+				<span wicket:id="size">x.xKB byte</span>
+				[<a href="" wicket:id="delete">×</a>]
+			</li>
+		</ul>
+	</wicket:panel>
+</body>
+</html>
