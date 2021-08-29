@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,11 @@ public class RunnableJarBuilder {
 
         String javaHomeStr = System.getenv("JAVA_HOME");
         log.debug("javaHome:" + javaHomeStr);
+
+        if (StringUtils.isEmpty(javaHomeStr)) {
+            throw new RuntimeException("環境変数「JAVA_HOME」が登録されていません。");
+        }
+
         this.javaHome = new File(javaHomeStr);
 
         XmlText projectXml = new XmlText(new File(".project"));
