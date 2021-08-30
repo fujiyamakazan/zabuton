@@ -1,5 +1,6 @@
 package com.github.fujiyamakazan.zabuton.util.text;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.List;
 
@@ -30,7 +31,7 @@ public abstract class KeyValuesText implements Serializable {
     }
 
     public KeyValuesText(String pathname) {
-        this(new Utf8Text(pathname));
+        this(new Utf8Text(new File(pathname)));
     }
 
     /**
