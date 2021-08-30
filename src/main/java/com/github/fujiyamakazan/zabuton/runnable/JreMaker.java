@@ -56,8 +56,6 @@ public class JreMaker {
                 "--compress=2",
                 "--module-path", jmods.getAbsolutePath(),
                 "--add-modules", strMods,
-                //					"--launcher", // TODO ランチャー？
-                //					"sample=com.example.musiccopy/com.example.musiccopy.MusicCopy",
                 "--output", out.getAbsolutePath());
 
             log.debug(runtimeExcJLink.getOutText());
