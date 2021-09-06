@@ -56,7 +56,7 @@ public class ALine implements Serializable {
         private boolean use = false;
         private Integer hour = 0;
         private String token = "";
-        private String msg = "";
+        private String message = "";
         private boolean start = false;
 
         public SettingItems(String params) {
@@ -89,7 +89,7 @@ public class ALine implements Serializable {
                     token = value;
                 }
                 if (StringUtils.equals(key, "msg")) {
-                    msg = value;
+                    message = value;
                 }
                 if (StringUtils.equals(key, "start")) {
                     start = StringUtils.equals(value, "1");
@@ -119,11 +119,11 @@ public class ALine implements Serializable {
         public void setToken(String token) {
             this.token = token;
         }
-        public String getMsg() {
-            return msg;
+        public String getMessage() {
+            return message;
         }
-        public void setMsg(String msg) {
-            this.msg = msg;
+        public void setMessage(String message) {
+            this.message = message;
         }
         public boolean isStart() {
             return start;
@@ -134,7 +134,7 @@ public class ALine implements Serializable {
 
         @Override
         public String toString() {
-            return "A-LINE設定 [use=" + use + ", hour=" + hour + ", token=" + token + ", msg=" + msg + ", start="
+            return "A-LINE設定 [use=" + use + ", hour=" + hour + ", token=" + token + ", message=" + message + ", start="
                 + start + "]";
         }
     }
@@ -255,7 +255,7 @@ public class ALine implements Serializable {
             if (send) {
                 try {
 
-                    String msg = this.settingItems.msg;
+                    String msg = this.settingItems.message;
 
                     if (isFirst) {
                         /* 最後のバックアップの情報も追加 */
@@ -309,7 +309,7 @@ public class ALine implements Serializable {
         text += "use=" + (this.settingItems.use ? "1" : "0") + ",";
         text += "hour=" + this.settingItems.hour + ",";
         text += "token=" + this.settingItems.token + ",";
-        text += "msg=" + this.settingItems.msg + ",";
+        text += "msg=" + this.settingItems.message + ",";
         text += "start=" + (this.settingItems.start ? "1" : "0") + ",";
 
         try {
