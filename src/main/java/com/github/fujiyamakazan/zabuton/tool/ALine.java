@@ -262,12 +262,14 @@ public class ALine implements Serializable {
                         List<String> logLines = new Utf8Text(aliveLog).readLines();
                         Collections.reverse(logLines);
                         for (String line: logLines) {
-                            if (StringUtils.startsWith(line, "WindowsBackupEnd")) {
+                            if (StringUtils.endsWith(line, "WindowsBackupEnd")) {
                                 msg += "\n 最後のバックアップ情報\n" + line;
-                                continue;
+                                break;
                             }
                         }
                     }
+
+                    writeLog("通知します。[" + msg + "]");
 
                     /* 送信 */
                     line(msg);
