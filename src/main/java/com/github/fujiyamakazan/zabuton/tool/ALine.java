@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.github.fujiyamakazan.zabuton.util.ExceptionToStringer;
+import com.github.fujiyamakazan.zabuton.util.ThrowableToString;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 
 /**
@@ -78,7 +78,6 @@ public class ALine implements Serializable {
                     value = "";
                 }
 
-
                 if (StringUtils.equals(key, "use")) {
                     use = StringUtils.equals(value, "1");
                 }
@@ -104,30 +103,39 @@ public class ALine implements Serializable {
         public boolean isUse() {
             return use;
         }
+
         public void setUse(boolean use) {
             this.use = use;
         }
+
         public Integer getHour() {
             return hour;
         }
+
         public void setHour(Integer hour) {
             this.hour = hour;
         }
+
         public String getToken() {
             return token;
         }
+
         public void setToken(String token) {
             this.token = token;
         }
+
         public String getMessage() {
             return message;
         }
+
         public void setMessage(String message) {
             this.message = message;
         }
+
         public boolean isStart() {
             return start;
         }
+
         public void setStart(boolean start) {
             this.start = start;
         }
@@ -135,12 +143,11 @@ public class ALine implements Serializable {
         @Override
         public String toString() {
             return "A-LINE設定 [use=" + use + ", hour=" + hour + ", token=" + token + ", message=" + message + ", start="
-                + start + "]";
+                    + start + "]";
         }
     }
 
     private SettingItems settingItems;
-
 
     public static void execute(String[] args) {
         new ALine().run(args);
@@ -179,15 +186,24 @@ public class ALine implements Serializable {
      */
     public void run(String[] args) {
 
+        boolean test = false;
         /*
          * パラメータ[set]があれば、設定処理へ。
          */
-        if (args != null && args.length > 0 && StringUtils.equals(args[0], "set")) {
-            /* パラメータから設定 */
-            this.settingItems = new SettingItems(args[1]);
-            return;
-        }
+        if (args != null && args.length > 0) {
+            if (StringUtils.equals(args[0], "set")) {
+                /* パラメータから設定 */
+                setting(new SettingItems(args[1]));
+                return;
 
+            } else if (StringUtils.equals(args[0], "test")) {
+                test = true;
+
+            } else {
+                writeLog("パラメータが不正です。[" + args[0] + "]");
+                return;
+            }
+        }
 
         try {
             /* 処理の前に本日分のログがあるかを判定 */
@@ -196,12 +212,8 @@ public class ALine implements Serializable {
             /* ログを記録する */
             writeLog("PcAlive");
 
-            final boolean test;
             if (args != null && args.length > 0 && StringUtils.equals(args[0], "test")) {
-                test = true;
                 writeLog("A-LINEをテストします。");
-            } else {
-                test = false;
             }
 
             if (setting.exists() == false) {
@@ -219,7 +231,6 @@ public class ALine implements Serializable {
                 throw new RuntimeException(e);
             }
             this.settingItems = new SettingItems(text);
-
 
             /* 「有効化」されていなければ送信しない */
             if (this.settingItems.use == false) {
@@ -258,10 +269,13 @@ public class ALine implements Serializable {
                     String msg = this.settingItems.message;
 
                     if (isFirst) {
+
+                        msg += "本日最初の確認です。";
+
                         /* 最後のバックアップの情報も追加 */
                         List<String> logLines = new Utf8Text(aliveLog).readLines();
                         Collections.reverse(logLines);
-                        for (String line: logLines) {
+                        for (String line : logLines) {
                             if (StringUtils.endsWith(line, "WindowsBackupEnd")) {
                                 msg += "\n 最後のバックアップ情報\n" + line;
                                 break;
@@ -289,7 +303,7 @@ public class ALine implements Serializable {
 
             /* ログ出力 */
             writeLog("エラーが発生しました。" + e.getMessage());
-            writeLog(ExceptionToStringer.convetToString(e));
+            writeLog(ThrowableToString.convertToString(e));
         }
     }
 
@@ -297,6 +311,7 @@ public class ALine implements Serializable {
         /* ログを記録する */
         writeLog("WindowsBackupStart");
     }
+
     public void writeWindowsBackupEnd() {
         /* ログを記録する */
         writeLog("WindowsBackupEnd");
@@ -447,8 +462,5 @@ public class ALine implements Serializable {
     public boolean existSetting() {
         return setting.exists();
     }
-
-
-
 
 }
