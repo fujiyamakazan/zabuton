@@ -362,7 +362,7 @@ public class ALine implements Serializable {
             try (OutputStream os = conn.getOutputStream();
                     PrintWriter writer = new PrintWriter(os)) {
 
-                writer.append("message=").append(URLEncoder.encode(getHostName() + " " + message, "UTF-8")).flush();
+                writer.append("message=").append(URLEncoder.encode("[" + getHostName() + "]" + message, "UTF-8")).flush();
 
                 int httpStatus = conn.getResponseCode();
                 if (httpStatus == 401) {
