@@ -143,7 +143,7 @@ public class ALine implements Serializable {
         @Override
         public String toString() {
             return "A-LINE設定 [use=" + use + ", hour=" + hour + ", token=" + token + ", message=" + message + ", start="
-                    + start + "]";
+                + start + "]";
         }
     }
 
@@ -348,8 +348,8 @@ public class ALine implements Serializable {
             boolean useProxy = (proxyHost() != null) && (proxyPort() != null);
             if (useProxy) {
                 SocketAddress addr = new InetSocketAddress(
-                        proxyHost(),
-                        Integer.valueOf(proxyPort()));
+                    proxyHost(),
+                    Integer.valueOf(proxyPort()));
                 Proxy proxy = new Proxy(Proxy.Type.HTTP, addr);
                 conn = (HttpURLConnection) url.openConnection(proxy);
             } else {
@@ -360,9 +360,10 @@ public class ALine implements Serializable {
             conn.addRequestProperty("Authorization", "Bearer " + this.settingItems.token);
 
             try (OutputStream os = conn.getOutputStream();
-                    PrintWriter writer = new PrintWriter(os)) {
+                PrintWriter writer = new PrintWriter(os)) {
 
-                writer.append("message=").append(URLEncoder.encode("[" + getHostName() + "]" + message, "UTF-8")).flush();
+                writer.append("message=").append(URLEncoder.encode(
+                    "[" + getHostName() + "]" + message, "UTF-8")).flush();
 
                 int httpStatus = conn.getResponseCode();
                 if (httpStatus == 401) {
@@ -370,7 +371,7 @@ public class ALine implements Serializable {
                 }
 
                 try (InputStream is = conn.getInputStream();
-                        BufferedReader r = new BufferedReader(new InputStreamReader(is))) {
+                    BufferedReader r = new BufferedReader(new InputStreamReader(is))) {
                     String result = r.lines().collect(Collectors.joining());
                     if (result.contains("\"message\":\"ok\"") == false) {
                         throw new Exception(result);
@@ -390,8 +391,8 @@ public class ALine implements Serializable {
      */
     private void writeLog(String msg) {
         String text = getNow()
-                + "[" + getHostName() + "]"
-                + "" + msg;
+            + "[" + getHostName() + "]"
+            + "" + msg;
         try {
             FileUtils.write(aliveLog, text + "\r\n", StandardCharsets.UTF_8, true);
         } catch (IOException e) {
