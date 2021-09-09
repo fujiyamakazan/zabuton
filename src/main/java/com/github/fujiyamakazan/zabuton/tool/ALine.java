@@ -277,7 +277,7 @@ public class ALine implements Serializable {
                         Collections.reverse(logLines);
                         for (String line : logLines) {
                             if (StringUtils.endsWith(line, "WindowsBackupEnd")) {
-                                msg += "\n 最後のバックアップ情報\n" + line;
+                                msg += "\n最後のバックアップ情報[" + line + "]";
                                 break;
                             }
                         }
