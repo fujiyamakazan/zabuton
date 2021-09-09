@@ -50,6 +50,10 @@ public class ALine implements Serializable {
     private File setting = new File("a-line.setting.txt");
     private File aliveLog = new File("a-line.log.txt");
 
+    public static void main(String[] args) {
+        new ALine().run(new String[] {""});
+    }
+
     public class SettingItems implements Serializable {
         private static final long serialVersionUID = 1L;
 
@@ -277,7 +281,7 @@ public class ALine implements Serializable {
                         Collections.reverse(logLines);
                         for (String line : logLines) {
                             if (StringUtils.endsWith(line, "WindowsBackupEnd")) {
-                                msg += "\n最後のバックアップ情報[" + line + "]";
+                                msg += " 最後のバックアップ情報[" + line + "]";
                                 break;
                             }
                         }
