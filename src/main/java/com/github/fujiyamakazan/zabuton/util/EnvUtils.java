@@ -10,4 +10,8 @@ public class EnvUtils {
     public static File getUserDownload() {
         return new File(System.getenv("USERPROFILE") + "\\Downloads");
     }
+
+    public static File getUserMusic() {
+        return new File(System.getenv("USERPROFILE") + "\\Music");
+    }
 }

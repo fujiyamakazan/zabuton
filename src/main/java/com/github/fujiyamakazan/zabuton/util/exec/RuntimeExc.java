@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Runtime#exc のユーティリティ
+ * Runtime#exc のユーティリティです。
  * @author fujiyama
  */
 public class RuntimeExc implements Serializable {
@@ -31,16 +31,38 @@ public class RuntimeExc implements Serializable {
     /* リターンコード = 0 */
     private boolean success = false;
 
+    /**
+     * コマンドを実行します。
+     * @param params コマンド
+     * @return リターンコードが0のときにTrueを返します。
+     */
+    public static boolean execute(String... params) {
+        RuntimeExc me = new RuntimeExc();
+        me.exec(params);
+
+        if (me.isSuccess() == false) {
+            throw new RuntimeException(me.getErrText());
+        }
+
+        return me.success;
+    }
+
+    /**
+     * コマンドプロンプトを実行します。
+     * @param command コマンド
+     * @return リターンコードが0のときにTrueを返します。
+     */
+    public static boolean executeCmd(String command) {
+
+        return execute(new String[] {"cmd", "/c", command});
+    }
+
+    /**
+     * コマンドを実行します。
+     * @param params コマンド
+     */
     public void exec(String... params) {
         String enc = System.getProperty("os.name").toLowerCase().startsWith("windows") ? "MS932" : "UTF-8";
-
-        //		for (int i = 0; i < params.length; i++) {
-        //			String str = params[i];
-        //			if (str.contains(" ")) {
-        //				str = "\"" + str + "\"";
-        //				params[i] = str;
-        //			}
-        //		}
 
         Runtime runtime = Runtime.getRuntime();
         Process process;
@@ -51,7 +73,8 @@ public class RuntimeExc implements Serializable {
         }
 
         try (InputStream in = process.getInputStream();
-            BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName(enc)));) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName(enc)));
+                ) {
             String line;
             try {
                 while ((line = br.readLine()) != null) {
@@ -66,7 +89,7 @@ public class RuntimeExc implements Serializable {
         }
 
         try (InputStream in = process.getErrorStream();
-            BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName(enc)));) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName(enc)));) {
             try {
                 String line;
                 while ((line = br.readLine()) != null) {
@@ -94,6 +117,9 @@ public class RuntimeExc implements Serializable {
         return this.errs;
     }
 
+    /**
+     * 標準出力を返します。
+     */
     public String getOutText() {
         StringBuilder sb = new StringBuilder();
         for (String line : this.outs) {
@@ -102,6 +128,9 @@ public class RuntimeExc implements Serializable {
         return sb.toString();
     }
 
+    /**
+     * 標準エラーを返します。
+     */
     public String getErrText() {
         StringBuilder sb = new StringBuilder();
         for (String line : this.errs) {

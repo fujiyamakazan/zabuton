@@ -25,9 +25,9 @@ public class JreMaker {
     private static final Logger log = LoggerFactory.getLogger(JreMaker.class);
 
     /**
-     * 配布用に最小限のJREを作成する
+     * 配布用に最小限のJREを作成します。
      *
-     * @param target 作成先
+     * @param out 作成先
      * @param mods モジュール（カンマ区切り）
      */
     public static void createJre(File jdk, File out, Collection<String> mods) {
