@@ -19,19 +19,55 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.lang.Generics;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * リソースに関わる処理の集約.
+ * リソースのユーティリティです。
  * @author fujiyama
  */
 public class ResourceUtils {
 
-    @SuppressWarnings("unused")
-    private static final Logger log = LoggerFactory.getLogger(ResourceUtils.class);
+    /**
+     * [base]と同階層にあるリソースを文字列として取得します。
+     * @param path リソースのパス
+     * @param base リソースを検索する基点
+     * @return 取得した文字列
+     */
+    public static String getAsText(String path, Class<?> base, Charset charset) {
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        InputStream inputStream = null;
+        BufferedReader reader = null;
+        try {
+            if (base != null) {
+                inputStream = base.getResourceAsStream(path);
+            } else {
+                inputStream = classLoader.getResourceAsStream(path);
+            }
+            if (inputStream == null) {
+                throw new RuntimeException(path + " not found.");
+            }
+            reader = new BufferedReader(new InputStreamReader(inputStream, charset));
+            return IOUtils.toString(reader);
 
-    private static final Charset CHARSET = StandardCharsets.UTF_8;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
 
     /**
      * クラスパスにあるリソースをUTF-8の文字列として取得します。
@@ -60,46 +96,7 @@ public class ResourceUtils {
      * @return 取得した文字列
      */
     public static String getAsUtf8Text(String path, Class<?> base) {
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        InputStream inputStream = null;
-        BufferedReader reader = null;
-        try {
-            if (base != null) {
-                inputStream = base.getResourceAsStream(path);
-            } else {
-                inputStream = classLoader.getResourceAsStream(path);
-            }
-            if (inputStream == null) {
-                throw new RuntimeException(path + " not found.");
-            }
-            reader = new BufferedReader(new InputStreamReader(inputStream, CHARSET));
-//            StringBuilder sb = new StringBuilder();
-//            String line;
-//            while ((line = reader.readLine()) != null) {
-//                sb.append(line);
-//            }
-//            return sb.toString();
-            return IOUtils.toString(reader);
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
+        return getAsText(path, base, StandardCharsets.UTF_8);
     }
 
     /**
@@ -124,7 +121,7 @@ public class ResourceUtils {
 
             String[] aryPath = url.getPath().split(":");
             String path = aryPath[aryPath.length - 1].split("!")[0];
-            path = URLDecoder.decode(path, CHARSET); // パスに日本語が含まれるとURLエンコードされるため
+            path = URLDecoder.decode(path, StandardCharsets.UTF_8); // パスに日本語が含まれるとURLエンコードされるため
 
             return findClassesJar(packageName, new File(path));
 
@@ -146,7 +143,7 @@ public class ResourceUtils {
                     fullName = fullName.replaceAll("/", ".");
                     if (fullName.endsWith(".class")) {
                         String fullNameWithoutExtension = fullName.substring(0,
-                            fullName.length() - ".class".length());
+                                fullName.length() - ".class".length());
                         try {
                             result.add(Class.forName(fullNameWithoutExtension));
                         } catch (ClassNotFoundException e) {
@@ -174,7 +171,7 @@ public class ResourceUtils {
                 try {
                     String name = entry.getName();
                     classes.add(classLoader.loadClass(packageName + "."
-                        + name.substring(0, name.length() - ".class".length())));
+                            + name.substring(0, name.length() - ".class".length())));
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
