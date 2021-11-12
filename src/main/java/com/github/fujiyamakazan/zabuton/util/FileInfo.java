@@ -1,5 +1,6 @@
 package com.github.fujiyamakazan.zabuton.util;
 
+import java.io.File;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +15,7 @@ public class FileInfo {
     private final String name;
     private final List<FileInfo> children;
     private final FileInfo parent;
+    private File file;
 
     /**
      * コンストラクタです。必ず親のオブジェクトを示します。
@@ -36,8 +38,8 @@ public class FileInfo {
 
     }
 
-    public static FileInfo ofRoot() {
-        return new FileInfo(null, "root");
+    public static FileInfo ofRoot(String name) {
+        return new FileInfo(null, name);
     }
 
     public String getName() {
@@ -55,7 +57,13 @@ public class FileInfo {
         if (this.parent == null) {
             return this.name;
         }
-        return getParent().getFullName() + "/" + this.name;
+        String parentFullName = getParent().getFullName();
+        if (StringUtils.isEmpty(parentFullName)) {
+            return this.name;
+        } else {
+            return parentFullName + "/" + this.name;
+        }
+
     }
 
     /**
@@ -114,27 +122,56 @@ public class FileInfo {
     }
 
     /**
-     * 子要素として追加します。すでに同じものがあれば、重複させずにマージします。
-     * @param other 追加する子要素。
+     * マージします
      */
-    public void joinChild(FileInfo other) {
-        /* 同じものがあればマージ */
+    public void merge(FileInfo other) {
+        //        /* 同じものがあればマージ */
+        //
+        //        FileInfo same = null;
+        //        for (FileInfo child : this.children) {
+        //            if (StringUtils.equals(child.getName(), other.getName())) {
+        //                same = child;
+        //                break;
+        //            }
+        //        }
+        //        if (same == null) {
+        //            /* 単純追加 */
+        //            this.children.add(other);
+        //
+        //        } else {
+        //            /* 同じ要素に孫要素をJoin */
+        //            for (FileInfo otherChild : other.children) {
+        //                same.joinChild(otherChild);
+        //            }
+        //        }
 
-        FileInfo same = null;
-        for (FileInfo child : this.children) {
-            if (StringUtils.equals(child.getName(), other.getName())) {
-                same = child;
-                break;
+        /* 名称が異なればエラー */
+        if (this.name.equals(other.name) == false) {
+            throw new RuntimeException();
+        }
+
+        /* parentが異なればエラー */
+        if (this.parent != null || other.parent != null) {
+            if (this.parent.name.equals(other.parent.name) == false) {
+                throw new RuntimeException();
             }
         }
-        if (same == null) {
-            /* 単純追加 */
-            this.children.add(other);
 
-        } else {
-            /* 同じ要素に孫要素をJoin */
-            for (FileInfo otherChild : other.children) {
-                same.joinChild(otherChild);
+        /*
+         * 子をマージ
+         */
+        for (FileInfo otherChild : other.children) {
+            FileInfo sameChild = null;
+            for (FileInfo child : this.children) {
+                if (otherChild.name.equals(child.name)) {
+                    sameChild = child;
+                    break;
+                }
+            }
+            if (sameChild != null) {
+                sameChild.merge(otherChild);
+            } else {
+                this.children.add(otherChild);
             }
         }
 
@@ -148,6 +185,47 @@ public class FileInfo {
             string += "\n└" + childString.toString().replaceAll("\n", "\n　");
         }
         return string;
+    }
+
+    /**
+     * ファイル名が一致するかを判定します。
+     * @param other 比較対象
+     */
+    public boolean isSame(FileInfo other) {
+
+        if (getName().equals(other.getName()) == false) {
+            return false;
+        }
+
+        /* 「トラック」という名前は同一とは言えない */
+        if (getName().contains("トラック")
+            || getName().contains("ﾄﾗｯｸ")
+            || getName().toLowerCase().contains("track")) {
+            return false;
+        }
+
+        File me = getReal();
+        File otherFile = other.getReal();
+
+        if (me.getName().equals(otherFile.getName())
+            //&& me.length() == otherFile.length()
+            ) {
+            return true;
+
+        } else {
+            return false;
+
+        }
+    }
+
+    public File getReal() {
+        if (this.file == null) {
+            this.file = new File(this.getFullName());
+            if (this.file.exists() == false) {
+                throw new RuntimeException("[" + this.file.getAbsolutePath() + "]がありません。");
+            }
+        }
+        return this.file;
     }
 
 }
