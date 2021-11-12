@@ -157,6 +157,12 @@
 			<artifactId>jsoup</artifactId>
 			<version>1.14.2</version>
 		</dependency>
+		<!-- com.github.fujiyamakazan.zabuton.example.StudyOfCharset.java -->
+		<dependency>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>icu4j</artifactId>
+			<version>69.1</version>
+		</dependency>
 	</dependencies>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
