@@ -1,6 +1,7 @@
 package com.github.fujiyamakazan.zabuton.util.exec;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -55,6 +56,11 @@ public class RuntimeExc implements Serializable {
     public static boolean executeCmd(String command) {
 
         return execute(new String[] {"cmd", "/c", command});
+    }
+
+    public static boolean executeCmdToUtf8Text(String command, File out) {
+        String arg2 = "chcp 65001|" + command + " > " + out.getAbsolutePath();
+        return execute(new String[] {"cmd", "/c", arg2});
     }
 
     /**
@@ -142,5 +148,7 @@ public class RuntimeExc implements Serializable {
     public boolean isSuccess() {
         return this.success;
     }
+
+
 
 }

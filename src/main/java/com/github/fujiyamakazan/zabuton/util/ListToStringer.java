@@ -1,5 +1,6 @@
 package com.github.fujiyamakazan.zabuton.util;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -10,8 +11,13 @@ import java.util.List;
 public class ListToStringer {
 
     public static String convert(List<?> list) {
-        return convert(list, "\n");
+        //return convert(list, "\n");
+        return convert(list, ","); // 2021.9.12
     }
+
+    /**
+     * リストをdelimiterを区切り文字として文字列に変換します。
+     */
     public static String convert(List<?> list, String delimiter) {
         StringBuilder sb = new StringBuilder();
         for (Object e :list) {
@@ -25,6 +31,10 @@ public class ListToStringer {
             }
         }
         return sb.toString();
+    }
+
+    public static String convert(String[] strings) {
+        return convert(Arrays.asList(strings));
     }
 
 }

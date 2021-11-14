@@ -170,18 +170,18 @@ public class DependencyInspector {
                     return;
                 }
                 if (StringUtils.equals(entryName, "MANIFEST.MF")
-                    || StringUtils.equals(entryName, "DEPENDENCIES")
-                    || StringUtils.equals(entryName, "INDEX.LIST")
-                    || StringUtils.endsWith(entryName, ".class")
-                    || StringUtils.endsWith(entryName, ".xml")
-                    || StringUtils.endsWith(entryName, ".properties")
-                    || StringUtils.endsWith(entryName, ".xsd")
-                    || StringUtils.endsWith(entryName, ".json")) {
+                        || StringUtils.equals(entryName, "DEPENDENCIES")
+                        || StringUtils.equals(entryName, "INDEX.LIST")
+                        || StringUtils.endsWith(entryName, ".class")
+                        || StringUtils.endsWith(entryName, ".xml")
+                        || StringUtils.endsWith(entryName, ".properties")
+                        || StringUtils.endsWith(entryName, ".xsd")
+                        || StringUtils.endsWith(entryName, ".json")) {
                     return;
                 }
 
                 if (LicenseFileUtils.isLicenseFilename(entryName)
-                    || LicenseFileUtils.isNoteFileName(entryName)) {
+                        || LicenseFileUtils.isNoteFileName(entryName)) {
 
                     /* 保存 */
                     File f = new File(jarInfo, entryName);
@@ -214,11 +214,11 @@ public class DependencyInspector {
         err = err.trim();
 
         if (StringUtils.contains(outText, "エラー:")
-            && StringUtils.contains(outText, "はマルチリリースjarファイルですが--multi-releaseオプションが設定されていません")) {
+                && StringUtils.contains(outText, "はマルチリリースjarファイルですが--multi-releaseオプションが設定されていません")) {
 
             runtimeExc = new RuntimeExc();
             String[] params2 = ArrayUtils.addAll(params,
-                new String[] { "--multi-release", "9", jar.getAbsolutePath() });
+                    new String[] { "--multi-release", "9", jar.getAbsolutePath() });
             runtimeExc.exec(params2);
         }
 

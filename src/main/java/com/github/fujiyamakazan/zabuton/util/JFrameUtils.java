@@ -18,7 +18,7 @@ public class JFrameUtils {
         JFrame frame = new JFrame();
         frame.setAlwaysOnTop(true); // 最前面
         JOptionPane.showMessageDialog(
-            frame, message, "メッセージ", JOptionPane.YES_OPTION);
+                frame, message, "メッセージ", JOptionPane.YES_OPTION);
     }
 
 }

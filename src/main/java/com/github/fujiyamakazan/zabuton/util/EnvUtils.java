@@ -14,4 +14,12 @@ public class EnvUtils {
     public static File getUserMusic() {
         return new File(System.getenv("USERPROFILE") + "\\Music");
     }
+
+    public static File getUserPicture() {
+        return new File(System.getenv("USERPROFILE") + "\\Pictures");
+    }
+
+    public static File getUserLocalTemp() {
+        return new File(System.getenv("USERPROFILE") + "\\AppData\\Local\\Temp");
+    }
 }
