@@ -80,7 +80,7 @@ public abstract class TextFile implements Serializable {
 
     protected boolean doTrim() {
         return true;
-    };
+    }
 
     /**
      * 文字セット「UTF-8」を指定してファイルからテキストを取得します。

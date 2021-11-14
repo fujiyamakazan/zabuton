@@ -38,9 +38,11 @@ public abstract class AbstractWebContainerStarter {
     private final Class<?> appClass;
 
     private boolean running = false;
+
     public boolean isRunning() {
         return running;
     }
+
     private int port;
 
     private String subParams;
@@ -49,7 +51,6 @@ public abstract class AbstractWebContainerStarter {
         this.appClass = appClass;
         this.port = getPortStart();
     }
-
 
     public AbstractWebContainerStarter(Class<?> appClass, String subParams) {
         this.appClass = appClass;
@@ -60,7 +61,6 @@ public abstract class AbstractWebContainerStarter {
     protected int getPortStart() {
         return DEFAULT_PORT;
     }
-
 
     /**
      * ポートをチェックして、Webコンテナを開始します。
