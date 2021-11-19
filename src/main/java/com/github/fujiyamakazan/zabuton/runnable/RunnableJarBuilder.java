@@ -62,8 +62,8 @@ public class RunnableJarBuilder {
         /* 必須モジュールの一覧を作成する */
         List<String> mods = new ArrayList<String>();
         for (File jeps : FileUtils.listFiles(dirDependencyInfo,
-            FileFilterUtils.nameFileFilter(JDEPS_TXT), // ファイル名のフィルタ
-            TrueFileFilter.INSTANCE) // ディレクトリ名は限定しない
+                FileFilterUtils.nameFileFilter(JDEPS_TXT), // ファイル名のフィルタ
+                TrueFileFilter.INSTANCE) // ディレクトリ名は限定しない
         ) {
             /* jdeps.txt */
             Utf8Text f = new Utf8Text(jeps);

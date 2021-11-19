@@ -101,7 +101,7 @@ public abstract class AbstractWebContainerStarter {
     }
 
     private void tryStartServer(int retryCount)
-        throws ApplicationAlreadyException, PortAlreadyException {
+            throws ApplicationAlreadyException, PortAlreadyException {
 
         /*
          * ポートの使用状況を確認する
@@ -116,7 +116,7 @@ public abstract class AbstractWebContainerStarter {
             con.connect();
 
             try (InputStream is = con.getInputStream();
-                BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+                    BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
                 StringBuilder sb = new StringBuilder();
                 String line;
                 while ((line = br.readLine()) != null) {
@@ -159,10 +159,10 @@ public abstract class AbstractWebContainerStarter {
     }
 
     protected abstract void startServer(
-        int port,
-        AppInfoServlet appInfoServlet,
-        String appInfoUrl,
-        Class<?> appClass) throws PortAlreadyException;
+            int port,
+            AppInfoServlet appInfoServlet,
+            String appInfoUrl,
+            Class<?> appClass) throws PortAlreadyException;
 
     /**
      * ブラウザで開くURLを返す。
@@ -191,7 +191,7 @@ public abstract class AbstractWebContainerStarter {
 
         @Override
         protected void service(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+                throws ServletException, IOException {
             Writer w = resp.getWriter();
             w.write(appClass.getName());
             w.flush();
@@ -214,3 +214,4 @@ public abstract class AbstractWebContainerStarter {
 
     }
 }
+
