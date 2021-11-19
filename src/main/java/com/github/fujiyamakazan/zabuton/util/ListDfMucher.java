@@ -15,7 +15,7 @@ public abstract class ListDfMucher<T> {
     private final List<T> restRight;
 
     /** [eq]メソッドをもとにマッチしたオブジェクト */
-    private List<KeyValue<T, T>> pairs = Generics.newArrayList();
+    private List<KeyValueObj<T, T>> pairs = Generics.newArrayList();
 
     public ListDfMucher(List<T> listA, List<T> listB) {
         this.restLeft = new ArrayList<T>(listA); // 参照を切る
@@ -29,7 +29,7 @@ public abstract class ListDfMucher<T> {
                 T b = iteB.next();
                 if (eq(a, b)) {
                     /* ペアとして登録する */
-                    pairs.add(new KeyValue<T, T>(a, b));
+                    pairs.add(new KeyValueObj<T, T>(a, b));
 
                     /* 処理が終わったので消し込む */
                     iteA.remove();
@@ -50,7 +50,7 @@ public abstract class ListDfMucher<T> {
         return restRight;
     }
 
-    public List<KeyValue<T,T>> getPairs() {
+    public List<KeyValueObj<T,T>> getPairs() {
         return pairs;
     }
 

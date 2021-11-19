@@ -22,4 +22,8 @@ public class EnvUtils {
     public static File getUserLocalTemp() {
         return new File(System.getenv("USERPROFILE") + "\\AppData\\Local\\Temp");
     }
+
+    public static File getAppData(String appId) {
+        return new File(System.getenv("USERPROFILE") + "\\AppData\\Roaming\\" + appId);
+    }
 }

@@ -5,7 +5,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.lang.Generics;
 
-import com.github.fujiyamakazan.zabuton.util.KeyValueString;
+import com.github.fujiyamakazan.zabuton.util.KeyValue;
 
 /**
  * 「■」から始まる「キー」とその次の行から始まる「値」で構成されるテキストファイルを読み書きします。
@@ -33,8 +33,8 @@ public class MarkOnKeyValuesText extends KeyValuesText {
     }
 
     @Override
-    public List<KeyValueString> read() {
-        List<KeyValueString> results = Generics.newArrayList();
+    public List<KeyValue> read() {
+        List<KeyValue> results = Generics.newArrayList();
 
         String head = null;
         StringBuilder sb = new StringBuilder();
@@ -46,7 +46,7 @@ public class MarkOnKeyValuesText extends KeyValuesText {
                 String buff = sb.toString();
                 if (buff.isEmpty() == false) {
                     /* バッファ処理 */
-                    results.add(new KeyValueString(head, buff.trim()));
+                    results.add(new KeyValue(head, buff.trim()));
                     head = "";
                     sb = new StringBuilder();
                 }
@@ -61,7 +61,7 @@ public class MarkOnKeyValuesText extends KeyValuesText {
         /* バッファ処理 */
         String buff = sb.toString();
         if (buff.isEmpty() == false) {
-            results.add(new KeyValueString(head, buff.trim()));
+            results.add(new KeyValue(head, buff.trim()));
         }
         return results;
     }
@@ -69,7 +69,7 @@ public class MarkOnKeyValuesText extends KeyValuesText {
     @Override
     public void write() {
         List<String> lines = Generics.newArrayList();
-        for (KeyValueString keyValue : super.keyValueString) {
+        for (KeyValue keyValue : super.keyValueString) {
             lines.add(MARK + keyValue.getKey());
             lines.add(nulToBlank(keyValue.getValue()));
         }
