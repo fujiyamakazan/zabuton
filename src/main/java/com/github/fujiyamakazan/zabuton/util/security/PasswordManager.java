@@ -7,8 +7,15 @@ import java.net.URISyntaxException;
 import org.apache.wicket.model.Model;
 
 import com.github.fujiyamakazan.zabuton.jicket.JfPage;
+import com.github.fujiyamakazan.zabuton.jicket.component.JicketButton;
+import com.github.fujiyamakazan.zabuton.jicket.component.JicketCheckBox;
+import com.github.fujiyamakazan.zabuton.jicket.component.JicketLabel;
+import com.github.fujiyamakazan.zabuton.jicket.component.JicketLink;
+import com.github.fujiyamakazan.zabuton.jicket.component.JicketPassword;
+import com.github.fujiyamakazan.zabuton.jicket.component.JicketText;
 import com.github.fujiyamakazan.zabuton.security.CipherUtils;
 import com.github.fujiyamakazan.zabuton.util.EnvUtils;
+import com.github.fujiyamakazan.zabuton.util.JFrameUtils;
 import com.github.fujiyamakazan.zabuton.util.KeyValue;
 import com.github.fujiyamakazan.zabuton.util.StringSeparator;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
@@ -84,15 +91,21 @@ public class PasswordManager {
                 }
             }
         };
-
+        final Runnable doLink = new Runnable() {
+            @Override
+            public void run() {
+                JFrameUtils.showMessageDialog("開発中です。");
+            }
+        };
 
         new JfPage() {
             @Override
             protected void onInitialize() {
-                add(new Label("[" + domain + "]のIDとパスワードを入力してください。"));
-                add(new Text("ID", modelId));
-                add(new Password("PW", modelPw));
-                add(new Button("OK", doSave), new CheckBox("端末に保存", modelSave));
+                add(new JicketLabel("[" + domain + "]のIDとパスワードを入力してください。"));
+                add(new JicketText("ID", modelId));
+                add(new JicketPassword("PW", modelPw));
+                add(new JicketButton(this, "OK", doSave), new JicketCheckBox("端末に保存", modelSave),
+                    new JicketLink("保存されているパスワードを整理する", doLink));
             }
         }.show();
 
