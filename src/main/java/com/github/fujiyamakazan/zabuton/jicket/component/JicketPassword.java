@@ -19,6 +19,9 @@ public class JicketPassword extends JfPageComponent<String> {
     private final JTextField text;
     private final JPasswordField pw;
 
+    /**
+     * コンストラクタです。
+     */
     public JicketPassword(String label, Model<String> model) {
         super(model);
 

@@ -14,15 +14,16 @@ import com.github.fujiyamakazan.zabuton.jicket.component.JfPageComponent;
 
 public abstract class JfPage {
 
+    private JfApplication app;
     private final JFrame frame;
     private final JPanel panelMain;
 
-    private final Object lock = new Object();
-
     private List<JfPageComponent<?>> components = Generics.newArrayList();
 
+    /**
+     * コンストラクタです。
+     */
     public JfPage() {
-
         frame = new JFrame();
         frame.setLocation(20, 20);
         frame.setSize(600, 300);
@@ -35,10 +36,27 @@ public abstract class JfPage {
 
         onInitialize();
 
+        for (JfPageComponent<?> pc : components) {
+            for (JComponent jc : pc.getJComplenets()) {
+                jc.setFont(new Font("ＭＳ ゴシック", Font.PLAIN, 20));
+            }
+        }
     }
 
-    public void add(JfPageComponent<?>... componets) {
+    public void setApplication(JfApplication app) {
+        this.app = app;
+        frame.addWindowListener(app.getWindowListener()); //  閉じるボタンの振舞い
+    }
 
+    public JfApplication getApplication() {
+        return this.app;
+    }
+
+    protected void onInitialize() {
+        /* 処理なし */
+    }
+
+    protected void add(JfPageComponent<?>... componets) {
         JPanel pLine = new JPanel();
         panelMain.add(pLine);
         pLine.setLayout(new BoxLayout(pLine, BoxLayout.X_AXIS));
@@ -47,40 +65,27 @@ public abstract class JfPage {
             c.setPage(this);
             c.apendTo(pLine);
         }
-
     }
 
     public void show() {
+        this.frame.setVisible(true);
+    }
 
-        for (JfPageComponent<?> pc : components) {
-            for (JComponent jc : pc.getJComplenets()) {
-                jc.setFont(new Font("ＭＳ ゴシック", Font.PLAIN, 20));
-            }
+    public void hide() {
+        this.frame.setVisible(false);
+    }
+
+    public void dispose() {
+        this.frame.dispose();
+    }
+
+    /**
+     * 画面項目の入力値をモデルに登録します。
+     */
+    public void setObjectAll() {
+        for (JfPageComponent<?> c : components) {
+            c.setObject();
         }
-        frame.setVisible(true);
-        synchronized (lock) {
-            try {
-                lock.wait();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        frame.setVisible(false);
-        frame.dispose();
-
     }
-
-    protected abstract void onInitialize();
-
-    public Object getLock() {
-        return lock;
-    }
-
-    public List<JfPageComponent<?>> getComponents() {
-        return components;
-    }
-
-
 
 }

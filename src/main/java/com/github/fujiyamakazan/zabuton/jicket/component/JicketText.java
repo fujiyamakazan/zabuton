@@ -21,7 +21,7 @@ public class JicketText extends JfPageComponent<String> {
     }
 
     @Override
-    protected void setObject() {
+    public void setObject() {
         super.model.setObject(textField.getText());
     }
 }

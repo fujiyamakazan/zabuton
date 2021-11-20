@@ -1,6 +1,7 @@
 package com.github.fujiyamakazan.zabuton.jicket.component;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.io.Serializable;
 import java.util.List;
@@ -12,6 +13,7 @@ import javax.swing.JPanel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.lang.Generics;
 
+import com.github.fujiyamakazan.zabuton.jicket.JfApplication;
 import com.github.fujiyamakazan.zabuton.jicket.JfPage;
 
 public abstract class JfPageComponent<T extends Serializable> implements Serializable {
@@ -26,11 +28,15 @@ public abstract class JfPageComponent<T extends Serializable> implements Seriali
         this.model = model;
     }
 
+    /**
+     * 引数のパネルに自身を登録します。
+     */
     public void apendTo(JPanel pLine) {
         JPanel p = new JPanel();
         pLine.add(p);
         p.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1)); // 余白
         //p.setBorder(BorderFactory.createLineBorder(Color.red));
+        p.setBackground(Color.WHITE);
 
         if (getJComplenets().size() == 1) {
             p.setLayout(new BorderLayout());
@@ -47,14 +53,14 @@ public abstract class JfPageComponent<T extends Serializable> implements Seriali
         return comps;
     }
 
-    protected abstract void setObject();
+    public abstract void setObject();
 
     public void setPage(JfPage page) {
         this.page = page;
     }
 
-    protected Object getLock() {
-        return page.getLock();
+    protected JfApplication getApplication() {
+        return this.page.getApplication();
     }
 
 

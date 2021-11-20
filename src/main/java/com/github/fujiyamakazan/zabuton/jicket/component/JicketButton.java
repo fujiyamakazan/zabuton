@@ -7,34 +7,41 @@ import javax.swing.JButton;
 
 import org.apache.wicket.model.Model;
 
-import com.github.fujiyamakazan.zabuton.jicket.JfPage;
-
-/** JicketButton */
+/**
+ * ボタンを定義します。
+ */
 public class JicketButton extends JfPageComponent<String> {
     private static final long serialVersionUID = 1L;
 
-    public JicketButton(final JfPage page, final String label, final Runnable work) {
+    /**
+     * コンストラクタです。
+     */
+    public JicketButton(final String label, final Runnable work) {
         super(Model.of(label));
         JButton button = new JButton();
         button.setText(label);
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                for (JfPageComponent<?> pc : page.getComponents()) {
-                    pc.setObject();
-                }
+
+                /* コンポーネントの入力値をモデルに登録 */
+                page.setObjectAll();
+
+                /* 実装された主処理を実行 */
                 work.run();
 
-                synchronized (getLock()) {
-                    getLock().notifyAll();
-                }
+                /* アプリケーションを終了する */
+                getApplication().close();
+
             }
+
+
         });
         super.comps.add(button);
     }
 
     @Override
-    protected void setObject() {
+    public void setObject() {
         /* 処理なし */
     }
 
