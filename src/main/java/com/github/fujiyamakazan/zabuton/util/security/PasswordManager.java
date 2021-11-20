@@ -20,6 +20,8 @@ import com.github.fujiyamakazan.zabuton.util.KeyValue;
 import com.github.fujiyamakazan.zabuton.util.StringSeparator;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 
+
+
 public class PasswordManager extends JfApplication {
 
     /**
@@ -41,6 +43,7 @@ public class PasswordManager extends JfApplication {
     }
 
     private String url;
+    private String sightKey;
 
     private final Model<String> modelId = Model.of("");
     private final Model<String> modelPw = Model.of("");
@@ -68,7 +71,21 @@ public class PasswordManager extends JfApplication {
     /**
      * 主処理を実行します。
      */
+    public void execute(String sightKey, String url) {
+        try {
+            this.sightKey =  new URI(url).getRawAuthority();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        this.url = url;
+
+        this.mainPage = new MainPage();
+        invokePage(this.mainPage);
+
+    }
+
     public void execute(String url) {
+        this.sightKey = url;
         this.url = url;
 
         this.mainPage = new MainPage();
@@ -82,18 +99,11 @@ public class PasswordManager extends JfApplication {
         protected void onInitialize() {
             super.onInitialize();
 
-            String domain;
-            try {
-                domain = new URI(url).getRawAuthority();
-            } catch (URISyntaxException e) {
-                throw new RuntimeException(e);
-            }
-
             /* 保存されているIDとPWを取得 */
-            File setting = new File(saveDir, domain);
+            File setting = new File(saveDir, sightKey);
             Utf8Text utf8Text = new Utf8Text(setting);
-            String savedText = CipherUtils.decrypt(PasswordManager.class.getSimpleName(), utf8Text.read());
             if (setting.exists()) {
+                String savedText = CipherUtils.decrypt(PasswordManager.class.getSimpleName(), utf8Text.read());
                 for (String line : savedText.split("\n")) {
                     KeyValue kv = StringSeparator.sparate(line, '=');
                     if (kv.getKey().equals("id")) {
@@ -111,7 +121,6 @@ public class PasswordManager extends JfApplication {
                 public void run() {
                     if (modelSave.getObject()) {
                         StringBuilder data = new StringBuilder();
-                        data.append("domain=" + domain + "\n");
                         data.append("id=" + modelId.getObject() + "\n");
                         data.append("pw=" + modelPw.getObject() + "\n");
                         String text = CipherUtils.encrypt(PasswordManager.class.getSimpleName(), data.toString()); // 暗号化
@@ -126,7 +135,7 @@ public class PasswordManager extends JfApplication {
                 }
             };
 
-            add(new JicketLabel("[" + domain + "]のIDとパスワードを入力してください。"));
+            add(new JicketLabel("[" + sightKey + "]のIDとパスワードを入力してください。"));
             add(new JicketText("ID", modelId));
             add(new JicketPassword("PW", modelPw));
             add(new JicketButton("OK", doSave), new JicketCheckBox("端末に保存", modelSave),
@@ -143,7 +152,7 @@ public class PasswordManager extends JfApplication {
             final Runnable doDelete = new Runnable() {
                 @Override
                 public void run() {
-                    for (File f: saveDir.listFiles()) {
+                    for (File f : saveDir.listFiles()) {
                         f.delete();
                     }
                 }
@@ -160,7 +169,5 @@ public class PasswordManager extends JfApplication {
         }
 
     }
-
-
 
 }
