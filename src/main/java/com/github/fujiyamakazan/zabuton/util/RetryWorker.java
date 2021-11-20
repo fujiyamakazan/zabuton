@@ -34,5 +34,4 @@ public abstract class RetryWorker implements Serializable {
 
     protected abstract void recovery();
 
-
 }
