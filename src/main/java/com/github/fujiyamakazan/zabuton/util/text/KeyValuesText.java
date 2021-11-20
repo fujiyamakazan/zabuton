@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.fujiyamakazan.zabuton.util.KeyValueString;
+import com.github.fujiyamakazan.zabuton.util.KeyValue;
 
 /**
  * キーと値のペアを定義したテキストファイルの読み書きをします。
@@ -24,7 +24,7 @@ public abstract class KeyValuesText implements Serializable {
 
     protected Utf8Text utf8File;
 
-    protected List<KeyValueString> keyValueString = null;
+    protected List<KeyValue> keyValueString = null;
 
     public KeyValuesText(Utf8Text utf8File) {
         this.utf8File = utf8File;
@@ -39,7 +39,7 @@ public abstract class KeyValuesText implements Serializable {
      * 内部的（このクラス、およびサブクラス）による遅延処理を目的にしているため、
      * publicにはしません。
      */
-    protected abstract List<KeyValueString> read();
+    protected abstract List<KeyValue> read();
 
     /**
      * テキストファイルに保存する処理を実装します。
@@ -55,7 +55,7 @@ public abstract class KeyValuesText implements Serializable {
         if (keyValueString == null) {
             this.keyValueString = read();
         }
-        for (KeyValueString kv: this.keyValueString) {
+        for (KeyValue kv: this.keyValueString) {
             if (StringUtils.equals(kv.getKey(), key)) {
                 return kv.getValue();
             }
@@ -73,14 +73,14 @@ public abstract class KeyValuesText implements Serializable {
             this.keyValueString = read();
         }
         boolean exist = false;
-        for (KeyValueString kv: this.keyValueString) {
+        for (KeyValue kv: this.keyValueString) {
             if (StringUtils.equals(kv.getKey(), key)) {
                 kv.setValue(value);
                 exist = true;
             }
         }
         if (exist == false) {
-            this.keyValueString.add(new KeyValueString(key, value));
+            this.keyValueString.add(new KeyValue(key, value));
         }
     }
 

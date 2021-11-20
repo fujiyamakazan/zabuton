@@ -143,7 +143,7 @@ public class ResourceUtils {
                     fullName = fullName.replaceAll("/", ".");
                     if (fullName.endsWith(".class")) {
                         String fullNameWithoutExtension = fullName.substring(0,
-                                fullName.length() - ".class".length());
+                            fullName.length() - ".class".length());
                         try {
                             result.add(Class.forName(fullNameWithoutExtension));
                         } catch (ClassNotFoundException e) {
@@ -153,8 +153,8 @@ public class ResourceUtils {
                 }
             }
             return result;
-        } catch (IOException e1) {
-            throw new RuntimeException(e1);
+        } catch (IOException ioe) {
+            throw new RuntimeException(ioe);
         }
     }
 
@@ -171,7 +171,7 @@ public class ResourceUtils {
                 try {
                     String name = entry.getName();
                     classes.add(classLoader.loadClass(packageName + "."
-                            + name.substring(0, name.length() - ".class".length())));
+                        + name.substring(0, name.length() - ".class".length())));
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
@@ -188,7 +188,8 @@ public class ResourceUtils {
     //         */
     //        String resourceAtRoot = getAsUtf8Text("logback.xml");
     //        log.debug(resourceAtRoot);
-    //        String resourceAtJar = getAsUtf8Text("org/apache/wicket/extensions/ajax/markup/html/AjaxEditableLabel.html");
+    //        String resourceAtJar = getAsUtf8Text("org/apache/wicket/extensions
+    ///ajax/markup/html/AjaxEditableLabel.html");
     //        log.debug(resourceAtJar);
     //        String siblings = getAsUtf8Text("ResourceUtils.txt", ResourceUtils.class);
     //        log.debug(siblings);

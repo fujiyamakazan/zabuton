@@ -20,7 +20,7 @@ public abstract class RetryWorker implements Serializable {
                 run();
                 break;
             } catch (Exception e) {
-                log.debug(ThrowableToString.convertToString(e));
+                //log.debug(ThrowableToString.convertToString(e));
 
                 if (count++ > 10) {
                     throw new RuntimeException(e);

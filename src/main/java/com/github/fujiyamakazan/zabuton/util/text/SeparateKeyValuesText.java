@@ -5,7 +5,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.lang.Generics;
 
-import com.github.fujiyamakazan.zabuton.util.KeyValueString;
+import com.github.fujiyamakazan.zabuton.util.KeyValue;
 import com.github.fujiyamakazan.zabuton.util.string.SubstringUtils;
 
 /**
@@ -33,8 +33,8 @@ public class SeparateKeyValuesText extends KeyValuesText {
     }
 
     @Override
-    public List<KeyValueString> read() {
-        List<KeyValueString> results = Generics.newArrayList();
+    public List<KeyValue> read() {
+        List<KeyValue> results = Generics.newArrayList();
 
         List<String> lines = utf8File.readLines();
         for (String line : lines) {
@@ -46,7 +46,7 @@ public class SeparateKeyValuesText extends KeyValuesText {
                 } else {
                     value = SubstringUtils.rightOfFirst(line, SEPARATOR);
                 }
-                results.add(new KeyValueString(key, value));
+                results.add(new KeyValue(key, value));
             }
         }
         return results;
@@ -55,7 +55,7 @@ public class SeparateKeyValuesText extends KeyValuesText {
     @Override
     public void write() {
         List<String> lines = Generics.newArrayList();
-        for (KeyValueString keyValue : super.keyValueString) {
+        for (KeyValue keyValue : super.keyValueString) {
             lines.add(keyValue.getKey() + SEPARATOR + nulToBlank(keyValue.getValue()));
         }
         utf8File.writeLines(lines);
