@@ -1,4 +1,4 @@
-package com.github.fujiyamakazan.zabuton.jicket.component;
+package com.github.fujiyamakazan.zabuton.util.jframe.component;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -13,8 +13,8 @@ import javax.swing.JPanel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.lang.Generics;
 
-import com.github.fujiyamakazan.zabuton.jicket.JfApplication;
-import com.github.fujiyamakazan.zabuton.jicket.JfPage;
+import com.github.fujiyamakazan.zabuton.util.jframe.JfApplication;
+import com.github.fujiyamakazan.zabuton.util.jframe.JfPage;
 
 public abstract class JfPageComponent<T extends Serializable> implements Serializable {
     private static final long serialVersionUID = 1L;

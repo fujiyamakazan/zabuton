@@ -1,4 +1,4 @@
-package com.github.fujiyamakazan.zabuton.jicket;
+package com.github.fujiyamakazan.zabuton.util.jframe;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.apache.wicket.util.lang.Generics;
 
-public abstract class JfApplication {
+public class JfApplication {
 
     private final Object lock = new Object();
 

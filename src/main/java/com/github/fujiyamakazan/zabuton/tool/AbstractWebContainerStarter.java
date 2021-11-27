@@ -17,7 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.fujiyamakazan.zabuton.util.JFrameUtils;
+import com.github.fujiyamakazan.zabuton.util.jframe.JFrameUtils;
 
 /**
  * Webコンテナを起動します。
@@ -81,7 +81,7 @@ public abstract class AbstractWebContainerStarter {
 
             } catch (ApplicationAlreadyException e) {
 
-                JFrameUtils.showMessageDialog("アプリケーションは起動中です。");
+                JFrameUtils.showErrorDialog("アプリケーションは起動中です。");
                 System.exit(0);
 
             } catch (PortAlreadyException e) {
@@ -94,7 +94,7 @@ public abstract class AbstractWebContainerStarter {
             /* リトライ制限回数を超えていれば終了する */
             if (retryCount++ > 10) {
 
-                JFrameUtils.showMessageDialog("利用できるポートが見つかりませんでした。");
+                JFrameUtils.showErrorDialog("利用できるポートが見つかりませんでした。");
                 System.exit(0);
             }
         }

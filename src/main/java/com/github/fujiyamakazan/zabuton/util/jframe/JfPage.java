@@ -1,4 +1,4 @@
-package com.github.fujiyamakazan.zabuton.jicket;
+package com.github.fujiyamakazan.zabuton.util.jframe;
 
 import java.awt.Font;
 import java.util.List;
@@ -10,10 +10,11 @@ import javax.swing.JPanel;
 
 import org.apache.wicket.util.lang.Generics;
 
-import com.github.fujiyamakazan.zabuton.jicket.component.JfPageComponent;
+import com.github.fujiyamakazan.zabuton.util.jframe.component.JfPageComponent;
 
-public abstract class JfPage {
+public class JfPage {
 
+    boolean initialized;
     private JfApplication app;
     private final JFrame frame;
     private final JPanel panelMain;
@@ -34,13 +35,6 @@ public abstract class JfPage {
         BoxLayout layout = new BoxLayout(panelMain, BoxLayout.Y_AXIS);
         panelMain.setLayout(layout);
 
-        onInitialize();
-
-        for (JfPageComponent<?> pc : components) {
-            for (JComponent jc : pc.getJComplenets()) {
-                jc.setFont(new Font("ＭＳ ゴシック", Font.PLAIN, 20));
-            }
-        }
     }
 
     public void setApplication(JfApplication app) {
@@ -68,6 +62,19 @@ public abstract class JfPage {
     }
 
     public void show() {
+
+        if (initialized == false) {
+            onInitialize();
+
+            for (JfPageComponent<?> pc : components) {
+                for (JComponent jc : pc.getJComplenets()) {
+                    jc.setFont(new Font("ＭＳ ゴシック", Font.PLAIN, 20));
+                }
+            }
+            initialized = true;
+        }
+
+
         this.frame.setVisible(true);
     }
 
