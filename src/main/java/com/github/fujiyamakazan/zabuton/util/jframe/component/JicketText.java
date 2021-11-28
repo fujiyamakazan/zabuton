@@ -1,4 +1,4 @@
-package com.github.fujiyamakazan.zabuton.jicket.component;
+package com.github.fujiyamakazan.zabuton.util.jframe.component;
 
 import java.awt.Dimension;
 

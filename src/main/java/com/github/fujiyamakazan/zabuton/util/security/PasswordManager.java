@@ -6,21 +6,19 @@ import java.net.URISyntaxException;
 
 import org.apache.wicket.model.Model;
 
-import com.github.fujiyamakazan.zabuton.jicket.JfApplication;
-import com.github.fujiyamakazan.zabuton.jicket.JfPage;
-import com.github.fujiyamakazan.zabuton.jicket.component.JicketButton;
-import com.github.fujiyamakazan.zabuton.jicket.component.JicketCheckBox;
-import com.github.fujiyamakazan.zabuton.jicket.component.JicketLabel;
-import com.github.fujiyamakazan.zabuton.jicket.component.JicketLink;
-import com.github.fujiyamakazan.zabuton.jicket.component.JicketPassword;
-import com.github.fujiyamakazan.zabuton.jicket.component.JicketText;
 import com.github.fujiyamakazan.zabuton.security.CipherUtils;
 import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.KeyValue;
 import com.github.fujiyamakazan.zabuton.util.StringSeparator;
+import com.github.fujiyamakazan.zabuton.util.jframe.JfApplication;
+import com.github.fujiyamakazan.zabuton.util.jframe.JfPage;
+import com.github.fujiyamakazan.zabuton.util.jframe.component.JicketButton;
+import com.github.fujiyamakazan.zabuton.util.jframe.component.JicketCheckBox;
+import com.github.fujiyamakazan.zabuton.util.jframe.component.JicketLabel;
+import com.github.fujiyamakazan.zabuton.util.jframe.component.JicketLink;
+import com.github.fujiyamakazan.zabuton.util.jframe.component.JicketPassword;
+import com.github.fujiyamakazan.zabuton.util.jframe.component.JicketText;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
-
-
 
 public class PasswordManager extends JfApplication {
 
@@ -42,7 +40,7 @@ public class PasswordManager extends JfApplication {
 
     }
 
-    private String url;
+//    private String url;
     private String sightKey;
 
     private final Model<String> modelId = Model.of("");
@@ -73,11 +71,11 @@ public class PasswordManager extends JfApplication {
      */
     public void execute(String sightKey, String url) {
         try {
-            this.sightKey =  new URI(url).getRawAuthority();
+            this.sightKey = new URI(url).getRawAuthority();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
-        this.url = url;
+//        this.url = url;
 
         this.mainPage = new MainPage();
         invokePage(this.mainPage);
@@ -86,7 +84,7 @@ public class PasswordManager extends JfApplication {
 
     public void execute(String url) {
         this.sightKey = url;
-        this.url = url;
+//        this.url = url;
 
         this.mainPage = new MainPage();
         invokePage(this.mainPage);
@@ -123,7 +121,8 @@ public class PasswordManager extends JfApplication {
                         StringBuilder data = new StringBuilder();
                         data.append("id=" + modelId.getObject() + "\n");
                         data.append("pw=" + modelPw.getObject() + "\n");
-                        String text = CipherUtils.encrypt(PasswordManager.class.getSimpleName(), data.toString()); // 暗号化
+                        /* 暗号化 */
+                        String text = CipherUtils.encrypt(PasswordManager.class.getSimpleName(), data.toString());
                         utf8Text.write(text);
                     }
                 }
@@ -139,7 +138,7 @@ public class PasswordManager extends JfApplication {
             add(new JicketText("ID", modelId));
             add(new JicketPassword("PW", modelPw));
             add(new JicketButton("OK", doSave), new JicketCheckBox("端末に保存", modelSave),
-                    new JicketLink("保存されているパスワードを整理する", doLink));
+                new JicketLink("保存されているパスワードを整理する", doLink));
         }
     }
 

@@ -15,7 +15,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
+
+import com.github.fujiyamakazan.zabuton.util.jframe.JFrameUtils;
 
 /**
  * ランチャーを表示してWebコンテナを起動します。
@@ -95,14 +96,14 @@ public class WebContainerInvokeFrame extends JFrame {
 
     }
 
-    /**
-     * @param action ブラウザを起動しWebアプリケーションを表示する処理
-     * @deprecated 廃止予定
-     */
-    public void start(Runnable action) {
-        /* フレームを初期化 */
-        initializeFrame(action);
-    }
+//    /**
+//     * @param action ブラウザを起動しWebアプリケーションを表示する処理
+//     * @deprecated 廃止予定
+//     */
+//    public void start(Runnable action) {
+//        /* フレームを初期化 */
+//        initializeFrame(action);
+//    }
 
     /**
      * フレームを初期化します。
@@ -164,15 +165,19 @@ public class WebContainerInvokeFrame extends JFrame {
      * 終了処理をします。
      */
     private void onLauncherClose() {
-        int ans = JOptionPane.showConfirmDialog(
-            this, getTitle() + "を終了しますか?", "確認",
-            JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
-        if (ans == JOptionPane.YES_OPTION) {
+        //        int ans = JOptionPane.showConfirmDialog(
+        //            this, getTitle() + "を終了しますか?", "確認",
+        //            JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+        //        if (ans == JOptionPane.YES_OPTION) {
+        //            /* JVMを終了 */
+        //            System.exit(0);
+        //        }
+
+        boolean yes = JFrameUtils.showConfirmDialog(this, getTitle() + "を終了しますか?");
+        if (yes) {
             /* JVMを終了 */
             System.exit(0);
         }
     }
-
-
 
 }
