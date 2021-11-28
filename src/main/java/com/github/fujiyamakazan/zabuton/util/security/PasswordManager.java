@@ -10,17 +10,20 @@ import com.github.fujiyamakazan.zabuton.security.CipherUtils;
 import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.KeyValue;
 import com.github.fujiyamakazan.zabuton.util.StringSeparator;
-import com.github.fujiyamakazan.zabuton.util.jframe.JfApplication;
-import com.github.fujiyamakazan.zabuton.util.jframe.JfPage;
-import com.github.fujiyamakazan.zabuton.util.jframe.component.JicketButton;
-import com.github.fujiyamakazan.zabuton.util.jframe.component.JicketCheckBox;
-import com.github.fujiyamakazan.zabuton.util.jframe.component.JicketLabel;
-import com.github.fujiyamakazan.zabuton.util.jframe.component.JicketLink;
-import com.github.fujiyamakazan.zabuton.util.jframe.component.JicketPassword;
-import com.github.fujiyamakazan.zabuton.util.jframe.component.JicketText;
+import com.github.fujiyamakazan.zabuton.util.jframe.JPage;
+import com.github.fujiyamakazan.zabuton.util.jframe.JPageAction;
+import com.github.fujiyamakazan.zabuton.util.jframe.JPageApplication;
+import com.github.fujiyamakazan.zabuton.util.jframe.JPageChangeAction;
+import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageButton;
+import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageCheckBox;
+import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageLabel;
+import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageLink;
+import com.github.fujiyamakazan.zabuton.util.jframe.component.JPagePassword;
+import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageTextField;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 
-public class PasswordManager extends JfApplication {
+public class PasswordManager extends JPageApplication {
+    private static final long serialVersionUID = 1L;
 
     /**
      * 開発中の動作確認をします。
@@ -91,7 +94,7 @@ public class PasswordManager extends JfApplication {
 
     }
 
-    private final class MainPage extends JfPage {
+    private final class MainPage extends JPage {
 
         @Override
         protected void onInitialize() {
@@ -114,7 +117,7 @@ public class PasswordManager extends JfApplication {
             }
 
             final Model<Boolean> modelSave = Model.of(true);
-            final Runnable doSave = new Runnable() {
+            final JPageAction doSave = new JPageAction() {
                 @Override
                 public void run() {
                     if (modelSave.getObject()) {
@@ -127,28 +130,23 @@ public class PasswordManager extends JfApplication {
                     }
                 }
             };
-            final Runnable doLink = new Runnable() {
-                @Override
-                public void run() {
-                    changePage(MainPage.this, new ListPage());
-                }
-            };
+            final JPageAction doLink = new JPageChangeAction(PasswordManager.this, MainPage.this,  new ListPage());
 
-            add(new JicketLabel("[" + sightKey + "]のIDとパスワードを入力してください。"));
-            add(new JicketText("ID", modelId));
-            add(new JicketPassword("PW", modelPw));
-            add(new JicketButton("OK", doSave), new JicketCheckBox("端末に保存", modelSave),
-                new JicketLink("保存されているパスワードを整理する", doLink));
+            addLine(new JPageLabel("[" + sightKey + "]のIDとパスワードを入力してください。"));
+            addLine(new JPageTextField("ID", modelId));
+            addLine(new JPagePassword("PW", modelPw));
+            addLine(new JPageButton("OK", doSave), new JPageCheckBox("端末に保存", modelSave),
+                new JPageLink("保存されているパスワードを整理する", doLink));
         }
     }
 
-    private final class ListPage extends JfPage {
+    private final class ListPage extends JPage {
 
         @Override
         protected void onInitialize() {
             super.onInitialize();
 
-            final Runnable doDelete = new Runnable() {
+            final JPageAction doDelete = new JPageAction() {
                 @Override
                 public void run() {
                     for (File f : saveDir.listFiles()) {
@@ -156,15 +154,10 @@ public class PasswordManager extends JfApplication {
                     }
                 }
             };
-            final Runnable doLink = new Runnable() {
-                @Override
-                public void run() {
-                    changePage(ListPage.this, mainPage);
-                }
-            };
+            final JPageAction doLink = new JPageChangeAction(PasswordManager.this, ListPage.this, mainPage);
 
-            add(new JicketLabel("このパソコンには" + saveDir.listFiles().length + "件のパスワードが保存されています。"));
-            add(new JicketButton("削除", doDelete), new JicketLink("戻る", doLink));
+            addLine(new JPageLabel("このパソコンには" + saveDir.listFiles().length + "件のパスワードが保存されています。"));
+            addLine(new JPageButton("削除", doDelete), new JPageLink("戻る", doLink));
         }
 
     }

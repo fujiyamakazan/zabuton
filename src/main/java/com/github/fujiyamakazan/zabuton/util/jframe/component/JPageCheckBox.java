@@ -6,22 +6,25 @@ import javax.swing.JCheckBox;
 
 import org.apache.wicket.model.Model;
 
-public class JicketCheckBox extends JfPageComponent<Boolean> {
+/**
+ * チェックボックスのコンポーネントモデルです。
+ */
+public class JPageCheckBox extends JPageComponent<Boolean> {
     private static final long serialVersionUID = 1L;
     private final JCheckBox jc;
 
     /**
      * コンストラクタです。
      */
-    public JicketCheckBox(String label, Model<Boolean> model) {
+    public JPageCheckBox(String label, Model<Boolean> model) {
         super(model);
         jc = new JCheckBox(label, model.getObject());
         jc.setBackground(Color.WHITE);
-        super.comps.add(jc);
+        addJFrameComponent(jc);
     }
 
     @Override
-    public void setObject() {
-        super.model.setObject(jc.isSelected());
+    public void updateModel() {
+        getModel().setObject(jc.isSelected());
     }
 }

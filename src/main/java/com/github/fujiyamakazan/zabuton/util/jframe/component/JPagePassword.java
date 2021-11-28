@@ -12,7 +12,10 @@ import javax.swing.JTextField;
 
 import org.apache.wicket.model.Model;
 
-public class JicketPassword extends JfPageComponent<String> {
+/**
+ * パスワード入力のコンポーネントモデルです。
+ */
+public class JPagePassword extends JPageComponent<String> {
     private static final long serialVersionUID = 1L;
 
     boolean showText = false;
@@ -22,7 +25,7 @@ public class JicketPassword extends JfPageComponent<String> {
     /**
      * コンストラクタです。
      */
-    public JicketPassword(String label, Model<String> model) {
+    public JPagePassword(String label, Model<String> model) {
         super(model);
 
         pw = new JPasswordField(model.getObject());
@@ -57,18 +60,18 @@ public class JicketPassword extends JfPageComponent<String> {
             }
         });
 
-        super.comps.add(new JLabel(label));
-        super.comps.add(pw);
-        super.comps.add(text);
-        super.comps.add(showPw);
+        addJFrameComponent(new JLabel(label));
+        addJFrameComponent(pw);
+        addJFrameComponent(text);
+        addJFrameComponent(showPw);
     }
 
     @Override
-    public void setObject() {
+    public void updateModel() {
         if (showText) {
-            super.model.setObject(text.getText());
+            model.setObject(text.getText());
         } else {
-            super.model.setObject(String.valueOf(pw.getPassword()));
+            model.setObject(String.valueOf(pw.getPassword()));
         }
     }
 }

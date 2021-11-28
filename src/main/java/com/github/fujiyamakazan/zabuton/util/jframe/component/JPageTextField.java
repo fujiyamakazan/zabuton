@@ -7,21 +7,27 @@ import javax.swing.JTextField;
 
 import org.apache.wicket.model.Model;
 
-public class JicketText extends JfPageComponent<String> {
+/**
+ * テキストフィールドのコンポーネントモデルです。
+ */
+public class JPageTextField extends JPageComponent<String> {
     private static final long serialVersionUID = 1L;
     private final JTextField textField;
 
-    public JicketText(String label, Model<String> model) {
+    /**
+     * コンストラクタです。
+     */
+    public JPageTextField(String label, Model<String> model) {
         super(model);
         textField = new JTextField(model.getObject());
         textField.setPreferredSize(new Dimension(300, 30));
 
-        super.comps.add(new JLabel(label));
-        super.comps.add(textField);
+        addJFrameComponent(new JLabel(label));
+        addJFrameComponent(textField);
     }
 
     @Override
-    public void setObject() {
-        super.model.setObject(textField.getText());
+    public void updateModel() {
+        model.setObject(textField.getText());
     }
 }
