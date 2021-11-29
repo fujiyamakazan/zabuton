@@ -1,6 +1,5 @@
 package com.github.fujiyamakazan.zabuton.util.jframe;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.io.Serializable;
@@ -106,20 +105,25 @@ public class JPage implements Serializable {
             JPanel p = new JPanel();
             linePanel.add(p);
             p.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1)); // 余白
-            //p.setBorder(BorderFactory.createLineBorder(Color.red));
+            //p.setBorder(BorderFactory.createLineBorder(Color.red)); // デバッグ用に赤い線を表示
             p.setBackground(Color.WHITE);
 
             /*
              * コンポーネントに含まれる複数のJFrameコンポーネントを配置します。
              */
             final List<JComponent> comps = componet.getJComponents();
-            if (comps.size() == 1) {
-                /* 要素が1つだけのときは BorderLayout でパネルいっぱいに表示します。 */
-                p.setLayout(new BorderLayout());
+            //            if (comps.size() == 1) {
+            //                /* 要素が1つだけのときは BorderLayout でパネルいっぱいに表示します。 */
+            //                p.setLayout(new BorderLayout());
+            //            } else {
+            if (componet instanceof JPageButton) {
+                p.setLayout(new FlowLayout(FlowLayout.CENTER));
             } else {
                 /* 左寄せで配置します。*/
                 p.setLayout(new FlowLayout(FlowLayout.LEFT));
             }
+
+            //            }
             for (JComponent jc : comps) {
                 p.add(jc);
             }
@@ -185,7 +189,5 @@ public class JPage implements Serializable {
     public final void dispose() {
         this.frame.dispose();
     }
-
-
 
 }
