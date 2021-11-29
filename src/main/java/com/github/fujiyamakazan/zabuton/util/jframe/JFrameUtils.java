@@ -5,13 +5,8 @@ import java.awt.Component;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import org.apache.wicket.model.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageButton;
-import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageLabel;
-import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageTextField;
 
 /**
  * JFrame操作のユーティリティです。
@@ -63,20 +58,6 @@ public class JFrameUtils {
 //
 //        }
 
-        JPage page1 = new JPage();
-        page1.addLine(new JPageLabel("テスト1"));
-        page1.addLine(new JPageButton("ボタン1", Model.of(false)));
-        page1.addLine(new JPageTextField("項目1", Model.of("")));
-        page1.addLine(new JPageTextField("項目2", Model.of("")));
-        page1.addLine(new JPageButton("ボタンA", Model.of(false)),new JPageButton("ボタンB", Model.of(false)));
-        page1.show();
-
-//        JPage page2 = new JPage();
-//        page2.addLine(new JPageLabel("テスト2"));
-//        page2.addLine(new JPageLabel("テスト3"));
-//        page2.show();
-
-        //TODO サイズ調整
 
         System.out.println("End");
 
