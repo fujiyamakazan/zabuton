@@ -8,7 +8,7 @@ import org.apache.wicket.util.lang.Generics;
 
 /**
  * ファイル情報を表すオブジェクトです。
- * @author k_inaba
+ * @author fujiyama
  */
 public class FileInfo {
 

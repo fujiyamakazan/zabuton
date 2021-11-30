@@ -1,4 +1,5 @@
 package com.github.fujiyamakazan.zabuton.util.jframe.component;
+
 import java.awt.Font;
 import java.io.Serializable;
 import java.util.List;
@@ -14,7 +15,7 @@ import com.github.fujiyamakazan.zabuton.util.jframe.JPage;
  * ページコンポーネントのモデルです。
  * １つのデータモデルを持ちます。JFrameのコンポーネントを1つ以上使用します。
  *
- * @author k_inaba
+ * @author fujiyama
  * @param <T> 保持するデータモデルの型
  */
 public abstract class JPageComponent<T extends Serializable> implements Serializable {

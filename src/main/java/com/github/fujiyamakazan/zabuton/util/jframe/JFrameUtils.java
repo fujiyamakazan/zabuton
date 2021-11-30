@@ -5,7 +5,6 @@ import java.awt.Component;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import org.apache.wicket.model.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,33 +41,23 @@ public class JFrameUtils {
 //        simpleMessage.dispose();
 
 
-        for (int i = 0; i < 4; i++) {
-            System.out.println("ChoiceMessageDialogのサンプル");
-            Model<Boolean> cancel = Model.of(false);
-            Model<Boolean> choice1 = Model.of(false);
-            Model<Boolean> choice2 = Model.of(false);
-            JPageChoice pageChoice = new JPageChoice(
-                    "〇〇を選択してください。", cancel);
-            pageChoice.addChoice("キャンセル", cancel);
-            pageChoice.addChoice("選択１", choice1);
-            pageChoice.addChoice("選択２", choice2);
-            pageChoice.showDialog();
-            System.out.println("cancel:" + cancel.getObject());
-            System.out.println("choice1:" + choice1.getObject());
-            System.out.println("choice2:" + choice2.getObject());
-
-        }
-
-//        JPage page1 = new JPage();
-//        page1.addLine(new JPageLabel("テスト1"));
-//        page1.show();
+//        for (int i = 0; i < 4; i++) {
+//            System.out.println("ChoiceMessageDialogのサンプル");
+//            Model<Boolean> cancel = Model.of(false);
+//            Model<Boolean> choice1 = Model.of(false);
+//            Model<Boolean> choice2 = Model.of(false);
+//            JPageChoice pageChoice = new JPageChoice(
+//                    "〇〇を選択してください。", cancel);
+//            pageChoice.addChoice("キャンセル", cancel);
+//            pageChoice.addChoice("選択１", choice1);
+//            pageChoice.addChoice("選択２", choice2);
+//            pageChoice.showDialog();
+//            System.out.println("cancel:" + cancel.getObject());
+//            System.out.println("choice1:" + choice1.getObject());
+//            System.out.println("choice2:" + choice2.getObject());
 //
-//        JPage page2 = new JPage();
-//        page2.addLine(new JPageLabel("テスト2"));
-//        page2.addLine(new JPageLabel("テスト3"));
-//        page2.show();
+//        }
 
-        //TODO サイズ調整
 
         System.out.println("End");
 
