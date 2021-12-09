@@ -30,6 +30,10 @@ public abstract class TextFile implements Serializable {
         this.file = file;
     }
 
+    public File getFile() {
+        return file;
+    }
+
     public TextFile(String pathname) {
         this(new File(pathname));
     }
@@ -137,15 +141,32 @@ public abstract class TextFile implements Serializable {
      * @param lines 複数行のテキスト
      */
     public void writeLines(List<String> lines) {
+        writeLines(lines, false);
+    }
+
+    /**
+     * 文字セット「UTF-8」を指定して複数行のテキストを保存します。
+     * @param lines 複数行のテキスト
+     */
+    public void writeLines(List<String> lines, boolean append) {
         try {
-            FileUtils.writeLines(file, getCharset().toString(), lines);
+            FileUtils.writeLines(file, getCharset().toString(), lines, append);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public File getFile() {
-        return file;
+
+    public String getFinalLine() {
+        String text = read().trim();
+        int lastLn = text.lastIndexOf("\n");
+        if (lastLn != -1) {
+            text = text.substring(lastLn + 1);
+        }
+        return text;
     }
+
+
+
 
 }
