@@ -20,6 +20,8 @@ import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.RetryWorker;
 
 public abstract class SelenCommonDriver implements Serializable {
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(SelenCommonDriver.class);
+
     private static final By BODY = By.cssSelector("body");
 
     private static final long serialVersionUID = 1L;
@@ -176,7 +178,9 @@ public abstract class SelenCommonDriver implements Serializable {
                 try {
                     FileUtils.deleteDirectory(f);
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    //throw new RuntimeException(e);
+                    LOGGER.error("scoped_dirの削除に失敗", e);
+
                 }
             }
             if (f.getName().equals("screenshot")) {

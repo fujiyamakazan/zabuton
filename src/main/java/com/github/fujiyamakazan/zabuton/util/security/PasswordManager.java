@@ -33,7 +33,7 @@ public class PasswordManager extends JPageApplication {
         String url = "http://www.example.com/test";
 
         PasswordManager pm = new PasswordManager("SampleApp");
-        pm.execute(url);
+        pm.executeByUrl(url);
 
         String id = pm.getId();
         String pw = pm.getPassword();
@@ -43,7 +43,7 @@ public class PasswordManager extends JPageApplication {
 
     }
 
-//    private String url;
+    //private String url;
     private String sightKey;
 
     private final Model<String> modelId = Model.of("");
@@ -72,22 +72,20 @@ public class PasswordManager extends JPageApplication {
     /**
      * 主処理を実行します。
      */
-    public void execute(String sightKey, String url) {
-        try {
-            this.sightKey = new URI(url).getRawAuthority();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-//        this.url = url;
+    public void executeBySightKey(String sightKey) {
+        this.sightKey = sightKey;
 
         this.mainPage = new MainPage();
         invokePage(this.mainPage);
 
     }
 
-    public void execute(String url) {
-        this.sightKey = url;
-//        this.url = url;
+    public void executeByUrl(String url) {
+        try {
+            this.sightKey = new URI(url).getRawAuthority();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
 
         this.mainPage = new MainPage();
         invokePage(this.mainPage);
@@ -95,6 +93,9 @@ public class PasswordManager extends JPageApplication {
     }
 
     private final class MainPage extends JPage {
+
+        /** serialVersionUID */
+        private static final long serialVersionUID = 1L;
 
         @Override
         protected void onInitialize() {
@@ -118,6 +119,9 @@ public class PasswordManager extends JPageApplication {
 
             final Model<Boolean> modelSave = Model.of(true);
             final JPageAction doSave = new JPageAction() {
+                /** serialVersionUID */
+                private static final long serialVersionUID = 1L;
+
                 @Override
                 public void run() {
                     if (modelSave.getObject()) {
@@ -142,11 +146,17 @@ public class PasswordManager extends JPageApplication {
 
     private final class ListPage extends JPage {
 
+        /** serialVersionUID */
+        private static final long serialVersionUID = 1L;
+
         @Override
         protected void onInitialize() {
             super.onInitialize();
 
             final JPageAction doDelete = new JPageAction() {
+                /** serialVersionUID */
+                private static final long serialVersionUID = 1L;
+
                 @Override
                 public void run() {
                     for (File f : saveDir.listFiles()) {
