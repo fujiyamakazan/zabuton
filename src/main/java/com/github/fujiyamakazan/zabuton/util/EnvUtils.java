@@ -8,6 +8,10 @@ public class EnvUtils {
         return System.getenv("USERNAME");
     }
 
+    public static File getUserDesktop() {
+        return new File(System.getenv("USERPROFILE") + "\\Desktop");
+    }
+
     public static File getUserDocuments() {
         return new File(System.getenv("USERPROFILE") + "\\Documents");
     }
