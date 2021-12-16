@@ -3,6 +3,7 @@ package com.github.fujiyamakazan.zabuton.util.text;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -52,7 +53,7 @@ public abstract class TextMerger implements Serializable {
             Utf8Text utf8Text = new Utf8Text(additionalFile);
             String additionalText = utf8Text.read();
 
-            textMerger.stock(additionalText);
+            textMerger.stock(Arrays.asList(additionalText.split("\n")));
             if (textMerger.hasNext() == false) {
                 break;
             }
@@ -76,7 +77,7 @@ public abstract class TextMerger implements Serializable {
     private boolean hasNext = true;
     private boolean existMaster = false;
 
-    private boolean hasNext() {
+    public boolean hasNext() {
         return hasNext;
     }
 
@@ -104,17 +105,17 @@ public abstract class TextMerger implements Serializable {
      * 最後に処理したテキストにもマスター追加済みレコードと一致するものが無ければ、
      * 遡及回数の不足と考えられる。処理を中断し、警告をする。
      */
-    private boolean isFinish() {
+    public boolean isFinish() {
         return masterLines.isEmpty() || existMaster;
     }
 
     /**
      * マスターにある同一のレコード以外をbufferに仮保存する。
      */
-    public void stock(String additionalText) {
+    public void stock(List<String> lines) {
 
         List<String> joins = Generics.newArrayList();
-        for (String additionalLine : additionalText.split("\n")) {
+        for (String additionalLine : lines) {
             additionalLine = additionalLine.trim();
             if (isSkipLine(additionalLine)) {
                 continue;
