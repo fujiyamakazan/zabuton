@@ -51,17 +51,6 @@ public class JPage implements Serializable {
         page1.addLine(new JPageTextField("項目4", Model.of("")));
         page1.addLine(new JPageButton("ボタンA", Model.of(false)), new JPageButton("ボタンB", Model.of(false)));
         page1.show();
-
-        //        new JPageApplication().invokePage(new JPage() {
-        //            private static final long serialVersionUID = 1L;
-        //            @Override
-        //            protected void onInitialize() {
-        //                super.onInitialize();
-        //                addLine(new JPageLabel("テスト2"));
-        //                addLine(new JPageLabel("テスト3"));
-        //            }
-        //        });
-
     }
 
     /**
@@ -211,6 +200,14 @@ public class JPage implements Serializable {
 
         /* 画面を表示する */
         this.frame.setVisible(true);
+
+        /* 表示後の拡張処理 */
+        onAfterShow();
+    }
+
+    /** 表示後の拡張処理 */
+    protected void onAfterShow() {
+        /* 必要に応じてオーバーライド */
     }
 
     /**

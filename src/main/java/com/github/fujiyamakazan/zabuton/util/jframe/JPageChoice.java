@@ -23,6 +23,7 @@ public class JPageChoice implements Serializable {
     private String message;
     private Model<Boolean> cancel;
     private List<JPageButton> choices = Generics.newArrayList();
+    private JPageApplication app ;
 
     /**
      * インスタンスを生成します。
@@ -43,7 +44,7 @@ public class JPageChoice implements Serializable {
      * いずれかの選択肢、または閉じるボタンが押されると終了します。
      */
     public void showDialog() {
-        JPageApplication app = new JPageApplication() {
+        app = new JPageApplication() {
             @Override
             public WindowListener getWindowListener() {
                 cancel.setObject(true);
@@ -60,5 +61,12 @@ public class JPageChoice implements Serializable {
                 addLine(choices);
             }
         });
+    }
+
+    public void close() {
+        if (app == null) {
+            throw new RuntimeException("まだshowDialogが呼出されていません。");
+        }
+        app.close();
     }
 }
