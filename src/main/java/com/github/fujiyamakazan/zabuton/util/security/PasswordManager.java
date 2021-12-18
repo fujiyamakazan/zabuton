@@ -50,6 +50,7 @@ public class PasswordManager extends JPageApplication {
     private final Model<String> modelPw = Model.of("");
     private final File saveDir;
     private MainPage mainPage;
+    private boolean autoLogin;
 
     /**
      * コンストラクタです。
@@ -67,6 +68,11 @@ public class PasswordManager extends JPageApplication {
 
     public String getPassword() {
         return modelPw.getObject();
+    }
+
+
+    public void setIsAutoLogin(boolean autoLogin) {
+        this.autoLogin=autoLogin;
     }
 
     /**
@@ -93,9 +99,9 @@ public class PasswordManager extends JPageApplication {
     }
 
     private final class MainPage extends JPage {
-
-        /** serialVersionUID */
         private static final long serialVersionUID = 1L;
+
+        private JPageButton saveButton;
 
         @Override
         protected void onInitialize() {
@@ -119,7 +125,6 @@ public class PasswordManager extends JPageApplication {
 
             final Model<Boolean> modelSave = Model.of(true);
             final JPageAction doSave = new JPageAction() {
-                /** serialVersionUID */
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -139,9 +144,29 @@ public class PasswordManager extends JPageApplication {
             addLine(new JPageLabel("[" + sightKey + "]のIDとパスワードを入力してください。"));
             addLine(new JPageTextField("ID", modelId));
             addLine(new JPagePassword("PW", modelPw));
-            addLine(new JPageButton("OK", doSave), new JPageCheckBox("端末に保存", modelSave),
+            saveButton = new JPageButton("OK", doSave);
+            addLine(saveButton, new JPageCheckBox("端末に保存", modelSave),
                 new JPageLink("保存されているパスワードを整理する", doLink));
         }
+
+        @Override
+        protected void onAfterShow() {
+            super.onAfterShow();
+//
+//            /* 自動的にボタンを押す */
+////            Model<Boolean> cancel = Model.of(false);
+////            JPageChoice choice = new JPageChoice("3秒後にログインします。", cancel);
+////            choice.addChoice("中止", cancel);
+////            choice.showg();
+//            TheadsSleep.sleep(3 * 1000);
+////            choice.close();
+////            if (cancel.getObject() == false) {
+//            saveButton.doClick();
+////            }
+
+
+        }
+
     }
 
     private final class ListPage extends JPage {
@@ -171,5 +196,6 @@ public class PasswordManager extends JPageApplication {
         }
 
     }
+
 
 }

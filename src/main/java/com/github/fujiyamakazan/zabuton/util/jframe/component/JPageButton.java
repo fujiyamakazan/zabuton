@@ -16,6 +16,8 @@ import com.github.fujiyamakazan.zabuton.util.jframe.JPageChangeAction;
 public class JPageButton extends JPageComponent<Boolean> {
     private static final long serialVersionUID = 1L;
 
+    private JButton button;
+
     /**
      * コンストラクタです。
      * @param label ボタンに表示するラベルです。
@@ -38,7 +40,7 @@ public class JPageButton extends JPageComponent<Boolean> {
 
     private JPageButton(final Model<Boolean> model, final String label, final JPageAction action) {
         super(model);
-        JButton button = new JButton();
+        button = new JButton();
         button.setText(label);
         button.addActionListener(new ActionListener() {
             @Override
@@ -71,6 +73,10 @@ public class JPageButton extends JPageComponent<Boolean> {
     @Override
     public void updateModel() {
         /* 処理なし */
+    }
+
+    public void doClick() {
+        button.doClick();
     }
 
 }
