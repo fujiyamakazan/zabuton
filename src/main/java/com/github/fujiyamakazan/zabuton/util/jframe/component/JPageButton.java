@@ -44,11 +44,11 @@ public class JPageButton extends JPageComponent<Boolean> {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                /* 実装された主処理を実行 */
-                action.run();
-
                 /* このボタンが押されたことを親オブジェクトに通知します。 */
                 getPage().submit(JPageButton.this);
+
+                /* 実装された主処理を実行 */
+                action.run();
 
                 /* アプリケーションを終了します。 */
                 if (action instanceof JPageChangeAction == false) {
