@@ -1,15 +1,11 @@
 package com.github.fujiyamakazan.zabuton.rakutenquest;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.util.lang.Generics;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -21,20 +17,21 @@ import com.github.fujiyamakazan.zabuton.util.CsvUtils;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 import com.github.fujiyamakazan.zabuton.util.text.TextMerger;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
-import com.opencsv.CSVParser;
 
 public class RakutenJournalCrawler extends JournalCrawler {
-    /** serialVersionUID */
     private static final long serialVersionUID = 1L;
+    @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RakutenJournalCrawler.class);
 
-    @Override
-    protected String getName() {
-        return "Rakuten";
+    public RakutenJournalCrawler(int year, File appDir) {
+        super("Rakuten", year, appDir);
     }
 
+    private final File masterCredit = new File(crawlerDir, "credit_" + year + ".csv");
+    private final File masterPoint = new File(crawlerDir, "point_" + year + ".csv");
+
     @Override
-    protected void doDownload() {
+    protected void download() {
         /*
          * ダウンロード処理
          */
@@ -42,9 +39,7 @@ public class RakutenJournalCrawler extends JournalCrawler {
         cmd.get(url);
         cmd.assertTitleContains("ログイン画面");
 
-        // TODO アカリスの定期的なダウンロードを促す仕組みとして、ダウンロードしたテキストからチェック処理をいれたい
-
-        PasswordManager pm = new PasswordManager(this.rootDir);
+        PasswordManager pm = new PasswordManager(crawlerDir);
         pm.executeByUrl(url);
 
         cmd.type(By.name("u"), pm.getId());
@@ -59,99 +54,71 @@ public class RakutenJournalCrawler extends JournalCrawler {
 
     }
 
+    /**
+     * クレカ明細をダウンロードします。
+     */
     private void downloadCredit() {
-        File maasterFileCredit = getMaasterFileCredit();
 
-        log.debug(maasterFileCredit.getAbsolutePath());
+        final TextMerger textMerger = new StandardMerger(masterCredit);
 
-        TextMerger textMergerCredit = new TextMerger(maasterFileCredit) {
-            private static final long serialVersionUID = 1L;
+        int roopCounter = -1;
+        while (roopCounter < 12) {  // 1年分取得
+            roopCounter++;
 
-            @Override
-            protected boolean isAvailableLine(String line) {
-                try {
-                    return new CSVParser().parseLine(line)[0].startsWith(getYear() + "/");
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
+            /* 前のループでダウンロードしたファイルを削除します。*/
+            deletePreFile();
 
-        for (int i = 0; i < 12; i++) { // 1年分取得
-
-            /* 前のループのファイルを削除する */
-            File f = getDownloadFileOne();
-            if (getDownloadFileOne() != null) {
-                f.delete();
-            }
-            if (getDownloadFileOne() != null) {
-                throw new RuntimeException();
-            }
-
-            /*
-             * ダウンロード実行
-             */
-            cmd.get("https://www.rakuten-card.co.jp/e-navi/members/statement/index.xhtml?tabNo=" + i);
+            /* 明細をダウンロード */
+            cmd.get("https://www.rakuten-card.co.jp/e-navi/members/statement/index.xhtml?tabNo=" + roopCounter);
             cmd.assertTitleContains("ご利用明細");
-
             cmd.clickAndWait(By.xpath("//a[contains(@class,'stmt-csv-btn')]")); // ダウンロードボタン
             new DownloadWait().start(); // ファイルダウンロードを待つ
 
-            /*
-             * ダウンロードしたファイルを永続化
-             */
-            f = getDownloadFileOne();
-            List<String> lines = new Utf8Text(f).readLines();
+            /* CSVを整形 */
+            File fileOriginal = getDownloadFileOne();
+            List<String> orignalLine = new Utf8Text(fileOriginal).readLines();
             List<String> tmp = Generics.newArrayList();
-            for (String line : lines) {
-                if (StringUtils.startsWith(line, "\"利用日\"")) { // 見出し行除外
+            for (String original : orignalLine) {
+                if (StringUtils.startsWith(original, "\"利用日\"")) { // 見出し行除外
                     continue;
                 }
-                if (StringUtils.startsWith(line, "\"\",")) { // 追加行
-                    tmp.set(tmp.size() - 1, tmp.get(tmp.size() - 1) + "," + line);
+                if (StringUtils.startsWith(original, "\"\",")) { // 追加行
+                    tmp.set(tmp.size() - 1, tmp.get(tmp.size() - 1) + "," + original);
                     continue;
                 }
-                tmp.add(line);
+                tmp.add(original);
             }
-            lines = tmp;
-            /* マージ */
-            textMergerCredit.stock(lines);
-            if (textMergerCredit.hasNext() == false) {
+
+            List<String> lines = tmp;
+
+            if (textMerger.stock(lines) == false) {
                 break;
             }
         }
-        if (textMergerCredit.isFinish() == false) {
-            /* マスターがあるにもかかわらず、最後に処理したテキストにもマスター追加済みレコードと一致するものが無ければ、
-             * 遡及回数の不足と考えられる。処理を中断し、警告をする。
-             */
-            throw new RuntimeException("遡及処理の上限回数が不足しています。");
-        }
-        textMergerCredit.flash();
+        textMerger.flash();
     }
 
+    /**
+     * ポイント実績をダウンロードします。
+     */
     private void downloadPoint() {
-        TextMerger textMergerPoint = new TextMerger(getMaasterFilePoint()) {
 
-            private static final long serialVersionUID = 1L;
+        final TextMerger textMerger = new StandardMerger(masterPoint);
 
-            @Override
-            protected boolean isAvailableLine(String line) {
-                try {
-                    return new CSVParser().parseLine(line)[0].startsWith(getYear() + "/");
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
-        for (int i = 1; i <= 15; i++) { // 約一年分
-            cmd.get("https://point.rakuten.co.jp/history/?page=" + i + "#point_history");
+        int roopCounter = 0;
+        while (roopCounter <= 15) { // 約１年分
+            roopCounter++;
 
-            /*
-             * ファイルを永続化
-             */
+            /* 前のループでダウンロードしたファイルを削除します。*/
+            deletePreFile();
+
+            cmd.get("https://point.rakuten.co.jp/history/?page=" + roopCounter + "#point_history");
+
+            /* HTMLを保存 */
+            String html = this.cmd.getPageSource();
+            saveDaily("html.txt", html);
 
             /* CSV形式に変換 */
-            String html = this.cmd.getPageSource();
             Document doc = Jsoup.parse(html);
             Element table = doc.getElementsByClass("history-table").get(0);
             Elements trs = table.getElementsByTag("tr");
@@ -171,107 +138,85 @@ public class RakutenJournalCrawler extends JournalCrawler {
                 final String kubun = tds.get(3).text();
                 final String value = tds.get(4).text();
                 final String note = tds.get(5).text();
-                lines.add(CsvUtils.convertString(new String[] { strDate, service, naiyo, kubun, value, note }));
+
+                /* 日付の降順となるように前に追加 */
+                lines.add(0, CsvUtils.convertString(new String[] { strDate, service, naiyo, kubun, value, note }));
             }
 
-            /* マージ */
-            textMergerPoint.stock(lines);
-            if (textMergerPoint.hasNext() == false) {
+            if (textMerger.stock(lines) == false) {
                 break;
             }
         }
-        if (textMergerPoint.isFinish() == false) {
-            /* マスターがあるにもかかわらず、最後に処理したテキストにもマスター追加済みレコードと一致するものが無ければ、
-             * 遡及回数の不足と考えられる。処理を中断し、警告をする。
-             */
-            throw new RuntimeException("遡及処理の上限回数が不足しています。");
-        }
-        textMergerPoint.flash();
+        textMerger.flash();
     }
 
     @Override
-    protected String doRead() {
-
-        log.debug(this.getMaasterFileCredit().getAbsolutePath());
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("--------------------------------------------------\n");
-        sb.append(readPoint(recodied));
-        sb.append("--------------------------------------------------\n");
-        sb.append(readCredit(recodied));
-        log.debug("----------------------------------------------------------------------------------");
-        return sb.toString();
+    protected List<Journal> createJournal() {
+        List<Journal> results = Generics.newArrayList();
+        results.addAll(readCredit());
+        results.addAll(readPoint());
+        return results;
     }
 
     /**
-     * ポイント実績の処理
+     * クレカ明細の処理をします。
      */
-    private String readPoint(List<Journal> existDatas) {
-
-        /* 最終行のデータ */
-        Model<Journal> lastData = new Model<Journal>();
+    private List<Journal> readCredit() {
 
         /*
          * 成形したデータを出力する
          */
-        List<Journal> masterDatas = getPointDatas(lastData, existDatas);
-
-        StringBuilder sb = new StringBuilder();
-        if (masterDatas.isEmpty()) {
-            sb.append("すべて仕訳済み。最終データ[" + lastData.getObject().getRawOnSource() + "]\n");
-        } else {
-            for (Journal data : masterDatas) {
-                sb.append(data.getJournalString() + "\n");
-            }
-        }
-        return sb.toString();
-    }
-
-    /**
-     * クレカ明細の処理
-     */
-    private String readCredit(List<Journal> existDatas) {
-
-        /* 最終行のデータ */
-        Model<Journal> lastData = new Model<Journal>();
-
-        /*
-         * 成形したデータを出力する
-         */
-        List<Journal> masterDatas = getCreditDatas(lastData, existDatas);
-
-        StringBuilder sb = new StringBuilder();
-        if (masterDatas.isEmpty()) {
-            sb.append("すべて仕訳済み。最終データ[" + lastData.getObject().getRawOnSource() + "]\n");
-        } else {
-            for (Journal data : masterDatas) {
-                sb.append(data.getJournalString() + "\n");
-            }
-        }
-        return sb.toString();
-    }
-
-    private List<Journal> getPointDatas(Model<Journal> lastData, List<Journal> existDatas) {
-        List<Journal> masterDatas = Generics.newArrayList();
+        List<Journal> masterDatas1 = Generics.newArrayList();
         int rowIndex = 0;
-        for (String masterLine : new Utf8Text(getMaasterFilePoint()).readLines()) {
+        for (String line : new Utf8Text(masterCredit).readLines()) {
             rowIndex++;
 
-            Journal downloadData = new Journal(String.valueOf(rowIndex));
-            if (lastData != null) {
-                lastData.setObject(downloadData); // 最終データ確保
+            Journal journal = new Journal();
+            journal.setSource("楽天クレカ明細");
+            journal.setRowIndex(String.valueOf(rowIndex));
+            journal.setRawOnSource(line);
+
+            String[] csv = CsvUtils.splitCsv(line);
+            journal.setDate(csv[0].trim());
+            journal.setAmount(Integer.parseInt(csv[4]));
+            journal.setRight("クレジット"); // 借方に入れて消込む
+            extracted(journal, csv[1]);
+            if (csv.length > 11) {
+                /* 形式が特殊なレコード */
+                journal.setMemo(journal.getMemo() + "★割引などの追加情報を処理してください。[" + line + "]★");
             }
 
-            String[] datas = CsvUtils.splitCsv(masterLine);
-            for (String data : datas) {
-                data = data.trim();
+        }
+        List<Journal> masterDatas = masterDatas1;
+        return masterDatas;
+    }
+
+    /**
+     * ポイント実績の処理をします。
+     */
+    private List<Journal> readPoint() {
+
+        /*
+         * 成形したデータを出力する
+         */
+        List<Journal> results = Generics.newArrayList();
+        int rowIndex = 0;
+        for (String line : new Utf8Text(masterPoint).readLines()) {
+            rowIndex++;
+
+            String[] csv = CsvUtils.splitCsv(line);
+            String date = csv[0].trim();
+            String service = csv[1].trim();
+            String naiyo = csv[2].trim();
+            String kubun = csv[3].trim();
+            String value = csv[4].trim();
+            String note = "";
+            if (csv.length > 5) {
+                note = csv[5].trim();
             }
 
-            downloadData.setRawOnSource(masterLine);
+            value = value.replaceAll(",", ""); // 金額のカンマを除去
 
-            String date = datas[0];
-            String service = datas[1];
-            String naiyo = datas[2];
             Pattern pattern = Pattern.compile("\\[(.+)\\]");
             Matcher matcher = pattern.matcher(naiyo);
             if (matcher.find()) {
@@ -281,43 +226,40 @@ public class RakutenJournalCrawler extends JournalCrawler {
                     naiyo = matcher.replaceAll("");
                 }
             }
-            final String kubun = datas[3];
-            String value = datas[4].replaceAll(",", "");
-            String note = "";
-            if (datas.length > 5) {
-                note = datas[5];
-            }
 
-            downloadData.setDate(date);
-            downloadData.setAmount(Integer.parseInt(value));
-            downloadData.setSource("楽天ポイント実績");
+            Journal journal = new Journal();
+            journal.setSource("楽天ポイント実績");
+            journal.setRowIndex(String.valueOf(rowIndex));
+            journal.setRawOnSource(line);
+
+            journal.setDate(date);
+            journal.setAmount(Integer.parseInt(value));
+
+            final String left;
+            final String right;
+            final String activity;
+            final String memo;
 
             if (StringUtils.equals(kubun, "獲得") || StringUtils.equals(kubun, "獲得 期間限定")) {
                 /*
                  * 区分「獲得」
                  */
-                downloadData.setLeft("楽天ペイ");
-                downloadData.setRight("ポイント還元");
-                downloadData.setActivity("ポイ活");
+                left = "楽天ペイ";
+                right = "ポイント還元";
+                activity = "ポイ活";
 
-                /*
-                 * 例：ランクアップ対象(2021/01/01より利用可能)
-                 */
-                naiyo = naiyo.replaceAll("ランクアップ対象", "")
-                    .replaceAll(getYear() + "/", "")
-                    .replaceAll("でポイントを獲得", "で獲得")
-                    .trim();
-                note = "";
-
-                downloadData.setMemo(naiyo + note);
+                memo = naiyo.replaceAll("ランクアップ対象", "")
+                        .replaceAll(year + "/", "")
+                        .replaceAll("でポイントを獲得", "で獲得")
+                        .trim();
 
             } else if (StringUtils.equals(kubun, "利用")) {
                 /*
                  * 区分「利用」
                  */
-                downloadData.setLeft("★費用★");
-                downloadData.setRight("楽天ペイ");
-                downloadData.setActivity("★消費活動★");
+                left = "★費用★";
+                right = "楽天ペイ";
+                activity = "★消費活動★";
 
                 /*
                  * [利用]楽天ペイ/ファミリーマート楽天ペイでポイントを利用 [2021/01/08](内訳(ポイント優先利用) 5,000円 0ポイント)
@@ -333,19 +275,19 @@ public class RakutenJournalCrawler extends JournalCrawler {
                     note = "含む" + m.group(2) + "pt";
                 }
 
-                downloadData.setMemo(naiyo.trim() + "(" + note + ")");
+                memo = naiyo.trim() + "(" + note + ")";
 
             } else if (StringUtils.equals(kubun, "利用完了")
-                || StringUtils.equals(kubun, "利用 手続き中(申請中)")) {
+                    || StringUtils.equals(kubun, "利用 手続き中(申請中)")) {
                 /*
                  * 区分「利用完了」「利用 手続き中(申請中)」
                  */
 
                 if (StringUtils.startsWith(naiyo, "投信積立でのポイント利用")) {
-                    downloadData.setLeft("楽天証券");
-                    downloadData.setRight("楽天ペイ");
-                    downloadData.setActivity("投資");
-                    downloadData.setMemo("[" + kubun + "]" + service + " " + naiyo);
+                    left = "楽天証券";
+                    right = "楽天ペイ";
+                    activity = "投資";
+                    memo = "[" + kubun + "]" + service + " " + naiyo;
 
                 } else {
                     throw new RuntimeException("処理区分想定外[" + kubun + "]");
@@ -358,90 +300,20 @@ public class RakutenJournalCrawler extends JournalCrawler {
                 } else {
                     throw new RuntimeException("処理区分想定外[" + kubun + "]");
                 }
+            } else {
+                throw new RuntimeException("処理区分想定外[" + kubun + "]");
             }
 
-            /* すでに記録済みのデータなら除外する */
-            boolean exist = false;
-            if (existDatas != null) {
-                for (Journal existData : existDatas) {
-                    if (existData.getDate() != null
-                        && StringUtils.equals(existData.getSource(), downloadData.getSource())
-                        && StringUtils.equals(existData.getRowIndex(), downloadData.getRowIndex())) {
-                        exist = true;
-                        log.debug("仕訳済み：" + existData);
-                        break;
-                    }
-                }
-            }
+            journal.setLeft(left);
+            journal.setRight(right);
+            journal.setActivity(activity);
+            journal.setMemo(memo);
+            results.add(journal);
 
-            if (exist == false) {
-                //log.debug("未仕訳：" + downloadData);
-                masterDatas.add(downloadData);
-            }
         }
 
-        /* パターンごとにソート */
-        sort(masterDatas);
-        return masterDatas;
+        return results;
     }
-
-    private List<Journal> getCreditDatas(Model<Journal> lastData, List<Journal> existDatas) {
-        List<Journal> masterDatas = Generics.newArrayList();
-        int rowIndex = 0;
-        for (String masterLine : new Utf8Text(getMaasterFileCredit()).readLines()) {
-            rowIndex++;
-            Journal downloadData = new Journal(String.valueOf(rowIndex));
-            if (lastData != null) {
-                lastData.setObject(downloadData); // 最終データ確保
-            }
-
-            String[] tokens = CsvUtils.splitCsv(masterLine);
-            String strDate = tokens[0];
-
-            downloadData.setRawOnSource(masterLine);
-            downloadData.setDate(strDate);
-            downloadData.setAmount(Integer.parseInt(tokens[4]));
-            downloadData.setSource("楽天クレカ明細");
-            downloadData.setRight("クレジット"); // 借方に入れて消込む
-
-            String key = tokens[1];
-
-            extracted(downloadData, key);
-
-            if (tokens.length > 11) {
-                /* 形式が特殊なレコード */
-                downloadData.setMemo(downloadData.getMemo()  + "★割引などの追加情報を処理してください。[" + masterLine + "]★");
-            }
-
-            /* すでに記録済みのデータなら除外する */
-            boolean exist = false;
-            if (existDatas != null) {
-                for (Journal existData : existDatas) {
-                    if (existData.getDate() != null
-                        && StringUtils.equals(existData.getSource(), downloadData.getSource())
-                        && StringUtils.equals(existData.getRowIndex(), downloadData.getRowIndex())) {
-                        exist = true;
-                        log.debug("仕訳済み：" + existData);
-                        break;
-                    }
-                }
-            }
-            if (exist == false) {
-                //log.debug("未仕訳：" + downloadData);
-                masterDatas.add(downloadData);
-            }
-        }
-        /* 日付順 にソート
-         * してはいけない。
-         * 支払月が分からなくなってしまうため。
-         */
-        //Collections.sort(datas, this.new Data().new MyComparator());
-
-        /* パターンごとにソート */
-        sort(masterDatas);
-        return masterDatas;
-    }
-
 
     protected void extracted(Journal downloadData, String key) {
         final String left;
@@ -453,7 +325,7 @@ public class RakutenJournalCrawler extends JournalCrawler {
             memo = key;
 
         } else if (key.equals("Ｅｄｙチャージ※楽天ｅ－ＮＡＶ")
-            || key.equals("Ｅｄｙオートチャージ")) {
+                || key.equals("Ｅｄｙオートチャージ")) {
             left = "Edy";
             activity = "チャージ";
             memo = key;
@@ -471,34 +343,6 @@ public class RakutenJournalCrawler extends JournalCrawler {
         downloadData.setLeft(left);
         downloadData.setActivity(activity);
         downloadData.setMemo(memo);
-    }
-
-    private File getMaasterFileCredit() {
-        return new File(rootDir, "credit_" + getYear() + ".csv");
-    }
-
-    private File getMaasterFilePoint() {
-        return new File(rootDir, "point_" + getYear() + ".csv");
-    }
-
-    private static void sort(List<Journal> datas) {
-        Collections.sort(datas, new Comparator<Journal>() {
-
-            @Override
-            public int compare(Journal o1, Journal o2) {
-                int compare = 0;
-                if (compare == 0) {
-                    compare = o1.getActivity().compareTo(o2.getActivity());
-                }
-                if (compare == 0) {
-                    compare = o1.getMemo().compareTo(o2.getMemo());
-                }
-                if (compare == 0) {
-                    compare = o1.getDate().compareTo(o2.getDate());
-                }
-                return compare;
-            }
-        });
     }
 
 }

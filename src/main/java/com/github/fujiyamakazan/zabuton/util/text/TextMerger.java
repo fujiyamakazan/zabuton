@@ -111,8 +111,9 @@ public abstract class TextMerger implements Serializable {
 
     /**
      * マスターにある同一のレコード以外をbufferに仮保存する。
+     * @return 続きがあればTrueを返す。
      */
-    public void stock(List<String> lines) {
+    public boolean stock(List<String> lines) {
 
         List<String> joins = Generics.newArrayList();
         for (String additionalLine : lines) {
@@ -137,12 +138,21 @@ public abstract class TextMerger implements Serializable {
             buffer.addAll(0, joins);
         }
 
+        return hasNext;
+
     }
 
     /**
      * 仮保存していたレコードをマスターに保存します。
      */
     public void flash() {
+
+        if (isFinish() == false) {
+            /* マスターがあるにもかかわらず、最後に処理したテキストにもマスター追加済みレコードと一致するものが無ければ、
+             * 遡及回数の不足と考えられる。処理を中断し、警告をする。
+             */
+            throw new RuntimeException("遡及処理の上限回数が不足しています。");
+        }
 
         Utf8Text master = new Utf8Text(masterText);
         if (masterText.exists()) {
@@ -152,7 +162,12 @@ public abstract class TextMerger implements Serializable {
         }
 
         /* マスターテキストに、追加テキストのレコードを追記する。ただし、マスターが無ければ新規作成する。 */
-        master.writeLines(buffer, true);
+        if (masterText.exists()) {
+            master.writeLines(buffer, true);
+        } else {
+            master.writeLines(buffer);
+        }
+
 
         buffer.clear(); // 使用済みの為削除
     }

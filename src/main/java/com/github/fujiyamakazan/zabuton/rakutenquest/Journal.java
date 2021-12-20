@@ -52,10 +52,6 @@ public class Journal implements Serializable {
         this.rowIndex = null;
     }
 
-    public Journal(String rowIndex) {
-        this.rowIndex = rowIndex;
-    }
-
     public String getRowIndex() {
         return rowIndex;
     }
