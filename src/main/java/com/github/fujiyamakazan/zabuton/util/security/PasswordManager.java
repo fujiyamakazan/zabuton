@@ -62,6 +62,17 @@ public class PasswordManager extends JPageApplication {
         }
     }
 
+    /**
+     * コンストラクタです。
+     */
+    public PasswordManager(File appDir) {
+        this.saveDir = new File(appDir, "PasswordManager");
+        if (saveDir.exists() == false) {
+            saveDir.mkdirs();
+        }
+    }
+
+
     public String getId() {
         return modelId.getObject();
     }
@@ -70,9 +81,8 @@ public class PasswordManager extends JPageApplication {
         return modelPw.getObject();
     }
 
-
     public void setIsAutoLogin(boolean autoLogin) {
-        this.autoLogin=autoLogin;
+        this.autoLogin = autoLogin;
     }
 
     /**
@@ -139,7 +149,7 @@ public class PasswordManager extends JPageApplication {
                     }
                 }
             };
-            final JPageAction doLink = new JPageChangeAction(PasswordManager.this, MainPage.this,  new ListPage());
+            final JPageAction doLink = new JPageChangeAction(PasswordManager.this, MainPage.this, new ListPage());
 
             addLine(new JPageLabel("[" + sightKey + "]のIDとパスワードを入力してください。"));
             addLine(new JPageTextField("ID", modelId));
@@ -152,18 +162,17 @@ public class PasswordManager extends JPageApplication {
         @Override
         protected void onAfterShow() {
             super.onAfterShow();
-//
-//            /* 自動的にボタンを押す */
-////            Model<Boolean> cancel = Model.of(false);
-////            JPageChoice choice = new JPageChoice("3秒後にログインします。", cancel);
-////            choice.addChoice("中止", cancel);
-////            choice.showg();
-//            TheadsSleep.sleep(3 * 1000);
-////            choice.close();
-////            if (cancel.getObject() == false) {
-//            saveButton.doClick();
-////            }
-
+            //
+            //            /* 自動的にボタンを押す */
+            ////            Model<Boolean> cancel = Model.of(false);
+            ////            JPageChoice choice = new JPageChoice("3秒後にログインします。", cancel);
+            ////            choice.addChoice("中止", cancel);
+            ////            choice.showg();
+            //            TheadsSleep.sleep(3 * 1000);
+            ////            choice.close();
+            ////            if (cancel.getObject() == false) {
+            //            saveButton.doClick();
+            ////            }
 
         }
 
@@ -196,6 +205,5 @@ public class PasswordManager extends JPageApplication {
         }
 
     }
-
 
 }

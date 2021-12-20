@@ -39,7 +39,7 @@ public class JPage implements Serializable {
     private List<JPageComponent<?>> components = Generics.newArrayList();
 
     /* 閉じるボタンの処理 */
-    private WindowAdapter windowListener;
+    //private WindowAdapter windowListener;
 
     public static void main(String[] args) {
         JPage page1 = new JPage();
