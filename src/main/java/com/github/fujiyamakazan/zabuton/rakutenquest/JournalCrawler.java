@@ -5,9 +5,10 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.wicket.util.lang.Generics;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -50,22 +51,8 @@ public abstract class JournalCrawler implements Serializable {
         this.crawlerDailyDir.mkdirs();
     }
 
-    /**
-     * 処理を実行します。
-     */
-    public List<Journal> execute() {
-
-        /* 本日ダウンロード分があればスキップ */
-        boolean skip = false;
-        File fileToday = getDownloadFileOne();
-        if (fileToday != null) {
-            Date date = new Date(fileToday.lastModified());
-            Calendar yesterday = Calendar.getInstance();
-            yesterday.add(Calendar.DAY_OF_MONTH, -1);
-            skip = date.after(yesterday.getTime());
-        }
-
-        if (skip == false) {
+    public void doDowoload() {
+        if (isSkip() == false) {
             try {
 
                 /* 前回の処理結果を削除 */
@@ -116,13 +103,43 @@ public abstract class JournalCrawler implements Serializable {
                 throw new RuntimeException(e);
             }
         }
+    }
 
-        return createJournal();
+    private boolean isSkip() {
+        /* 本日ダウンロード分があればスキップ */
+        boolean skip = false;
+        File fileToday = getDownloadFileOne();
+        if (fileToday != null) {
+            Date date = new Date(fileToday.lastModified());
+            Calendar yesterday = Calendar.getInstance();
+            yesterday.add(Calendar.DAY_OF_MONTH, -1);
+            skip = date.after(yesterday.getTime());
+        }
+        return skip;
+    }
+
+    private Map<String, File> masters = Generics.newHashMap();
+
+    protected void setMaster(File master) {
+        masters.put("MAIN", master);
+    }
+
+    protected void setMaster(String key, File master) {
+        masters.put(key, master);
+    }
+
+    public File getMaster() {
+        return masters.get("MAIN");
+    }
+
+
+    public File getMaster(String key) {
+        return masters.get(key);
     }
 
     protected abstract void download();
 
-    protected abstract List<Journal> createJournal();
+
 
     protected File getDownloadFileOne() {
         if (this.crawlerDailyDir.listFiles().length == 0) {
@@ -162,7 +179,7 @@ public abstract class JournalCrawler implements Serializable {
     protected final class StandardMerger extends TextMerger {
         private static final long serialVersionUID = 1L;
 
-        protected StandardMerger(File masterText) {
+        public StandardMerger(File masterText) {
             super(masterText);
         }
 
@@ -189,5 +206,11 @@ public abstract class JournalCrawler implements Serializable {
             throw new RuntimeException();
         }
     }
+
+    public abstract String getText();
+
+
+
+
 
 }
