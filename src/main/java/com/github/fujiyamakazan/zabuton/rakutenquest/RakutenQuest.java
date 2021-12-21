@@ -28,9 +28,18 @@ public abstract class RakutenQuest implements Serializable {
         }
 
         final int year = 2021;
-
         final List<JournalCrawler> crawlers = Generics.newArrayList();
+
         crawlers.add(new RakutenCrawler(year, appDir));
+        //crawlers.add(new RakutenBankCrawler(year, appDir));
+        crawlers.add(new MajicaCrawler(year, appDir));
+
+        // TODO Summary Rakuten > 済
+        // TODO Summary Majica > 済
+        // TODO UC
+        // TODO RakutenBK
+        // TODO ShonanBK
+
 
         new RakutenQuest() {
             private static final long serialVersionUID = 1L;
@@ -38,11 +47,6 @@ public abstract class RakutenQuest implements Serializable {
             @Override
             protected File getWorkDir() {
                 return appDir;
-            }
-
-            @Override
-            protected List<Journal> getRecodied() {
-                return Generics.newArrayList();
             }
 
             @Override
@@ -55,7 +59,6 @@ public abstract class RakutenQuest implements Serializable {
 
     /**
      * 処理を実行します。
-     * @param year 処理対象の年を4桁の西暦で示します。
      */
     public void execute() {
 
@@ -72,12 +75,9 @@ public abstract class RakutenQuest implements Serializable {
         RuntimeExc.execute("notepad", resultText.getAbsolutePath());
     }
 
-
-
-    protected abstract List<Journal> getRecodied();
-
     protected abstract List<JournalCrawler> getCrawlers();
 
     protected abstract File getWorkDir();
 
 }
+

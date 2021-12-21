@@ -17,6 +17,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 
 import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
 import com.github.fujiyamakazan.zabuton.util.RetryWorker;
+import com.github.fujiyamakazan.zabuton.util.StringBuilderLn;
 import com.github.fujiyamakazan.zabuton.util.jframe.JFrameUtils;
 import com.github.fujiyamakazan.zabuton.util.text.TextMerger;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
@@ -33,7 +34,7 @@ public abstract class JournalCrawler implements Serializable {
     protected SelenCommonDriver cmd;
 
     protected final int year;
-    //    private final String name;
+    private final String name;
     private final File appDir;
     protected final File crawlerDir;
     private final File crawlerDailyDir;
@@ -42,7 +43,7 @@ public abstract class JournalCrawler implements Serializable {
      * コンストラクタです。
      */
     public JournalCrawler(String name, int year, File appDir) {
-        //        this.name = name;
+        this.name = name;
         this.year = year;
         this.appDir = appDir;
         this.crawlerDir = new File(appDir, name);
@@ -119,6 +120,7 @@ public abstract class JournalCrawler implements Serializable {
     }
 
     private Map<String, File> masters = Generics.newHashMap();
+    private File summary;
 
     protected void setMaster(File master) {
         masters.put("MAIN", master);
@@ -127,19 +129,23 @@ public abstract class JournalCrawler implements Serializable {
     protected void setMaster(String key, File master) {
         masters.put(key, master);
     }
-
     public File getMaster() {
         return masters.get("MAIN");
     }
-
 
     public File getMaster(String key) {
         return masters.get(key);
     }
 
+    protected void setSummary(File summary) {
+        this.summary = summary;
+    }
+
+    public File getSummary() {
+        return summary;
+    }
+
     protected abstract void download();
-
-
 
     protected File getDownloadFileOne() {
         if (this.crawlerDailyDir.listFiles().length == 0) {
@@ -148,13 +154,27 @@ public abstract class JournalCrawler implements Serializable {
         return this.crawlerDailyDir.listFiles()[0];
     }
 
+    protected String getDownloadText() {
+        if (this.crawlerDailyDir.listFiles().length == 0) {
+            return null;
+        }
+        return new Utf8Text(getDownloadFileOne()).read();
+    }
+
     protected final class DownloadWait extends RetryWorker {
         private static final long serialVersionUID = 1L;
 
         @Override
         protected void run() {
-            if (getDownloadFileOne() == null) {
+            File downloadFileOne = getDownloadFileOne();
+            if (downloadFileOne == null) {
                 throw new RuntimeException("ダウンロード未完了");
+            } else {
+                String name = downloadFileOne.getName();
+                log.debug("[" + name + "]");
+                if (name.endsWith(".tmp") || name.endsWith(".crdownload")) {
+                    throw new RuntimeException("ダウンロード実行中");
+                }
             }
         }
 
@@ -207,10 +227,23 @@ public abstract class JournalCrawler implements Serializable {
         }
     }
 
-    public abstract String getText();
+    public final String getText() {
+        StringBuilderLn sb = new StringBuilderLn();
 
+        for (Map.Entry<String, File> master : masters.entrySet()) {
+            sb.appendLn("-----");
+            sb.appendLn("[" + name + "] (" + master.getKey() + ")");
+            sb.appendLn("-----");
+            sb.appendLn(new Utf8Text(master.getValue()).read());
+        }
+        if (summary != null) {
+            sb.appendLn("-----");
+            sb.appendLn("[" + name + "] (SUMMARY)");
+            sb.appendLn("-----");
+            sb.appendLn(new Utf8Text(summary).read());
+        }
 
-
-
+        return sb.toString();
+    }
 
 }
