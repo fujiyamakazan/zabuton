@@ -12,7 +12,6 @@ import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 
 import com.github.fujiyamakazan.zabuton.util.CsvUtils;
-import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
 import com.github.fujiyamakazan.zabuton.util.text.TextMerger;
@@ -30,31 +29,6 @@ public class RakutenCrawler extends JournalCrawler {
     private final JournalCsv masterPoint = new JournalCsv(crawlerDir, "point_" + year + ".csv");
     private final File summary = new File(crawlerDir, "summary_" + year + ".txt");
 
-    public static void main(String[] args) {
-
-        RakutenCrawler c = new RakutenCrawler(2021, EnvUtils.getUserDesktop("RakutenQuest3"));
-
-        //        Utf8Text text = new Utf8Text(c.getMaster(CREDIT));
-        //        List<String> lines = text.readLines();
-        //        int rowIndex = 1;
-        //        List<String> newLines = Generics.newArrayList();
-        //        for (String line: lines) {
-        //            line = "\""+ (rowIndex++)+"\"," + line;
-        //            newLines.add(line);
-        //        }
-        //        text.writeLines(newLines);
-
-//        Utf8Text text = new Utf8Text(c.getMaster(POINT));
-//        List<String> lines = text.readLines();
-//        int rowIndex = 1;
-//        List<String> newLines = Generics.newArrayList();
-//        for (String line : lines) {
-//            line = "\"" + (rowIndex++) + "\"," + line;
-//            newLines.add(line);
-//        }
-//        text.writeLines(newLines);
-
-    }
 
     /**
      * コンストラクタです。

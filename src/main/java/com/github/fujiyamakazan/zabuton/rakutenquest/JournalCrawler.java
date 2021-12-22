@@ -187,7 +187,7 @@ public abstract class JournalCrawler implements Serializable {
         }
     }
 
-    private static void sleep(int i) {
+    protected static void sleep(int i) {
         try {
             Thread.sleep(i);
         } catch (InterruptedException e) {

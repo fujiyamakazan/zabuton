@@ -108,7 +108,8 @@ public abstract class TextMerger implements Serializable {
 
             /* 行番号取得 */
             try {
-                maxRowIndex = Math.max(maxRowIndex, Integer.parseInt(new CSVParser().parseLine(line)[0]));
+                int rowIndex = JournalCsv.getRowIndex(line);
+                maxRowIndex = Math.max(maxRowIndex, rowIndex);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -124,6 +125,8 @@ public abstract class TextMerger implements Serializable {
 
         }
     }
+
+
 
 
 
