@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.lang.Generics;
 
+import com.github.fujiyamakazan.zabuton.rakutenquest.JournalCsv;
 import com.opencsv.CSVParser;
 
 /**
@@ -31,7 +32,7 @@ public abstract class TextMerger implements Serializable {
     public static void main(String[] args) {
 
         int year = 2021;
-        File fileMaster = new File("C:\\tmp\\textMaster" + year + ".txt");
+        JournalCsv fileMaster = new JournalCsv("C:\\tmp\\textMaster" + year + ".txt");
         List<File> additionlFiles = Generics.newArrayList();
         additionlFiles.add(new File("C:\\tmp\\text追加2.txt")); // 処理は最新の追加テキストから順に行う。
         additionlFiles.add(new File("C:\\tmp\\text追加1.txt"));
@@ -70,12 +71,13 @@ public abstract class TextMerger implements Serializable {
 
     protected abstract boolean isAvailableLine(String line);
 
-    private final File masterText;
+    private final JournalCsv masterText;
     private final List<String> masterLines = Generics.newArrayList();
     private final List<String> buffer = Generics.newArrayList();
 
     private boolean hasNext = true;
     private boolean existMaster = false;
+    private int maxRowIndex = 0;
 
     public boolean hasNext() {
         return hasNext;
@@ -84,11 +86,19 @@ public abstract class TextMerger implements Serializable {
     /**
      * コンストラクタです。マスターテキストを登録します。
      */
-    public TextMerger(File masterText) {
+    public TextMerger(JournalCsv masterText) {
         this.masterText = masterText;
-        for (String line : new Utf8Text(masterText).readLines()) {
+
+        boolean first = true;
+
+        for (String line : new Utf8Text(masterText.getFile()).readLines()) {
             line = line.trim();
-            if (isSkipLine(line)) {
+
+            if (first) {
+                if (JournalCsv.validHeader(line) == false) {
+                    throw new RuntimeException("見出し行を持たない不正なマスターです。" + line);
+                }
+                first = false;
                 continue;
             }
 
@@ -96,10 +106,26 @@ public abstract class TextMerger implements Serializable {
                 throw new RuntimeException("重複するレコードを持つ不正なマスターです。" + line);
             }
 
+            /* 行番号取得 */
+            try {
+                maxRowIndex = Math.max(maxRowIndex, Integer.parseInt(new CSVParser().parseLine(line)[0]));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            int headIndex = line.indexOf(',') + 1; // 行番号除去
+            line = line.substring(headIndex);
+
+            if (isSkipLine(line)) {
+                continue;
+            }
+
             masterLines.add(line);
 
         }
     }
+
+
 
     /** マスターがあるにもかかわらず、
      * 最後に処理したテキストにもマスター追加済みレコードと一致するものが無ければ、
@@ -118,6 +144,9 @@ public abstract class TextMerger implements Serializable {
         List<String> joins = Generics.newArrayList();
         for (String additionalLine : lines) {
             additionalLine = additionalLine.trim();
+            if (StringUtils.isEmpty(additionalLine)) {
+                continue;
+            }
             if (isSkipLine(additionalLine)) {
                 continue;
             }
@@ -126,7 +155,8 @@ public abstract class TextMerger implements Serializable {
                 existMaster = true; // 重複する行があったことを記録
 
             } else {
-                joins.add(additionalLine);
+                String line = additionalLine;
+                joins.add(line);
             }
         }
         if (joins.isEmpty()) {
@@ -154,23 +184,34 @@ public abstract class TextMerger implements Serializable {
             throw new RuntimeException("遡及処理の上限回数が不足しています。");
         }
 
-        Utf8Text master = new Utf8Text(masterText);
-        if (masterText.exists()) {
+        Utf8Text master = new Utf8Text(masterText.getFile());
+        if (masterText.getFile().exists()) {
             if (master.read().endsWith("\n") == false) {
                 buffer.add(0, "\n");
             }
         }
 
+        /* 行番号付与 */
+        List<String> tmp = Generics.newArrayList();
+        for (String line : buffer) {
+            maxRowIndex = maxRowIndex + 1;
+            line = "\"" + maxRowIndex + "\"," + line;
+            tmp.add(line);
+        }
+        buffer.clear();
+        buffer.addAll(tmp);
+
         /* マスターテキストに、追加テキストのレコードを追記する。ただし、マスターが無ければ新規作成する。 */
-        if (masterText.exists()) {
+        if (masterText.getFile().exists()) {
             master.writeLines(buffer, true);
         } else {
+            buffer.add(0, JournalCsv.getHeader()); // 見出し行
             master.writeLines(buffer);
         }
 
-
         buffer.clear(); // 使用済みの為削除
     }
+
 
     protected boolean isSkipLine(String line) {
         if (StringUtils.isEmpty(line)) {

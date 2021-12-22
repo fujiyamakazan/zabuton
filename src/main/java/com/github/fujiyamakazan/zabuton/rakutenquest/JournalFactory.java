@@ -25,7 +25,7 @@ public abstract class JournalFactory implements Serializable {
 
     public List<Journal> execute(List<Journal> existDatas) {
 
-        crawler.doDowoload();
+        crawler.dowoload();
 
         List<Journal> journals = createJournal();
 

@@ -26,7 +26,6 @@ import com.opencsv.CSVParser;
 
 public abstract class JournalCrawler implements Serializable {
     private static final long serialVersionUID = 1L;
-    @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JournalCrawler.class);
 
     public static final String STANDRD_DRIVER_NAME = "chromedriver.exe";
@@ -37,7 +36,7 @@ public abstract class JournalCrawler implements Serializable {
     private final String name;
     private final File appDir;
     protected final File crawlerDir;
-    private final File crawlerDailyDir;
+    protected final File crawlerDailyDir;
 
     /**
      * コンストラクタです。
@@ -52,7 +51,10 @@ public abstract class JournalCrawler implements Serializable {
         this.crawlerDailyDir.mkdirs();
     }
 
-    public void doDowoload() {
+    /**
+     * 明細をダウンロードします。
+     */
+    public void dowoload() {
         if (isSkip() == false) {
             try {
 
@@ -119,21 +121,22 @@ public abstract class JournalCrawler implements Serializable {
         return skip;
     }
 
-    private Map<String, File> masters = Generics.newHashMap();
+    private Map<String, JournalCsv> masters = Generics.newHashMap();
     private File summary;
 
-    protected void setMaster(File master) {
+    protected void setMaster(JournalCsv master) {
         masters.put("MAIN", master);
     }
 
-    protected void setMaster(String key, File master) {
+    protected void setMaster(String key, JournalCsv master) {
         masters.put(key, master);
     }
-    public File getMaster() {
+
+    public JournalCsv getMaster() {
         return masters.get("MAIN");
     }
 
-    public File getMaster(String key) {
+    public JournalCsv getMaster(String key) {
         return masters.get(key);
     }
 
@@ -184,7 +187,7 @@ public abstract class JournalCrawler implements Serializable {
         }
     }
 
-    private void sleep(int i) {
+    private static void sleep(int i) {
         try {
             Thread.sleep(i);
         } catch (InterruptedException e) {
@@ -199,7 +202,7 @@ public abstract class JournalCrawler implements Serializable {
     protected final class StandardMerger extends TextMerger {
         private static final long serialVersionUID = 1L;
 
-        public StandardMerger(File masterText) {
+        public StandardMerger(JournalCsv masterText) {
             super(masterText);
         }
 
@@ -227,14 +230,17 @@ public abstract class JournalCrawler implements Serializable {
         }
     }
 
+    /**
+     * ダウンロードしたファイルのテキスト情報を出力します。
+     */
     public final String getText() {
         StringBuilderLn sb = new StringBuilderLn();
 
-        for (Map.Entry<String, File> master : masters.entrySet()) {
+        for (Map.Entry<String, JournalCsv> master : masters.entrySet()) {
             sb.appendLn("-----");
             sb.appendLn("[" + name + "] (" + master.getKey() + ")");
             sb.appendLn("-----");
-            sb.appendLn(new Utf8Text(master.getValue()).read());
+            sb.appendLn(new Utf8Text(master.getValue().getFile()).read());
         }
         if (summary != null) {
             sb.appendLn("-----");

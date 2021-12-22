@@ -12,6 +12,10 @@ public class EnvUtils {
         return new File(System.getenv("USERPROFILE") + "\\Desktop");
     }
 
+    public static File getUserDesktop(String path) {
+        return new File(getUserDesktop(), path);
+    }
+
     public static File getUserDocuments() {
         return new File(System.getenv("USERPROFILE") + "\\Documents");
     }
@@ -35,4 +39,6 @@ public class EnvUtils {
     public static File getAppData(String appId) {
         return new File(System.getenv("USERPROFILE") + "\\AppData\\Roaming\\" + appId);
     }
+
+
 }

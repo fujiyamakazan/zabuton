@@ -1,24 +1,34 @@
 package com.github.fujiyamakazan.zabuton.rakutenquest;
 
+import java.awt.Desktop;
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
 
-import org.openqa.selenium.By;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.wicket.util.lang.Generics;
 
-import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
+import com.github.fujiyamakazan.zabuton.util.jframe.JFrameUtils;
+import com.github.fujiyamakazan.zabuton.util.text.ShiftJisText;
 import com.github.fujiyamakazan.zabuton.util.text.TextMerger;
+import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
+import com.opencsv.CSVParser;
 
 public class RakutenBankCrawler extends JournalCrawler {
     private static final long serialVersionUID = 1L;
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RakutenBankCrawler.class);
 
-    private final File master = new File(crawlerDir, year + ".csv");
+    private final JournalCsv master = new JournalCsv(crawlerDir, year + ".csv");
+    private final File summary = new File(crawlerDir, "summary_" + year + ".txt");
 
     public RakutenBankCrawler(int year, File appDir) {
-        super("Rakuten", year, appDir);
+        super("RakutenBank", year, appDir);
         setMaster(master);
+        setSummary(summary);
     }
-
 
     @Override
     protected void download() {
@@ -26,57 +36,70 @@ public class RakutenBankCrawler extends JournalCrawler {
          * ダウンロード処理
          */
         String url = "https://fes.rakuten-bank.co.jp/MS/main/RbS?CurrentPageID=START&&COMMAND=LOGIN";
-        cmd.get(url);
-        cmd.assertTitleContains("ようこそ");
+        //        cmd.get(url);
+        //        cmd.assertTitleContains("ようこそ");
+        //
+        //        PasswordManager pm = new PasswordManager(crawlerDir);
+        //        pm.executeBySightKey("rakuten-bank-01");
+        //
+        //        cmd.type(By.name("LOGIN:USER_ID"), pm.getId());
+        //        cmd.type(By.name("LOGIN:LOGIN_PASSWORD"), pm.getPassword());
+        //        cmd.clickAndWait(By.partialLinkText("ログイン"));
 
-        PasswordManager pm = new PasswordManager(crawlerDir);
-        pm.executeBySightKey("rakuten-bank-01");
+        final TextMerger textMerger = new TextMerger(master) {
+            private static final long serialVersionUID = 1L;
 
-        cmd.type(By.name("LOGIN:USER_ID"), pm.getId());
-        cmd.type(By.name("LOGIN:LOGIN_PASSWORD"), pm.getPassword());
-        cmd.clickAndWait(By.partialLinkText("ログイン"));
+            @Override
+            protected boolean isAvailableLine(String line) {
+                try {
+                    return new CSVParser().parseLine(line)[0].startsWith(String.valueOf(year));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
 
-
-        final TextMerger textMerger = new StandardMerger(master);
-
-        int roopCounter = -1;
-        while (roopCounter < 12) {  // 1年分取得
-            roopCounter++;
-
-//            /* 前のループでダウンロードしたファイルを削除します。*/
-//            deletePreFile();
-//
-//            /* 明細をダウンロード */
-//            cmd.get("https://www.rakuten-card.co.jp/e-navi/members/statement/index.xhtml?tabNo=" + roopCounter);
-//            cmd.assertTitleContains("ご利用明細");
-//            cmd.clickAndWait(By.xpath("//a[contains(@class,'stmt-csv-btn')]")); // ダウンロードボタン
-//            new DownloadWait().start(); // ファイルダウンロードを待つ
-//
-//            /* CSVを整形 */
-//            File fileOriginal = getDownloadFileOne();
-//            List<String> orignalLine = new Utf8Text(fileOriginal).readLines();
-//            List<String> tmp = Generics.newArrayList();
-//            for (String original : orignalLine) {
-//                if (StringUtils.startsWith(original, "\"利用日\"")) { // 見出し行除外
-//                    continue;
-//                }
-//                if (StringUtils.startsWith(original, "\"\",")) { // 追加行
-//                    tmp.set(tmp.size() - 1, tmp.get(tmp.size() - 1) + "," + original);
-//                    continue;
-//                }
-//                tmp.add(original);
-//            }
-//
-//            List<String> lines = tmp;
-
-//            if (textMerger.stock(lines) == false) {
-//                break;
-//            }
+        /* ブラウザを開いてアプリケーションを表示する */
+        try {
+            Desktop.getDesktop().browse(new URI(url));
+        } catch (IOException | URISyntaxException e) {
+            throw new RuntimeException(e);
         }
+
+        /* 保存場所フォルダを開く*/
+        //RuntimeExc.execute("explorer.exe", crawlerDailyDir.getAbsolutePath());
+        try {
+            Desktop.getDesktop().open(crawlerDailyDir);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        JFrameUtils.showDialog("ご自身でCSVをダウンロードして[" + crawlerDailyDir.getAbsolutePath() + "]に保存してしてください。");
+
+        /* CSVを整形 */
+        File fileOriginal = getDownloadFileOne();
+        List<String> orignalLine = new ShiftJisText(fileOriginal).readLines();
+        List<String> tmp = Generics.newArrayList();
+        for (String original : orignalLine) {
+            if (StringUtils.startsWith(original, "取引日,入出金(円),取引後残高(円),入出金内容")) { // 見出し行除外
+                continue;
+            }
+            tmp.add(original);
+        }
+        List<String> lines = tmp;
+
+        textMerger.stock(lines);
         textMerger.flash();
+
+
+        String finalLine = lines.get(lines.size()-1);
+        String num;
+        try {
+            num = new CSVParser().parseLine(finalLine)[2];
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        new Utf8Text(summary).write(num);
     }
-
-
-
 
 }

@@ -31,7 +31,7 @@ public abstract class RakutenQuest implements Serializable {
         final List<JournalCrawler> crawlers = Generics.newArrayList();
 
         crawlers.add(new RakutenCrawler(year, appDir));
-        //crawlers.add(new RakutenBankCrawler(year, appDir));
+        crawlers.add(new RakutenBankCrawler(year, appDir));
         crawlers.add(new MajicaCrawler(year, appDir));
 
         // TODO Summary Rakuten > 済
@@ -65,7 +65,7 @@ public abstract class RakutenQuest implements Serializable {
         StringBuilderLn sb = new StringBuilderLn();
 
         for (JournalCrawler crawler : getCrawlers()) {
-            crawler.doDowoload();
+            crawler.dowoload();
             sb.appendLn(crawler.getText());
         }
 

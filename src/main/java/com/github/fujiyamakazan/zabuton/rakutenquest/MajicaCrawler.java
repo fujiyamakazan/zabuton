@@ -11,6 +11,7 @@ import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 
 import com.github.fujiyamakazan.zabuton.util.CsvUtils;
+import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
 import com.github.fujiyamakazan.zabuton.util.text.TextMerger;
@@ -19,9 +20,28 @@ import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 public final class MajicaCrawler extends JournalCrawler {
     private static final long serialVersionUID = 1L;
 
-    private final File masterFile = new File(crawlerDir, year + ".csv");
+    private final JournalCsv masterFile = new JournalCsv(crawlerDir, year + ".csv");
     private final File summary = new File(crawlerDir, "summary_" + year + ".txt");
 
+    public static void main(String[] args) {
+
+        MajicaCrawler c = new MajicaCrawler(2021, EnvUtils.getUserDesktop("RakutenQuest3"));
+
+        Utf8Text text = new Utf8Text(c.getMaster().getFile());
+        List<String> lines = text.readLines();
+        int rowIndex = 1;
+        List<String> newLines = Generics.newArrayList();
+        for (String line : lines) {
+            line = "\"" + (rowIndex++) + "\"," + line;
+            newLines.add(line);
+        }
+        text.writeLines(newLines);
+
+    }
+
+    /**
+     * コンストラクタです。
+     */
     public MajicaCrawler(int year, File appDir) {
         super("Majica", year, appDir);
         setMaster(masterFile);
@@ -87,7 +107,7 @@ public final class MajicaCrawler extends JournalCrawler {
         String html = getDownloadText();
         Document doc = Jsoup.parse(html);
         Elements trs = doc.select("tr");
-        for (Element tr: trs) {
+        for (Element tr : trs) {
 
             String line = tr.text();
             if (line.startsWith("● 利用可能残高 ：")) {

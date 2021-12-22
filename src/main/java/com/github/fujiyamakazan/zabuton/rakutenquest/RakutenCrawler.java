@@ -12,6 +12,7 @@ import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 
 import com.github.fujiyamakazan.zabuton.util.CsvUtils;
+import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
 import com.github.fujiyamakazan.zabuton.util.text.TextMerger;
@@ -25,17 +26,45 @@ public class RakutenCrawler extends JournalCrawler {
     public static final String CREDIT = "CREDIT";
     public static final String POINT = "POINT";
 
-    private final File masterCredit = new File(crawlerDir, "credit_" + year + ".csv");
-    private final File masterPoint = new File(crawlerDir, "point_" + year + ".csv");
+    private final JournalCsv masterCredit = new JournalCsv(crawlerDir, "credit_" + year + ".csv");
+    private final JournalCsv masterPoint = new JournalCsv(crawlerDir, "point_" + year + ".csv");
     private final File summary = new File(crawlerDir, "summary_" + year + ".txt");
 
+    public static void main(String[] args) {
+
+        RakutenCrawler c = new RakutenCrawler(2021, EnvUtils.getUserDesktop("RakutenQuest3"));
+
+        //        Utf8Text text = new Utf8Text(c.getMaster(CREDIT));
+        //        List<String> lines = text.readLines();
+        //        int rowIndex = 1;
+        //        List<String> newLines = Generics.newArrayList();
+        //        for (String line: lines) {
+        //            line = "\""+ (rowIndex++)+"\"," + line;
+        //            newLines.add(line);
+        //        }
+        //        text.writeLines(newLines);
+
+//        Utf8Text text = new Utf8Text(c.getMaster(POINT));
+//        List<String> lines = text.readLines();
+//        int rowIndex = 1;
+//        List<String> newLines = Generics.newArrayList();
+//        for (String line : lines) {
+//            line = "\"" + (rowIndex++) + "\"," + line;
+//            newLines.add(line);
+//        }
+//        text.writeLines(newLines);
+
+    }
+
+    /**
+     * コンストラクタです。
+     */
     public RakutenCrawler(int year, File appDir) {
         super("Rakuten", year, appDir);
         setMaster(CREDIT, masterCredit);
         setMaster(POINT, masterPoint);
         setSummary(summary);
     }
-
 
     @Override
     protected void download() {
@@ -81,10 +110,10 @@ public class RakutenCrawler extends JournalCrawler {
         int point3 = MoneyUtils.toInt(doc.select("h2.box_cash-total span.point_total").text());
         int total = point1 + point2 + point3;
 
-//        log.debug("nomal:" + point1);
-//        log.debug("予定:" + point2);
-//        log.debug("cash:" + point3);
-//        log.debug("total:" + total);
+        //        log.debug("nomal:" + point1);
+        //        log.debug("予定:" + point2);
+        //        log.debug("cash:" + point3);
+        //        log.debug("total:" + total);
 
         new Utf8Text(summary).write(String.valueOf(total));
     }
@@ -97,7 +126,7 @@ public class RakutenCrawler extends JournalCrawler {
         final TextMerger textMerger = new StandardMerger(masterCredit);
 
         int roopCounter = -1;
-        while (roopCounter < 12) {  // 1年分取得
+        while (roopCounter < 12) { // 1年分取得
             roopCounter++;
 
             /* 前のループでダウンロードしたファイルを削除します。*/
@@ -188,6 +217,5 @@ public class RakutenCrawler extends JournalCrawler {
         }
         textMerger.flash();
     }
-
 
 }
