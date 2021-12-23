@@ -22,7 +22,7 @@ import com.opencsv.CSVParser;
  * ・マスターがあるにもかかわらず、最後に処理したテキストにもマスター追加済みレコードと一致するものが無ければ、
  * 遡及回数の不足と考えられる。処理を中断し、警告をする。
  */
-public abstract class TextMerger implements Serializable {
+public class TextMerger implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -37,7 +37,7 @@ public abstract class TextMerger implements Serializable {
         additionlFiles.add(new File("C:\\tmp\\text追加2.txt")); // 処理は最新の追加テキストから順に行う。
         additionlFiles.add(new File("C:\\tmp\\text追加1.txt"));
 
-        TextMerger textMerger = new TextMerger(fileMaster) {
+        TextMerger textMerger = new TextMerger(fileMaster, null) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -69,8 +69,6 @@ public abstract class TextMerger implements Serializable {
 
     }
 
-    protected abstract boolean isAvailableLine(String line);
-
     private final JournalCsv masterText;
     private final List<String> masterLines = Generics.newArrayList();
     private final List<String> buffer = Generics.newArrayList();
@@ -79,6 +77,8 @@ public abstract class TextMerger implements Serializable {
     private boolean existMaster = false;
     private int maxRowIndex = 0;
 
+    private final String availableKeyWord;
+
     public boolean hasNext() {
         return hasNext;
     }
@@ -86,9 +86,9 @@ public abstract class TextMerger implements Serializable {
     /**
      * コンストラクタです。マスターテキストを登録します。
      */
-    public TextMerger(JournalCsv masterText) {
+    public TextMerger(JournalCsv masterText, String availableKeyWord) {
         this.masterText = masterText;
-
+        this.availableKeyWord = availableKeyWord;
         boolean first = true;
 
         for (String line : new Utf8Text(masterText.getFile()).readLines()) {
@@ -125,10 +125,6 @@ public abstract class TextMerger implements Serializable {
 
         }
     }
-
-
-
-
 
     /** マスターがあるにもかかわらず、
      * 最後に処理したテキストにもマスター追加済みレコードと一致するものが無ければ、
@@ -221,6 +217,14 @@ public abstract class TextMerger implements Serializable {
             return false;
         }
         return isAvailableLine(line) == false;
+    }
+
+    protected boolean isAvailableLine(String line) {
+        try {
+            return new CSVParser().parseLine(line)[0].startsWith(availableKeyWord);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.JournalCrawler;
+
 public abstract class JournalFactory implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JournalFactory.class);

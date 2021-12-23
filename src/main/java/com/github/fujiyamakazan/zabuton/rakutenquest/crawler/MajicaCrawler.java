@@ -1,4 +1,4 @@
-package com.github.fujiyamakazan.zabuton.rakutenquest;
+package com.github.fujiyamakazan.zabuton.rakutenquest.crawler;
 
 import java.io.File;
 import java.util.List;
@@ -10,6 +10,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 
+import com.github.fujiyamakazan.zabuton.rakutenquest.JournalCsv;
 import com.github.fujiyamakazan.zabuton.util.CsvUtils;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
@@ -48,7 +49,7 @@ public final class MajicaCrawler extends JournalCrawler {
         cmd.type(By.name("pinOrPassword"), pm.getPassword());
         cmd.clickButtonAndWait("ログイン");
 
-        final TextMerger textMerger = new StandardMerger(masterFile);
+        final TextMerger textMerger = new TextMerger(masterFile, year + "/");
 
         int roopCounter = 0;
         while (roopCounter < 1) { // 1回のみ
@@ -87,7 +88,7 @@ public final class MajicaCrawler extends JournalCrawler {
 
         /* Summary取得 */
         int total = 0;
-        String html = getDownloadText();
+        String html = getDownloadTextAsUtf8();
         Document doc = Jsoup.parse(html);
         Elements trs = doc.select("tr");
         for (Element tr : trs) {

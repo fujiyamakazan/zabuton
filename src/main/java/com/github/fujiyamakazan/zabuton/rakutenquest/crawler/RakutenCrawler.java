@@ -1,4 +1,4 @@
-package com.github.fujiyamakazan.zabuton.rakutenquest;
+package com.github.fujiyamakazan.zabuton.rakutenquest.crawler;
 
 import java.io.File;
 import java.util.List;
@@ -11,6 +11,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 
+import com.github.fujiyamakazan.zabuton.rakutenquest.JournalCsv;
 import com.github.fujiyamakazan.zabuton.util.CsvUtils;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
@@ -97,7 +98,7 @@ public class RakutenCrawler extends JournalCrawler {
      */
     private void downloadCredit() {
 
-        final TextMerger textMerger = new StandardMerger(masterCredit);
+        final TextMerger textMerger = new TextMerger(masterCredit, year + "/");
 
         int roopCounter = -1;
         while (roopCounter < 12) { // 1年分取得
@@ -141,7 +142,7 @@ public class RakutenCrawler extends JournalCrawler {
      */
     private void downloadPoint() {
 
-        final TextMerger textMerger = new StandardMerger(masterPoint);
+        final TextMerger textMerger = new TextMerger(masterPoint, year + "/");
 
         int roopCounter = 0;
         while (roopCounter <= 15) { // 約１年分

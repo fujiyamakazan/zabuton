@@ -6,6 +6,12 @@ import java.util.List;
 
 import org.apache.wicket.util.lang.Generics;
 
+import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.JournalCrawler;
+import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.MajicaCrawler;
+import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.RakutenCrawler;
+import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.ShonanShinkinCrawler;
+import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.UCSCardCrawler;
+import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.YahooCardCrawler;
 import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.StringBuilderLn;
 import com.github.fujiyamakazan.zabuton.util.exec.RuntimeExc;
@@ -17,36 +23,38 @@ public abstract class RakutenQuest implements Serializable {
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RakutenQuest.class);
 
+    public static File APP_DIR = new File(EnvUtils.getUserDesktop(), "RakutenQuest3");
+
     /**
      * 動作確認をします。
+     * TODO USCのSUMMAYが取れていない
+     * TODO YahooCardのSUMMAYが取れていない
+     * TODO YahooCardの未確定月から残高を考慮
+     *
      */
     public static void main(String[] args) {
 
-        File appDir = new File(EnvUtils.getUserDesktop(), "RakutenQuest3");
-        if (appDir.exists() == false) {
-            appDir.mkdirs();
+
+        if (APP_DIR.exists() == false) {
+            APP_DIR.mkdirs();
         }
 
         final int year = 2021;
         final List<JournalCrawler> crawlers = Generics.newArrayList();
 
-        crawlers.add(new RakutenCrawler(year, appDir));
-        crawlers.add(new RakutenBankCrawler(year, appDir));
-        crawlers.add(new MajicaCrawler(year, appDir));
-
-        // TODO Summary Rakuten > 済
-        // TODO Summary Majica > 済
-        // TODO UC
-        // TODO RakutenBK
-        // TODO ShonanBK
-
+        crawlers.add(new RakutenCrawler(year, APP_DIR));
+        //crawlers.add(new RakutenBankCrawler(year, appDir));
+        crawlers.add(new MajicaCrawler(year, APP_DIR));
+        crawlers.add(new ShonanShinkinCrawler(year, APP_DIR));
+        crawlers.add(new UCSCardCrawler(year, APP_DIR));
+        crawlers.add(new YahooCardCrawler(year, APP_DIR));
 
         new RakutenQuest() {
             private static final long serialVersionUID = 1L;
 
             @Override
             protected File getWorkDir() {
-                return appDir;
+                return APP_DIR;
             }
 
             @Override

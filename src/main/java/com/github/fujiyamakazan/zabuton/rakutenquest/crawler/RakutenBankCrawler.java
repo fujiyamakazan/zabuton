@@ -1,4 +1,4 @@
-package com.github.fujiyamakazan.zabuton.rakutenquest;
+package com.github.fujiyamakazan.zabuton.rakutenquest.crawler;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.lang.Generics;
 
+import com.github.fujiyamakazan.zabuton.rakutenquest.JournalCsv;
 import com.github.fujiyamakazan.zabuton.util.jframe.JFrameUtils;
 import com.github.fujiyamakazan.zabuton.util.text.ShiftJisText;
 import com.github.fujiyamakazan.zabuton.util.text.TextMerger;
@@ -24,6 +25,9 @@ public class RakutenBankCrawler extends JournalCrawler {
     private final JournalCsv master = new JournalCsv(crawlerDir, year + ".csv");
     private final File summary = new File(crawlerDir, "summary_" + year + ".txt");
 
+    /**
+     * コンストラクタです。
+     */
     public RakutenBankCrawler(int year, File appDir) {
         super("RakutenBank", year, appDir);
         setMaster(master);
@@ -46,7 +50,7 @@ public class RakutenBankCrawler extends JournalCrawler {
         //        cmd.type(By.name("LOGIN:LOGIN_PASSWORD"), pm.getPassword());
         //        cmd.clickAndWait(By.partialLinkText("ログイン"));
 
-        final TextMerger textMerger = new TextMerger(master) {
+        final TextMerger textMerger = new TextMerger(master, null) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -91,8 +95,7 @@ public class RakutenBankCrawler extends JournalCrawler {
         textMerger.stock(lines);
         textMerger.flash();
 
-
-        String finalLine = lines.get(lines.size()-1);
+        String finalLine = lines.get(lines.size() - 1);
         String num;
         try {
             num = new CSVParser().parseLine(finalLine)[2];

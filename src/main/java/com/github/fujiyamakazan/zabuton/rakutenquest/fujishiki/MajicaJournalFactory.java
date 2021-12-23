@@ -11,7 +11,7 @@ import org.apache.wicket.util.lang.Generics;
 
 import com.github.fujiyamakazan.zabuton.rakutenquest.Journal;
 import com.github.fujiyamakazan.zabuton.rakutenquest.JournalCsv;
-import com.github.fujiyamakazan.zabuton.rakutenquest.MajicaCrawler;
+import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.MajicaCrawler;
 import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;

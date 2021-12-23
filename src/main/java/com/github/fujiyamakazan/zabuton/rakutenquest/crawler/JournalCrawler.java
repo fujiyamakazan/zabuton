@@ -1,7 +1,6 @@
-package com.github.fujiyamakazan.zabuton.rakutenquest;
+package com.github.fujiyamakazan.zabuton.rakutenquest.crawler;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
@@ -15,14 +14,13 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
+import com.github.fujiyamakazan.zabuton.rakutenquest.JournalCsv;
 import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
 import com.github.fujiyamakazan.zabuton.util.RetryWorker;
 import com.github.fujiyamakazan.zabuton.util.StringBuilderLn;
 import com.github.fujiyamakazan.zabuton.util.jframe.JFrameUtils;
-import com.github.fujiyamakazan.zabuton.util.text.TextMerger;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 import com.ibm.icu.util.Calendar;
-import com.opencsv.CSVParser;
 
 public abstract class JournalCrawler implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -34,7 +32,7 @@ public abstract class JournalCrawler implements Serializable {
 
     protected final int year;
     private final String name;
-    private final File appDir;
+    protected final File appDir;
     protected final File crawlerDir;
     protected final File crawlerDailyDir;
 
@@ -157,7 +155,7 @@ public abstract class JournalCrawler implements Serializable {
         return this.crawlerDailyDir.listFiles()[0];
     }
 
-    protected String getDownloadText() {
+    protected String getDownloadTextAsUtf8() {
         if (this.crawlerDailyDir.listFiles().length == 0) {
             return null;
         }
@@ -199,22 +197,22 @@ public abstract class JournalCrawler implements Serializable {
         new Utf8Text(new File(this.crawlerDailyDir, name)).write(text);
     }
 
-    protected final class StandardMerger extends TextMerger {
-        private static final long serialVersionUID = 1L;
-
-        public StandardMerger(JournalCsv masterText) {
-            super(masterText);
-        }
-
-        @Override
-        protected boolean isAvailableLine(String line) {
-            try {
-                return new CSVParser().parseLine(line)[0].startsWith(year + "/");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
+//    protected final class StandardMerger extends TextMerger {
+//        private static final long serialVersionUID = 1L;
+//
+//        public StandardMerger(JournalCsv masterText) {
+//            super(masterText);
+//        }
+//
+//        @Override
+//        protected boolean isAvailableLine(String line) {
+//            try {
+//                return new CSVParser().parseLine(line)[0].startsWith(year + "/");
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
+//    }
 
     /**
      * ダウンロードしたファイルを削除します。
