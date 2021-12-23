@@ -9,9 +9,13 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.lang.Generics;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 
 import com.github.fujiyamakazan.zabuton.rakutenquest.JournalCsv;
+import com.github.fujiyamakazan.zabuton.rakutenquest.RakutenQuest;
+import com.github.fujiyamakazan.zabuton.util.StringBuilderLn;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 import com.github.fujiyamakazan.zabuton.util.text.ShiftJisText;
 import com.github.fujiyamakazan.zabuton.util.text.TextMerger;
@@ -47,7 +51,7 @@ public final class YahooCardCrawler extends JournalCrawler {
     //    }
 
     @Override
-    protected void download() {
+    protected void downloadCore() {
 
         /*
          * ログイン
@@ -134,6 +138,38 @@ public final class YahooCardCrawler extends JournalCrawler {
          */
         cmd.get("https://accounts.yahoo.co.jp/profile");
         cmd.clickAndWait(By.partialLinkText("ログアウト"));
+
+    }
+
+    public static void main(String[] args) {
+        String year = "2021";
+        //        YahooCardCrawler me = new YahooCardCrawler(2021, RakutenQuest.APP_DIR);
+        //        //me.test();
+        //        me.download();
+
+        String html = new Utf8Text(new File(RakutenQuest.APP_DIR, "test2.html")).read();
+        //        //System.out.println(html);
+        //
+
+        StringBuilderLn sb = new StringBuilderLn();
+
+        Elements trs = Jsoup.parse(html).select("tr");
+        for (Element tr : trs) {
+            String str = tr.text() + ",";
+            if (str.startsWith(year + "/") == false) {
+                continue;
+            }
+            StringBuilder sbTd = new StringBuilder();
+            for (Element td : tr.select("td")) {
+                if (sbTd.length() > 0) {
+                    sbTd.append(",");
+                }
+                sbTd.append("\"" + td.text().trim() + "\"");
+            }
+            sb.appendLn(sbTd.toString());
+        }
+
+        System.out.println(sb.toString());
 
     }
 

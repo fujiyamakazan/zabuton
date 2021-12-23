@@ -52,7 +52,7 @@ public abstract class JournalCrawler implements Serializable {
     /**
      * 明細をダウンロードします。
      */
-    public void dowoload() {
+    public void download() {
         if (isSkip() == false) {
             try {
 
@@ -95,7 +95,7 @@ public abstract class JournalCrawler implements Serializable {
                     }
                 };
 
-                download();
+                downloadCore();
                 this.cmd.quit();
 
             } catch (Exception e) {
@@ -146,7 +146,7 @@ public abstract class JournalCrawler implements Serializable {
         return summary;
     }
 
-    protected abstract void download();
+    protected abstract void downloadCore();
 
     protected File getDownloadFileOne() {
         if (this.crawlerDailyDir.listFiles().length == 0) {

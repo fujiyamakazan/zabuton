@@ -35,7 +35,7 @@ public class RakutenBankCrawler extends JournalCrawler {
     }
 
     @Override
-    protected void download() {
+    protected void downloadCore() {
         /*
          * ダウンロード処理
          */

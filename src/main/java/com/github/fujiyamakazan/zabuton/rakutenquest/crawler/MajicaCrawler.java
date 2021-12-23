@@ -33,7 +33,7 @@ public final class MajicaCrawler extends JournalCrawler {
     }
 
     @Override
-    protected void download() {
+    protected void downloadCore() {
 
         /*
          * ログイン

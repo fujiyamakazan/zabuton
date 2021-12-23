@@ -34,7 +34,7 @@ public final class UCSCardCrawler extends JournalCrawler {
     }
 
     @Override
-    protected void download() {
+    protected void downloadCore() {
 
         /*
          * ログイン
@@ -119,32 +119,40 @@ public final class UCSCardCrawler extends JournalCrawler {
 
     public static void main(String[] args) {
         UCSCardCrawler me = new UCSCardCrawler(2021, RakutenQuest.APP_DIR);
-        me.test();
+        //me.test();
+        //me.download();
+
+        String html = new Utf8Text(new File(RakutenQuest.APP_DIR, "test3.html")).read();
+        //System.out.println(html);
+
+        String summaryText = Jsoup.parse(html).select("dl.usage-details_summary").text() + ",";
+        System.out.println(summaryText);
+
     }
 
-    private void test() {
-        final TextMerger textMerger = new TextMerger(master, null) {
-            private static final long serialVersionUID = 1L;
-            @Override
-            protected boolean isAvailableLine(String line) {
-                try {
-                    return new CSVParser().parseLine(line)[2].startsWith(String.valueOf(year));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
-        File fileOriginal = getDownloadFileOne();
-        List<String> lines = Generics.newArrayList();
-        for (String line : new ShiftJisText(fileOriginal).readLines()) {
-            line = line.trim();
-            if (StringUtils.isEmpty(line)) {
-                continue;
-            }
-            lines.add(line);
-        }
-        textMerger.stock(lines);
-        textMerger.flash();
-    }
+//    private void test() {
+//        final TextMerger textMerger = new TextMerger(master, null) {
+//            private static final long serialVersionUID = 1L;
+//            @Override
+//            protected boolean isAvailableLine(String line) {
+//                try {
+//                    return new CSVParser().parseLine(line)[2].startsWith(String.valueOf(year));
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
+//        };
+//        File fileOriginal = getDownloadFileOne();
+//        List<String> lines = Generics.newArrayList();
+//        for (String line : new ShiftJisText(fileOriginal).readLines()) {
+//            line = line.trim();
+//            if (StringUtils.isEmpty(line)) {
+//                continue;
+//            }
+//            lines.add(line);
+//        }
+//        textMerger.stock(lines);
+//        textMerger.flash();
+//    }
 
 }

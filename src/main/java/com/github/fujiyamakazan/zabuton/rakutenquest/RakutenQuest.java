@@ -27,7 +27,6 @@ public abstract class RakutenQuest implements Serializable {
 
     /**
      * 動作確認をします。
-     * TODO USCのSUMMAYが取れていない
      * TODO YahooCardのSUMMAYが取れていない
      * TODO YahooCardの未確定月から残高を考慮
      *
@@ -73,7 +72,7 @@ public abstract class RakutenQuest implements Serializable {
         StringBuilderLn sb = new StringBuilderLn();
 
         for (JournalCrawler crawler : getCrawlers()) {
-            crawler.dowoload();
+            crawler.download();
             sb.appendLn(crawler.getText());
         }
 
