@@ -23,7 +23,7 @@ public class JPageChoice implements Serializable {
     private String message;
     private Model<Boolean> cancel;
     private List<JPageButton> choices = Generics.newArrayList();
-    private JPageApplication app ;
+    private JPageApplication app;
 
     /**
      * インスタンスを生成します。

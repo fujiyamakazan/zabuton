@@ -11,8 +11,8 @@ import org.apache.wicket.util.lang.Generics;
 import org.openqa.selenium.By;
 
 import com.github.fujiyamakazan.zabuton.rakutenquest.JournalCsv;
-import com.github.fujiyamakazan.zabuton.rakutenquest.RakutenQuest;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
+import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
 import com.github.fujiyamakazan.zabuton.util.text.ShiftJisText;
 import com.github.fujiyamakazan.zabuton.util.text.TextMerger;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
@@ -85,8 +85,8 @@ public final class ShonanShinkinCrawler extends JournalCrawler {
                 String[] datas;
                 try {
                     datas = new CSVParser().parseLine(line);
-                } catch (IOException e1) {
-                    throw new RuntimeException(e1);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
                 try {
                     /* 日付に変換できるかをチェック */
@@ -127,40 +127,45 @@ public final class ShonanShinkinCrawler extends JournalCrawler {
         return finalValue;
     }
 
-    public static void main(String[] args) {
-        ShonanShinkinCrawler me = new ShonanShinkinCrawler(2021, RakutenQuest.APP_DIR);
-        //me.download();
-        //me.test();
+//    public static void main(String[] args) {
+//        ShonanShinkinCrawler me = new ShonanShinkinCrawler(2021, RakutenQuest.APP_DIR);
+//        //me.download();
+//        //me.test();
+//
+//        System.out.println(me.getSummary(me.getDownloadFileOne()));
+//
+//    }
 
-        System.out.println(me.getSummary(me.getDownloadFileOne()));
+//    private void test() {
+//        final TextMerger textMerger = new TextMerger(master, year + "-");
+//        File fileOriginal = getDownloadFileOne();
+//        List<String> lines = Generics.newArrayList();
+//        for (String line : new ShiftJisText(fileOriginal).readLines()) {
+//            line = line.trim();
+//            if (StringUtils.isEmpty(line)) {
+//                continue;
+//            }
+//            String[] datas;
+//            try {
+//                datas = new CSVParser().parseLine(line);
+//            } catch (IOException e1) {
+//                throw new RuntimeException(e1);
+//            }
+//            try {
+//                /* 日付に変換できるかをチェック */
+//                new SimpleDateFormat("yyyy-MM-dd").parse(datas[0]);
+//            } catch (ParseException e) {
+//                continue;
+//            }
+//            lines.add(line);
+//        }
+//        textMerger.stock(lines);
+//        textMerger.flash();
+//    }
 
-    }
-
-    private void test() {
-        final TextMerger textMerger = new TextMerger(master, year + "-");
-        File fileOriginal = getDownloadFileOne();
-        List<String> lines = Generics.newArrayList();
-        for (String line : new ShiftJisText(fileOriginal).readLines()) {
-            line = line.trim();
-            if (StringUtils.isEmpty(line)) {
-                continue;
-            }
-            String[] datas;
-            try {
-                datas = new CSVParser().parseLine(line);
-            } catch (IOException e1) {
-                throw new RuntimeException(e1);
-            }
-            try {
-                /* 日付に変換できるかをチェック */
-                new SimpleDateFormat("yyyy-MM-dd").parse(datas[0]);
-            } catch (ParseException e) {
-                continue;
-            }
-            lines.add(line);
-        }
-        textMerger.stock(lines);
-        textMerger.flash();
+    public String getAssetShonanShinkin() {
+        String num = new Utf8Text(summary).read();
+        return "湘南信金：" + MoneyUtils.toInt(num) + "円";
     }
 
 }

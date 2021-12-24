@@ -5,17 +5,18 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.lang.Generics;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 
 import com.github.fujiyamakazan.zabuton.rakutenquest.JournalCsv;
 import com.github.fujiyamakazan.zabuton.rakutenquest.RakutenQuest;
-import com.github.fujiyamakazan.zabuton.util.StringBuilderLn;
+import com.github.fujiyamakazan.zabuton.util.CsvUtils;
+import com.github.fujiyamakazan.zabuton.util.date.DateFormatConverter;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 import com.github.fujiyamakazan.zabuton.util.text.ShiftJisText;
 import com.github.fujiyamakazan.zabuton.util.text.TextMerger;
@@ -98,7 +99,7 @@ public final class YahooCardCrawler extends JournalCrawler {
             /* 支払情報収取 */
             String html = this.cmd.getPageSource();
             new Utf8Text(new File(appDir, "test1.html")).write(html); // TODO
-            summaryText += Jsoup.parse(html).select("div.mainStatus").text() + ",";
+            summaryText += "\"" + Jsoup.parse(html).select("div.mainStatus").text() + "\",";
 
             /* 明細をダウンロード */
             if (cmd.isPresent(By.partialLinkText("CSVダウンロード")) == false) {
@@ -141,36 +142,29 @@ public final class YahooCardCrawler extends JournalCrawler {
 
     }
 
-    public static void main(String[] args) {
-        String year = "2021";
-        //        YahooCardCrawler me = new YahooCardCrawler(2021, RakutenQuest.APP_DIR);
-        //        //me.test();
-        //        me.download();
-
-        String html = new Utf8Text(new File(RakutenQuest.APP_DIR, "test2.html")).read();
-        //        //System.out.println(html);
-        //
-
-        StringBuilderLn sb = new StringBuilderLn();
-
-        Elements trs = Jsoup.parse(html).select("tr");
-        for (Element tr : trs) {
-            String str = tr.text() + ",";
-            if (str.startsWith(year + "/") == false) {
-                continue;
-            }
-            StringBuilder sbTd = new StringBuilder();
-            for (Element td : tr.select("td")) {
-                if (sbTd.length() > 0) {
-                    sbTd.append(",");
+    public String getAssetYahooCredit() {
+        String str = new Utf8Text(summary).read();
+        StringBuilder sb = new StringBuilder();
+        for (String data : CsvUtils.splitCsv(str)) {
+            Pattern p = Pattern.compile("お支払い日 (.+)ご請求金額(.+)円");
+            Matcher m = p.matcher(data);
+            if (m.find()) {
+                if (sb.length() > 0) {
+                    sb.append(",");
                 }
-                sbTd.append("\"" + td.text().trim() + "\"");
+                String dateString = m.group(1);
+                dateString = DateFormatConverter.convert(dateString, "MM月 dd日", "MM/dd");
+                sb.append(m.group(2) + "円(" + dateString + "精算)");
             }
-            sb.appendLn(sbTd.toString());
+
         }
-
-        System.out.println(sb.toString());
-
+        return "ヤフーカード（クレジット）：" + sb.toString();
     }
+
+    public static void main(String[] args) {
+        YahooCardCrawler me = new YahooCardCrawler(2021, RakutenQuest.APP_DIR);
+        System.out.println(me.getAssetYahooCredit());
+    }
+
 
 }

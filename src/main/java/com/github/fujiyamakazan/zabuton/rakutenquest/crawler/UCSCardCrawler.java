@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.lang.Generics;
@@ -12,6 +14,8 @@ import org.openqa.selenium.By;
 
 import com.github.fujiyamakazan.zabuton.rakutenquest.JournalCsv;
 import com.github.fujiyamakazan.zabuton.rakutenquest.RakutenQuest;
+import com.github.fujiyamakazan.zabuton.util.CsvUtils;
+import com.github.fujiyamakazan.zabuton.util.date.DateFormatConverter;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 import com.github.fujiyamakazan.zabuton.util.text.ShiftJisText;
 import com.github.fujiyamakazan.zabuton.util.text.TextMerger;
@@ -53,6 +57,7 @@ public final class UCSCardCrawler extends JournalCrawler {
         String summaryText = "";
         final TextMerger textMerger = new TextMerger(master, null) {
             private static final long serialVersionUID = 1L;
+
             @Override
             protected boolean isAvailableLine(String line) {
                 try {
@@ -82,7 +87,7 @@ public final class UCSCardCrawler extends JournalCrawler {
 
             /* 支払情報収取 */
             String html = this.cmd.getPageSource();
-            summaryText += Jsoup.parse(html).select("dl.usage-details_summary").text() + ",";
+            summaryText += "\"" + Jsoup.parse(html).select("dl.usage-details_summary").text() + "\",";
 
             /* 明細をダウンロード */
             if (cmd.isPresent(By.xpath("//a[img[@alt='ご利用明細ダウンロード(CSV)']]")) == false) {
@@ -117,42 +122,29 @@ public final class UCSCardCrawler extends JournalCrawler {
 
     }
 
-    public static void main(String[] args) {
-        UCSCardCrawler me = new UCSCardCrawler(2021, RakutenQuest.APP_DIR);
-        //me.test();
-        //me.download();
+    public String getAssetUCSCredit() {
+        String str = new Utf8Text(summary).read();
+        StringBuilder sb = new StringBuilder();
+        for (String data : CsvUtils.splitCsv(str)) {
+            Pattern p = Pattern.compile("今回のお支払総額 (.+)円 お支払日 (.+)");
+            Matcher m = p.matcher(data);
+            if (m.find()) {
+                if (sb.length() > 0) {
+                    sb.append(",");
+                }
+                String dateString = m.group(2);
+                dateString = DateFormatConverter.convert(dateString, "yyyy年MM月dd日（E）", "MM/dd");
+                sb.append(m.group(1) + "円(" + dateString + "精算)");
+            }
 
-        String html = new Utf8Text(new File(RakutenQuest.APP_DIR, "test3.html")).read();
-        //System.out.println(html);
+        }
 
-        String summaryText = Jsoup.parse(html).select("dl.usage-details_summary").text() + ",";
-        System.out.println(summaryText);
-
+        return "UCSマジカカード（クレジット）：" + sb.toString();
     }
 
-//    private void test() {
-//        final TextMerger textMerger = new TextMerger(master, null) {
-//            private static final long serialVersionUID = 1L;
-//            @Override
-//            protected boolean isAvailableLine(String line) {
-//                try {
-//                    return new CSVParser().parseLine(line)[2].startsWith(String.valueOf(year));
-//                } catch (IOException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//        };
-//        File fileOriginal = getDownloadFileOne();
-//        List<String> lines = Generics.newArrayList();
-//        for (String line : new ShiftJisText(fileOriginal).readLines()) {
-//            line = line.trim();
-//            if (StringUtils.isEmpty(line)) {
-//                continue;
-//            }
-//            lines.add(line);
-//        }
-//        textMerger.stock(lines);
-//        textMerger.flash();
-//    }
+    public static void main(String[] args) {
+        UCSCardCrawler me = new UCSCardCrawler(2021, RakutenQuest.APP_DIR);
+        System.out.println(me.getAssetUCSCredit());
+    }
 
 }

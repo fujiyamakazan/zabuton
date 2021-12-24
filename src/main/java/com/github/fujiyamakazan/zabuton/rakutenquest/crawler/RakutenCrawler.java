@@ -12,7 +12,9 @@ import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 
 import com.github.fujiyamakazan.zabuton.rakutenquest.JournalCsv;
+import com.github.fujiyamakazan.zabuton.rakutenquest.RakutenQuest;
 import com.github.fujiyamakazan.zabuton.util.CsvUtils;
+import com.github.fujiyamakazan.zabuton.util.date.DateFormatConverter;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
 import com.github.fujiyamakazan.zabuton.util.text.TextMerger;
@@ -29,7 +31,6 @@ public class RakutenCrawler extends JournalCrawler {
     private final JournalCsv masterCredit = new JournalCsv(crawlerDir, "credit_" + year + ".csv");
     private final JournalCsv masterPoint = new JournalCsv(crawlerDir, "point_" + year + ".csv");
     private final File summary = new File(crawlerDir, "summary_" + year + ".txt");
-
 
     /**
      * コンストラクタです。
@@ -72,25 +73,26 @@ public class RakutenCrawler extends JournalCrawler {
         /* 前の処理でダウンロードしたファイルを削除します。*/
         deletePreFile();
 
-        cmd.get("https://point.rakuten.co.jp/history/?l-id=point_top_history_pc");
+        cmd.get("https://www.rakuten-card.co.jp/e-navi/members/index.xhtml");
 
         /* HTMLを保存 */
         String html = this.cmd.getPageSource();
-        saveDaily("html.txt", html);
+        saveDaily(summary.getName(), html); // 本日処理があったことを残す
+        new Utf8Text(summary).write(html);
 
-        Document doc = Jsoup.parse(html);
-        Elements points = doc.select("h2.box_point-total span.point_total");
-        int point1 = MoneyUtils.toInt(points.get(0).text());
-        int point2 = MoneyUtils.toInt(points.get(1).text());
-        int point3 = MoneyUtils.toInt(doc.select("h2.box_cash-total span.point_total").text());
-        int total = point1 + point2 + point3;
+        //        Document doc = Jsoup.parse(html);
+        //        Elements points = doc.select("h2.box_point-total span.point_total");
+        //        int point1 = MoneyUtils.toInt(points.get(0).text());
+        //        int point2 = MoneyUtils.toInt(points.get(1).text());
+        //        int point3 = MoneyUtils.toInt(doc.select("h2.box_cash-total span.point_total").text());
+        //        int total = point1 + point2 + point3;
 
         //        log.debug("nomal:" + point1);
         //        log.debug("予定:" + point2);
         //        log.debug("cash:" + point3);
         //        log.debug("total:" + total);
 
-        new Utf8Text(summary).write(String.valueOf(total));
+        //new Utf8Text(summary).write(String.valueOf(total));
     }
 
     /**
@@ -174,7 +176,11 @@ public class RakutenCrawler extends JournalCrawler {
                 strDate = strDate.replaceAll("<br>", "/");
                 final String service = tds.get(1).text();
                 final String naiyo = tds.get(2).text();
-                final String kubun = tds.get(3).text();
+                String kubun = tds.get(3).text();
+                /* 「利用 手続き中(申請中)」と「利用完了」は「利用」にまとめる */
+                if (StringUtils.equals(kubun, "利用 手続き中(申請中)") || StringUtils.equals(kubun, "利用完了")) {
+                    kubun = "利用";
+                }
                 final String value = tds.get(4).text();
                 String note = tds.get(5).text();
                 /* 「獲得予定ポイント 」は取得のタイミングで消えるため、除去 */
@@ -193,4 +199,29 @@ public class RakutenCrawler extends JournalCrawler {
         textMerger.flash();
     }
 
+    public String getAssetRakutenCredit() {
+        String html = new Utf8Text(summary).read();
+        Document doc = Jsoup.parse(html);
+
+        //String payday = doc.select(".rd-font-robot[text()=\"12月度のお支払い\"]").text();
+        String payday = doc.select("div.rd-billInfo-table_data div.rd-font-robot").text();
+        payday = DateFormatConverter.convert(payday, "yyyy年MM月dd日", "MM/dd");
+
+        String credit = doc.select("#js-rd-billInfo-amount_show").text();
+        return "楽天カード（クレジット）：" + MoneyUtils.toInt(credit) + "円(" + payday + "精算)";
+    }
+
+    public String getAssetRakutenPoint() {
+        String html = new Utf8Text(summary).read();
+        Document doc = Jsoup.parse(html);
+        String point = doc.select("#rakutenSuperPoints").text();
+        String futurePoint = doc.select("#futureGrantedPoint").text();
+        return "楽天ポイント：" + (MoneyUtils.toInt(point) + MoneyUtils.toInt(futurePoint))
+            + "ポイント(キャッシュ、獲得予定含む)";
+    }
+
+    public static void main(String[] args) {
+        RakutenCrawler me = new RakutenCrawler(2021, RakutenQuest.APP_DIR);
+        System.out.println(me.getAssetRakutenCredit());
+    }
 }

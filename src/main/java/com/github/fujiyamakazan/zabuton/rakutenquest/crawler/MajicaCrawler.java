@@ -104,4 +104,8 @@ public final class MajicaCrawler extends JournalCrawler {
 
     }
 
+    public String getAssetMajicaMoney() {
+        String num = new Utf8Text(summary).read();
+        return "マジカマネー：" + MoneyUtils.toInt(num) + "円";
+    }
 }

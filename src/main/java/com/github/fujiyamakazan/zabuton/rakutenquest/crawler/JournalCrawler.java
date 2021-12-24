@@ -250,4 +250,8 @@ public abstract class JournalCrawler implements Serializable {
         return sb.toString();
     }
 
+    public String getName() {
+        return name;
+    }
+
 }

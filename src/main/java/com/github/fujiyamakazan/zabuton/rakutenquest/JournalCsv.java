@@ -80,6 +80,15 @@ public class JournalCsv implements Serializable {
         public int length() {
             return csv.length - 1;
         }
+
+        public boolean contains(String string) {
+            for (String str : csv) {
+                if (StringUtils.equals(str, string)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     public static int getRowIndex(String line) throws IOException {

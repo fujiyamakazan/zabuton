@@ -1,6 +1,7 @@
 package com.github.fujiyamakazan.zabuton.util.string;
 
 import java.io.Serializable;
+import java.util.regex.Pattern;
 
 public class MoneyUtils implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -8,6 +9,13 @@ public class MoneyUtils implements Serializable {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(MoneyUtils.class);
 
     public static int toInt(String text) {
+        if (text == null) {
+            text = "";
+        }
+        text.trim();
+        text = text.replaceAll(Pattern.quote("\\"), "");
+        text = text.replaceAll("￥", "");
+        text = text.replaceAll("¥", ""); // 文字コードが特殊な記号
         text = text.replaceAll("円", "");
         text = text.replaceAll(",", "");
         text = text.replaceAll(" ", "");
