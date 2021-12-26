@@ -39,7 +39,7 @@ public abstract class JournalFactory implements Serializable {
             for (Journal exist : existDatas) {
                 if (StringUtils.equals(exist.getSource(), journal.getSource())
                     && StringUtils.equals(exist.getRowIndex(), journal.getRowIndex())) {
-                    log.debug("仕訳済み：" + exist);
+                    //log.debug("仕訳済み：" + exist);
                     iterator.remove();
                     break;
                 }

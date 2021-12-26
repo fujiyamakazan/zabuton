@@ -2,6 +2,7 @@ package com.github.fujiyamakazan.zabuton.util;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.List;
 
 import com.opencsv.CSVParser;
 
@@ -25,6 +26,10 @@ public class CsvUtils implements Serializable {
         return new CSVParser().parseToLine(ary, true);
     }
 
+    public static String convertString(List<String> csv) {
+        return convertString(csv.toArray(new String[csv.size()]));
+    }
+
     public static String[] splitCsv(String str) {
         try {
             return new CSVParser().parseLine(str);
@@ -32,5 +37,7 @@ public class CsvUtils implements Serializable {
             throw new RuntimeException(e);
         }
     }
+
+
 
 }

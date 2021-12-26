@@ -1,6 +1,7 @@
 package com.github.fujiyamakazan.zabuton.rakutenquest.crawler;
 
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -73,26 +74,26 @@ public class RakutenCrawler extends JournalCrawler {
         /* 前の処理でダウンロードしたファイルを削除します。*/
         deletePreFile();
 
+        String html = "";
+
+        /*
+         * 楽天ポイントを取得するためにトップページを保存する
+         */
         cmd.get("https://www.rakuten-card.co.jp/e-navi/members/index.xhtml");
+        html += this.cmd.getPageSource();
+
+        /*
+         * summary情報の取得元として
+         * 直近2か月分の明細のHTMLを保存する
+         */
+        cmd.get("https://www.rakuten-card.co.jp/e-navi/members/statement/index.xhtml?tabNo=0");
+        html += this.cmd.getPageSource();
+        cmd.get("https://www.rakuten-card.co.jp/e-navi/members/statement/index.xhtml?tabNo=1");
+        html += this.cmd.getPageSource();
 
         /* HTMLを保存 */
-        String html = this.cmd.getPageSource();
         saveDaily(summary.getName(), html); // 本日処理があったことを残す
         new Utf8Text(summary).write(html);
-
-        //        Document doc = Jsoup.parse(html);
-        //        Elements points = doc.select("h2.box_point-total span.point_total");
-        //        int point1 = MoneyUtils.toInt(points.get(0).text());
-        //        int point2 = MoneyUtils.toInt(points.get(1).text());
-        //        int point3 = MoneyUtils.toInt(doc.select("h2.box_cash-total span.point_total").text());
-        //        int total = point1 + point2 + point3;
-
-        //        log.debug("nomal:" + point1);
-        //        log.debug("予定:" + point2);
-        //        log.debug("cash:" + point3);
-        //        log.debug("total:" + total);
-
-        //new Utf8Text(summary).write(String.valueOf(total));
     }
 
     /**
@@ -200,15 +201,48 @@ public class RakutenCrawler extends JournalCrawler {
     }
 
     public String getAssetRakutenCredit() {
-        String html = new Utf8Text(summary).read();
-        Document doc = Jsoup.parse(html);
 
-        //String payday = doc.select(".rd-font-robot[text()=\"12月度のお支払い\"]").text();
-        String payday = doc.select("div.rd-billInfo-table_data div.rd-font-robot").text();
-        payday = DateFormatConverter.convert(payday, "yyyy年MM月dd日", "MM/dd");
+        String htmlAll = new Utf8Text(summary).read();
+        int html1Index = 0;
+        int html2Index = htmlAll.indexOf("<html", html1Index + 1);
+        int html3Index = htmlAll.indexOf("<html",html2Index + 1);
+        //String html1 = htmlAll.substring(html1Index, html2Index);
+        String html2 = htmlAll.substring(html2Index, html3Index);
+        String html3 = htmlAll.substring(html3Index);
 
-        String credit = doc.select("#js-rd-billInfo-amount_show").text();
-        return "楽天カード（クレジット）：" + MoneyUtils.toInt(credit) + "円(" + payday + "精算)";
+        /* xx,xxx 円*/
+        String cssQueryAmount = "div.stmt-about__main div.stmt-about-payment__money__main__num";
+        String a1 = Jsoup.parse(html2).select(cssQueryAmount).text();
+        String a2 = Jsoup.parse(html3).select(cssQueryAmount).text();
+        int amount1 = MoneyUtils.toInt(a1);
+        int amount2 = MoneyUtils.toInt(a2);
+
+        /* 2022年01月27日 (木) 土日祝日の場合は翌営業日 */
+        String cssQueryDate = "div.stmt-about-info__date__detail";
+        String d1 = Jsoup.parse(html2).select(cssQueryDate).text();
+        String d2 = Jsoup.parse(html3).select(cssQueryDate).text();
+
+        Date date1 = DateFormatConverter.parse(d1, "yyyy年MM月dd日");
+        Date date2 = DateFormatConverter.parse(d2, "yyyy年MM月dd日");
+
+        /* 期限前のみ合計を取る */
+        int summury = 0;
+        if (date1.after(new Date())) {
+            summury += amount1;
+        }
+        if (date2.after(new Date())) {
+            summury += amount2;
+        }
+
+        return "楽天カード（クレジット）：" + summury + "円(未払い分)";
+
+//        System.out.println(summury);
+//        Document doc = Jsoup.parse(html1);
+//        String payday = doc.select("div.rd-billInfo-table_data div.rd-font-robot").text();
+//        payday = DateFormatConverter.convert(payday, "yyyy年MM月dd日", "MM/dd");
+//
+//        String credit = doc.select("#js-rd-billInfo-amount_show").text();
+//        return "楽天カード（クレジット）：" + MoneyUtils.toInt(credit) + "円(" + payday + "精算)";
     }
 
     public String getAssetRakutenPoint() {
@@ -222,6 +256,8 @@ public class RakutenCrawler extends JournalCrawler {
 
     public static void main(String[] args) {
         RakutenCrawler me = new RakutenCrawler(2021, RakutenQuest.APP_DIR);
+        me.download();
         System.out.println(me.getAssetRakutenCredit());
+        System.out.println(me.getAssetRakutenPoint());
     }
 }
