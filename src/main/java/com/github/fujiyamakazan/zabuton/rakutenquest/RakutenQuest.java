@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.Serializable;
 
 import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.MajicaCrawler;
+import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.RakutenBankCrawler;
 import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.RakutenCrawler;
 import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.ShonanShinkinCrawler;
 import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.UCSCardCrawler;
@@ -52,6 +53,11 @@ public abstract class RakutenQuest implements Serializable {
         MajicaCrawler majica = new MajicaCrawler(YEAR, APP_DIR);
         majica.download();
         System.out.println("Majica:" + majica.getAssetMajicaMoney());
+
+        RakutenBankCrawler bank = new RakutenBankCrawler(YEAR, APP_DIR);
+        majica.download();
+        System.out.println("Rakuten-Bank:" + bank.getAssetBank());
+        System.out.println("Rakuten-Securities:" + bank.getAssetSecurities());
 
 
 
