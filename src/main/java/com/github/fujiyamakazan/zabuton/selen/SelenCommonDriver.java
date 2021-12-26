@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.By;
@@ -117,8 +118,20 @@ public abstract class SelenCommonDriver implements Serializable {
         new Select(element).selectByVisibleText(value);
     }
 
-    public boolean containsText(String text) {
-        return findElements(By.xpath("//*[contains(., '" + text + "')]")).isEmpty() == false;
+    /**
+     * @param recoveryTimeout 処理後に戻すときのタイムアウト時間
+     */
+    public boolean containsText(String text, int recoveryTimeoutSec) {
+
+        /* タイムアウトを短くする */
+        this.originalDriver.manage().timeouts().implicitlyWait(200, TimeUnit.MILLISECONDS);
+
+        try {
+            return findElements(By.xpath("//*[contains(., '" + text + "')]")).isEmpty() == false;
+        } finally {
+            this.originalDriver.manage().timeouts().implicitlyWait(recoveryTimeoutSec * 1000, TimeUnit.MILLISECONDS);
+        }
+
     }
 
     public boolean isPresent(By by) {

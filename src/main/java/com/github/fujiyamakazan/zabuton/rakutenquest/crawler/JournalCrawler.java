@@ -27,6 +27,7 @@ public abstract class JournalCrawler implements Serializable {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JournalCrawler.class);
 
     public static final String STANDRD_DRIVER_NAME = "chromedriver.exe";
+    protected static int DEFAULT_TIMEOUT = 5;
 
     protected SelenCommonDriver cmd;
 
@@ -89,7 +90,7 @@ public abstract class JournalCrawler implements Serializable {
 
                         @SuppressWarnings("deprecation")
                         WebDriver driver = new ChromeDriver(cap);
-                        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS); // 暗黙的な待機時間を設定
+                        driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT, TimeUnit.SECONDS); // 暗黙的な待機時間を設定
 
                         return driver;
                     }

@@ -27,9 +27,7 @@ public abstract class RakutenQuest implements Serializable {
 
     /**
      * 動作確認をします。
-     * TODO YahooCardのSUMMAYが取れていない
-     * TODO YahooCardの未確定月から残高を考慮
-     *
+     * TODO PasswordManagerが見切れている
      */
     public static void main(String[] args) {
 
