@@ -3,11 +3,13 @@ package com.github.fujiyamakazan.zabuton.util.jframe;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.Serializable;
 import java.util.List;
 
 import org.apache.wicket.util.lang.Generics;
 
-public class JPageApplication {
+public class JPageApplication implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private final Object lock = new Object();
 

@@ -11,8 +11,6 @@ import org.apache.wicket.util.lang.Generics;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.remote.CapabilityType;
-import org.openqa.selenium.remote.DesiredCapabilities;
 
 import com.github.fujiyamakazan.zabuton.rakutenquest.JournalCsv;
 import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
@@ -82,14 +80,17 @@ public abstract class JournalCrawler implements Serializable {
                         HashMap<String, Object> chromePrefs = new HashMap<String, Object>();
                         chromePrefs.put("profile.default_content_settings.popups", 0);
                         chromePrefs.put("download.default_directory", crawlerDailyDir.getAbsolutePath());
+
                         ChromeOptions options = new ChromeOptions();
                         options.setExperimentalOption("prefs", chromePrefs);
-                        DesiredCapabilities cap = DesiredCapabilities.chrome();
-                        cap.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
-                        cap.setCapability(ChromeOptions.CAPABILITY, options);
 
-                        @SuppressWarnings("deprecation")
-                        WebDriver driver = new ChromeDriver(cap);
+//                        DesiredCapabilities cap = DesiredCapabilities.chrome();
+//                        cap.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
+//                        cap.setCapability(ChromeOptions.CAPABILITY, options);
+
+
+                        //WebDriver driver = new ChromeDriver(cap);
+                        WebDriver driver = new ChromeDriver(options);
                         driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT, TimeUnit.SECONDS); // 暗黙的な待機時間を設定
 
                         return driver;

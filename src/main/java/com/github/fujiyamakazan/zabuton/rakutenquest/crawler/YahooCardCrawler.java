@@ -26,6 +26,9 @@ import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 public final class YahooCardCrawler extends JournalCrawler {
     private static final long serialVersionUID = 1L;
 
+    @SuppressWarnings("unused")
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(YahooCardCrawler.class);
+
     private final JournalCsv masterFile = new JournalCsv(crawlerDir, year + ".csv");
     private final File summary = new File(crawlerDir, "summary_" + year + ".txt");
 
@@ -55,6 +58,28 @@ public final class YahooCardCrawler extends JournalCrawler {
         cmd.type(By.name("passwd"), pm.getPassword());
         cmd.clickAndWait(By.name("btnSubmit"));
 
+        /*
+         * 明細情報の収集
+         */
+        downloadJournal();
+
+        /*
+         * 残高情報の収集
+         */
+        downloadSummary();
+
+        /*
+         * ログアウト
+         */
+        cmd.get("https://accounts.yahoo.co.jp/profile");
+        cmd.clickAndWait(By.partialLinkText("ログアウト"));
+
+    }
+
+    /**
+     * 明細情報の収集をします。
+     */
+    private void downloadJournal() {
         final TextMerger textMerger = new TextMerger(masterFile, year + "/");
 
         /* 翌月から過去１年間 */
@@ -112,15 +137,18 @@ public final class YahooCardCrawler extends JournalCrawler {
 
         /* 明細情報をマージする */
         textMerger.flash();
+    }
 
-        /*
-         * 残高情報の収集
-         */
+    /**
+     * 残高情報の収集をします。
+     */
+    private void downloadSummary() {
 
         /* 翌月から過去１年間 */
         Iterator<String> iteratorSummary = createIte();
 
         int amount = 0;
+        String lastPaymentDate = "";
         while (iteratorSummary.hasNext()) {
 
             /* 前のループでダウンロードしたファイルを削除します。*/
@@ -135,9 +163,9 @@ public final class YahooCardCrawler extends JournalCrawler {
 
             String html = cmd.getPageSource();
             saveDaily(day + ".html", html);
-            Document doc = Jsoup.parse(html);
 
             /* 残高集計 */
+            Document doc = Jsoup.parse(html);
             String amountOfMonth = "";
             Elements trs = doc.select("div.mainDetail__table--big table tr");
             for (Element tr : trs) {
@@ -146,38 +174,32 @@ public final class YahooCardCrawler extends JournalCrawler {
                     amountOfMonth = tr.getElementsByTag("td").get(1).text();
                     break;
                 }
-
             }
 
-            String paymonth = doc.select("p.calender__month").text();
-            String payday = doc.select("p.calender__date").text();
-            if (StringUtils.isEmpty(paymonth)) {
+            String paymentMonth = doc.select("p.calender__month").text();
+            String paymentDay = doc.select("p.calender__date").text();
+            if (StringUtils.isEmpty(paymentMonth)) {
                 amount += MoneyUtils.toInt(amountOfMonth); // 計上
             } else {
-                String strPaydate = year + "年" + paymonth + payday;
-                Date padate = DateFormatConverter.parse(strPaydate, "yyyy年MM月dd日");
-                if (padate == null) {
+                String strPaymentDate = year + "年" + paymentMonth + paymentDay;
+                Date paymentDate = DateFormatConverter.parse(strPaymentDate, "yyyy年MM月dd日");
+                if (paymentDate == null) {
                     /* 支払日の記載が無い */
                     amount += MoneyUtils.toInt(amountOfMonth); // 計上
-                } else if (padate.after(new Date())) {
+                } else if (paymentDate.after(new Date())) {
                     /* 支払日が未来日付 */
                     amount += MoneyUtils.toInt(amountOfMonth); // 計上
                     break; // 繰返し処理終了
                 } else {
                     /* 支払日が過去日付 */
                     // 清算済みの為、計上不要
+                    lastPaymentDate = strPaymentDate;
                     break; // 繰返し処理終了
                 }
             }
         }
-        new Utf8Text(summary).write(String.valueOf(amount));
-
-        /*
-         * ログアウト
-         */
-        cmd.get("https://accounts.yahoo.co.jp/profile");
-        cmd.clickAndWait(By.partialLinkText("ログアウト"));
-
+        new Utf8Text(summary).write(String.valueOf(amount) + "円"
+                + "(最後の支払日[" + lastPaymentDate + "]以降に発生した金額)");
     }
 
     private static Iterator<String> createIte() {
@@ -225,5 +247,12 @@ public final class YahooCardCrawler extends JournalCrawler {
         return "ヤフーカード（クレジット）：" + new Utf8Text(summary).read();
     }
 
+
+//    public static void main(String[] args) {
+//        YahooCardCrawler yahoo = new YahooCardCrawler(2021, RakutenQuest.APP_DIR);
+//        String html = new Utf8Text(new File(yahoo.crawlerDir, "202201.html")).read();
+//        Document doc = Jsoup.parse(html);
+//
+//    }
 
 }

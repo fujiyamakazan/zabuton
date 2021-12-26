@@ -200,6 +200,9 @@ public class RakutenCrawler extends JournalCrawler {
         textMerger.flash();
     }
 
+    /**
+     * クレジット残高（未清算分の金額）を返します。
+     */
     public String getAssetRakutenCredit() {
 
         String htmlAll = new Utf8Text(summary).read();
@@ -236,15 +239,11 @@ public class RakutenCrawler extends JournalCrawler {
 
         return "楽天カード（クレジット）：" + summury + "円(未払い分)";
 
-//        System.out.println(summury);
-//        Document doc = Jsoup.parse(html1);
-//        String payday = doc.select("div.rd-billInfo-table_data div.rd-font-robot").text();
-//        payday = DateFormatConverter.convert(payday, "yyyy年MM月dd日", "MM/dd");
-//
-//        String credit = doc.select("#js-rd-billInfo-amount_show").text();
-//        return "楽天カード（クレジット）：" + MoneyUtils.toInt(credit) + "円(" + payday + "精算)";
     }
 
+    /**
+     * 楽天ポイントの残高を返します。
+     */
     public String getAssetRakutenPoint() {
         String html = new Utf8Text(summary).read();
         Document doc = Jsoup.parse(html);
@@ -254,6 +253,9 @@ public class RakutenCrawler extends JournalCrawler {
             + "ポイント(キャッシュ、獲得予定含む)";
     }
 
+    /**
+     * 動作確認をします。
+     */
     public static void main(String[] args) {
         RakutenCrawler me = new RakutenCrawler(2021, RakutenQuest.APP_DIR);
         me.download();

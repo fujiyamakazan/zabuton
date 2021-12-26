@@ -25,24 +25,6 @@ import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 public class PasswordManager extends JPageApplication {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 開発中の動作確認をします。
-     */
-    public static void main(String[] args) {
-
-        String url = "http://www.example.com/test";
-
-        PasswordManager pm = new PasswordManager("SampleApp");
-        pm.executeByUrl(url);
-
-        String id = pm.getId();
-        String pw = pm.getPassword();
-
-        System.out.println("id=" + id);
-        System.out.println("pw=" + pw);
-
-    }
-
     //private String url;
     private String sightKey;
 
@@ -50,7 +32,7 @@ public class PasswordManager extends JPageApplication {
     private final Model<String> modelPw = Model.of("");
     private final File saveDir;
     private MainPage mainPage;
-    private boolean autoLogin;
+    //private boolean autoLogin;
 
     /**
      * コンストラクタです。
@@ -72,7 +54,6 @@ public class PasswordManager extends JPageApplication {
         }
     }
 
-
     public String getId() {
         return modelId.getObject();
     }
@@ -81,9 +62,9 @@ public class PasswordManager extends JPageApplication {
         return modelPw.getObject();
     }
 
-    public void setIsAutoLogin(boolean autoLogin) {
-        this.autoLogin = autoLogin;
-    }
+    //    public void setIsAutoLogin(boolean autoLogin) {
+    //        this.autoLogin = autoLogin;
+    //    }
 
     /**
      * 主処理を実行します。
@@ -96,6 +77,10 @@ public class PasswordManager extends JPageApplication {
 
     }
 
+    /**
+     * 主処理を実行します。
+     * URLをキーとします。
+     */
     public void executeByUrl(String url) {
         try {
             this.sightKey = new URI(url).getRawAuthority();
@@ -156,7 +141,7 @@ public class PasswordManager extends JPageApplication {
             addLine(new JPagePassword("PW", modelPw));
             saveButton = new JPageButton("OK", doSave);
             addLine(saveButton, new JPageCheckBox("端末に保存", modelSave),
-                new JPageLink("保存されているパスワードを整理する", doLink));
+                    new JPageLink("保存されているパスワードを整理する", doLink));
         }
 
         @Override
@@ -179,8 +164,6 @@ public class PasswordManager extends JPageApplication {
     }
 
     private final class ListPage extends JPage {
-
-        /** serialVersionUID */
         private static final long serialVersionUID = 1L;
 
         @Override
@@ -188,7 +171,6 @@ public class PasswordManager extends JPageApplication {
             super.onInitialize();
 
             final JPageAction doDelete = new JPageAction() {
-                /** serialVersionUID */
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -203,6 +185,21 @@ public class PasswordManager extends JPageApplication {
             addLine(new JPageLabel("このパソコンには" + saveDir.listFiles().length + "件のパスワードが保存されています。"));
             addLine(new JPageButton("削除", doDelete), new JPageLink("戻る", doLink));
         }
+
+    }
+
+    /**
+     * 開発中の動作確認をします。
+     */
+    public static void main(String[] args) {
+
+        String url = "http://www.aaaa.aaaaa.aaaaa.aaaa.example.com/test";
+        PasswordManager pm = new PasswordManager("SampleApp");
+        pm.executeByUrl(url);
+        String id = pm.getId();
+        String pw = pm.getPassword();
+        System.out.println("id=" + id);
+        System.out.println("pw=" + pw);
 
     }
 

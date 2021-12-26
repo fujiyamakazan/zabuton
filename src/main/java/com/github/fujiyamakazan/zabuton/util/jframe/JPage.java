@@ -41,25 +41,13 @@ public class JPage implements Serializable {
     /* 閉じるボタンの処理 */
     //private WindowAdapter windowListener;
 
-    public static void main(String[] args) {
-        JPage page1 = new JPage();
-        page1.addLine(new JPageLabel("テスト1"));
-        page1.addLine(new JPageButton("ボタン1", Model.of(false)));
-        page1.addLine(new JPageTextField("項目1", Model.of("")));
-        page1.addLine(new JPageTextField("項目2", Model.of("")));
-        page1.addLine(new JPageTextField("項目3", Model.of("")));
-        page1.addLine(new JPageTextField("項目4", Model.of("")));
-        page1.addLine(new JPageButton("ボタンA", Model.of(false)), new JPageButton("ボタンB", Model.of(false)));
-        page1.show();
-    }
-
     /**
      * コンストラクタです。
      */
     public JPage() {
         frame = new JFrame();
         frame.setLocation(20, 20);
-        frame.setSize(600, 300); // 高さは仮の値
+        frame.setSize(650, 300); // 高さは仮の値
         frame.setResizable(false); // 最大化ボタン不要
         frame.setAlwaysOnTop(true); // 最前面
         frame.setLocationRelativeTo(null); // 画面中央へ
@@ -151,12 +139,10 @@ public class JPage implements Serializable {
              * コンポーネントに含まれる複数のJFrameコンポーネントを配置します。
              */
             final List<JComponent> comps = componet.getJComponents();
-            //            if (comps.size() == 1) {
-            //                /* 要素が1つだけのときは BorderLayout でパネルいっぱいに表示します。 */
-            //                p.setLayout(new BorderLayout());
-            //            } else {
             if (componet instanceof JPageButton) {
                 p.setLayout(new FlowLayout(FlowLayout.CENTER));
+//            } else  if (componet instanceof JPageLabel) {
+//                p.setLayout(new FlowLayout(FlowLayout.CENTER));
             } else {
                 /* 左寄せで配置します。*/
                 p.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -205,7 +191,7 @@ public class JPage implements Serializable {
         onAfterShow();
     }
 
-    /** 表示後の拡張処理 */
+    /** 表示後の拡張処理です。 */
     protected void onAfterShow() {
         /* 必要に応じてオーバーライド */
     }
@@ -235,6 +221,21 @@ public class JPage implements Serializable {
 
     public final void dispose() {
         this.frame.dispose();
+    }
+
+    /**
+     * 動作確認をします。
+     */
+    public static void main(String[] args) {
+        JPage page1 = new JPage();
+        page1.addLine(new JPageLabel("テスト・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・1"));
+        page1.addLine(new JPageButton("ボタン1", Model.of(false)));
+        page1.addLine(new JPageTextField("項目1", Model.of("")));
+        page1.addLine(new JPageTextField("項目2", Model.of("")));
+        page1.addLine(new JPageTextField("項目3", Model.of("")));
+        page1.addLine(new JPageTextField("項目4", Model.of("")));
+        page1.addLine(new JPageButton("ボタンA", Model.of(false)), new JPageButton("ボタンB", Model.of(false)));
+        page1.show();
     }
 
 }

@@ -10,16 +10,6 @@ public class DateFormatConverter implements Serializable {
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DateFormatConverter.class);
 
-    public static String convert(String string, String pattern) {
-
-        /*
-         * from,to が同一のときに期待されること
-         * "2022年01月27日 (木)"を "yyyy年MM月dd日"で変換するとパターンに一致しない部分＜(木)＞をトリムできる。
-         */
-
-        return convert(string, pattern, pattern);
-    }
-
     public static String convert(String string, String from, String to) {
         Date d;
         try {
