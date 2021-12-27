@@ -9,8 +9,7 @@ import org.apache.wicket.model.Model;
  */
 public class JPageLabel extends JPageComponent<String> {
     private static final long serialVersionUID = 1L;
-    private JLabel label;
-    //private JTextArea label;
+    protected JLabel label;
 
     /**
      * コンストラクタです。
@@ -27,8 +26,6 @@ public class JPageLabel extends JPageComponent<String> {
 
         label = new JLabel();
         label.setVerticalAlignment(JLabel.TOP); // 上寄せ
-      //label = new JTextArea();
-        //label.setLineWrap(true);
 
 
         addJFrameComponent(label);

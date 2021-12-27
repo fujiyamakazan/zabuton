@@ -45,6 +45,8 @@ public class JPageChoice implements Serializable {
      */
     public void showDialog() {
         app = new JPageApplication() {
+            private static final long serialVersionUID = 1L;
+
             @Override
             public WindowListener getWindowListener() {
                 cancel.setObject(true);

@@ -29,8 +29,16 @@ public final class YahooCardCrawler extends JournalCrawler {
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(YahooCardCrawler.class);
 
-    private final JournalCsv masterFile = new JournalCsv(crawlerDir, year + ".csv");
+    private final JournalCsv masterFile = new YahooCardJournalCsv(crawlerDir, year + ".csv");
     private final File summary = new File(crawlerDir, "summary_" + year + ".txt");
+
+    public static class YahooCardJournalCsv extends JournalCsv {
+        private static final long serialVersionUID = 1L;
+
+        public YahooCardJournalCsv(File crawlerDir, String name) {
+            super(crawlerDir, name, new String[] { "利用日","利用店名・商品名","利用金額" });
+        }
+    }
 
     /**
      * コンストラクタです。

@@ -20,15 +20,23 @@ import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 public final class MajicaCrawler extends JournalCrawler {
     private static final long serialVersionUID = 1L;
 
-    private final JournalCsv masterFile = new JournalCsv(crawlerDir, year + ".csv");
+    private final JournalCsv journalCsv = new MajikaJournalCsv(crawlerDir, year + ".csv");
     private final File summary = new File(crawlerDir, "summary_" + year + ".txt");
+
+    public static class MajikaJournalCsv extends JournalCsv {
+        private static final long serialVersionUID = 1L;
+
+        public MajikaJournalCsv(File crawlerDir, String name) {
+            super(crawlerDir, name, new String[] { "利用日時", "利用店舗", "入金", "利用" });
+        }
+    }
 
     /**
      * コンストラクタです。
      */
     public MajicaCrawler(int year, File appDir) {
         super("Majica", year, appDir);
-        setMaster(masterFile);
+        setMaster(journalCsv);
         setSummary(summary);
     }
 
@@ -49,7 +57,7 @@ public final class MajicaCrawler extends JournalCrawler {
         cmd.type(By.name("pinOrPassword"), pm.getPassword());
         cmd.clickButtonAndWait("ログイン");
 
-        final TextMerger textMerger = new TextMerger(masterFile, year + "/");
+        final TextMerger textMerger = new TextMerger(journalCsv, year + "/");
 
         int roopCounter = 0;
         while (roopCounter < 1) { // 1回のみ
@@ -71,10 +79,14 @@ public final class MajicaCrawler extends JournalCrawler {
             Document doc = Jsoup.parse(html);
             Element table = doc.getElementsByClass("tline").first().getElementsByTag("table").first();
             for (Element tr : table.getElementsByTag("tr")) {
-                String date = tr.getElementsByTag("td").get(0).text();
-                String body = tr.getElementsByTag("td").get(1).text();
-                String in = tr.getElementsByTag("td").get(2).text();
-                String out = tr.getElementsByTag("td").get(3).text();
+                //                String date = tr.getElementsByTag("td").get(0).text(); // 利用日時
+                //                String body = tr.getElementsByTag("td").get(1).text(); // 利用店舗
+                //                String in = tr.getElementsByTag("td").get(2).text(); // 入金
+                //                String out = tr.getElementsByTag("td").get(3).text(); // 利用
+                String date = tr.getElementsByTag("td").get(journalCsv.getColumnIndex("利用日時")).text();
+                String body = tr.getElementsByTag("td").get(journalCsv.getColumnIndex("利用店舗")).text();
+                String in = tr.getElementsByTag("td").get(journalCsv.getColumnIndex("入金")).text();
+                String out = tr.getElementsByTag("td").get(journalCsv.getColumnIndex("利用")).text();
 
                 /* 日付の降順となるように前に追加 */
                 lines.add(0, CsvUtils.convertString(new String[] { date, body, in, out }));

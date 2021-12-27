@@ -70,8 +70,8 @@ public abstract class JournalCrawler implements Serializable {
                         File driverFile = new File(appDir, STANDRD_DRIVER_NAME);
                         if (driverFile.exists() == false) {
                             throw new RuntimeException("WebDriverが次の場所にありません。"
-                                    + driverFile.getAbsolutePath()
-                                    + " [https://chromedriver.chromium.org/]からダウロードしてください。");
+                                + driverFile.getAbsolutePath()
+                                + " [https://chromedriver.chromium.org/]からダウロードしてください。");
                         }
 
                         System.setProperty("webdriver.chrome.driver", driverFile.getAbsolutePath());
@@ -84,10 +84,9 @@ public abstract class JournalCrawler implements Serializable {
                         ChromeOptions options = new ChromeOptions();
                         options.setExperimentalOption("prefs", chromePrefs);
 
-//                        DesiredCapabilities cap = DesiredCapabilities.chrome();
-//                        cap.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
-//                        cap.setCapability(ChromeOptions.CAPABILITY, options);
-
+                        //                        DesiredCapabilities cap = DesiredCapabilities.chrome();
+                        //                        cap.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
+                        //                        cap.setCapability(ChromeOptions.CAPABILITY, options);
 
                         //WebDriver driver = new ChromeDriver(cap);
                         WebDriver driver = new ChromeDriver(options);
@@ -187,34 +186,35 @@ public abstract class JournalCrawler implements Serializable {
         }
     }
 
-    protected static void sleep(int i) {
-        try {
-            Thread.sleep(i);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+    protected void sleep(int i) {
+        cmd.sleep(i);
+        //        try {
+        //            Thread.sleep(i);
+        //        } catch (InterruptedException e) {
+        //            throw new RuntimeException(e);
+        //        }
     }
 
     protected void saveDaily(String name, String text) {
         new Utf8Text(new File(this.crawlerDailyDir, name)).write(text);
     }
 
-//    protected final class StandardMerger extends TextMerger {
-//        private static final long serialVersionUID = 1L;
-//
-//        public StandardMerger(JournalCsv masterText) {
-//            super(masterText);
-//        }
-//
-//        @Override
-//        protected boolean isAvailableLine(String line) {
-//            try {
-//                return new CSVParser().parseLine(line)[0].startsWith(year + "/");
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
-//    }
+    //    protected final class StandardMerger extends TextMerger {
+    //        private static final long serialVersionUID = 1L;
+    //
+    //        public StandardMerger(JournalCsv masterText) {
+    //            super(masterText);
+    //        }
+    //
+    //        @Override
+    //        protected boolean isAvailableLine(String line) {
+    //            try {
+    //                return new CSVParser().parseLine(line)[0].startsWith(year + "/");
+    //            } catch (IOException e) {
+    //                throw new RuntimeException(e);
+    //            }
+    //        }
+    //    }
 
     /**
      * ダウンロードしたファイルを削除します。

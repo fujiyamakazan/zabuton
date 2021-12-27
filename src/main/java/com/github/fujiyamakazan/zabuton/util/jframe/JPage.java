@@ -36,7 +36,7 @@ public class JPage implements Serializable {
     private boolean initialized;
     private boolean initializedSuper;
 
-    private List<JPageComponent<?>> components = Generics.newArrayList();
+    protected List<JPageComponent<?>> components = Generics.newArrayList();
 
     /* 閉じるボタンの処理 */
     //private WindowAdapter windowListener;

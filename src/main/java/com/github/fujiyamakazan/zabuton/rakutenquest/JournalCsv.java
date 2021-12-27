@@ -3,6 +3,10 @@ package com.github.fujiyamakazan.zabuton.rakutenquest;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -18,21 +22,32 @@ public class JournalCsv implements Serializable {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JournalCsv.class);
 
     private final File file;
+    private final String[] fieldNames;
 
     public JournalCsv(File crawlerDir, String name) {
-        this.file = new File(crawlerDir, name);
+        this(crawlerDir, name, null);
     }
 
     public JournalCsv(String path) {
         this.file = new File(path);
+        this.fieldNames = null;
+    }
+
+    public JournalCsv(File crawlerDir, String name, String[] fieldNames) {
+        this.file = new File(crawlerDir, name);
+        this.fieldNames = fieldNames;
     }
 
     public File getFile() {
         return file;
     }
 
-    public static boolean validHeader(String line) {
-        return line.startsWith("\"#\"");
+    public boolean validHeader(String line) {
+        if (fieldNames == null) {
+            return line.startsWith("\"#\"");
+        }
+
+        return line.equals(getHeader() + "," + CsvUtils.convertString(fieldNames));
     }
 
     public static String getHeader() {
@@ -65,8 +80,27 @@ public class JournalCsv implements Serializable {
             this.csv = CsvUtils.splitCsv(line);
         }
 
+        /**
+         * @deprecated
+         */
         public String get(int i) {
             return csv[i + 1].trim();
+        }
+
+        public String get(String name) {
+            return csv[getColumnIndex(name) + 1].trim();
+        }
+
+        public Date get(String name, DateFormat df) {
+            String str = csv[getColumnIndex(name) + 1].trim();
+            Date date;
+            try {
+                date = df.parse(str);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+
+            return date;
         }
 
         public int getIndex() {
@@ -93,6 +127,10 @@ public class JournalCsv implements Serializable {
 
     public static int getRowIndex(String line) throws IOException {
         return Integer.parseInt(new CSVParser().parseLine(line)[0]);
+    }
+
+    public int getColumnIndex(String name) {
+        return Arrays.asList(fieldNames).indexOf(name);
     }
 
 }

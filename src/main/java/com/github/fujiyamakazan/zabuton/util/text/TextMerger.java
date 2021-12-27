@@ -95,7 +95,7 @@ public class TextMerger implements Serializable {
             line = line.trim();
 
             if (first) {
-                if (JournalCsv.validHeader(line) == false) {
+                if (masterText.validHeader(line) == false) {
                     throw new RuntimeException("見出し行を持たない不正なマスターです。" + line);
                 }
                 first = false;

@@ -10,6 +10,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.wicket.util.lang.Generics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,9 +54,17 @@ public class RuntimeExc implements Serializable {
      * @param command コマンド
      * @return リターンコードが0のときにTrueを返します。
      */
-    public static boolean executeCmd(String command) {
+    public static boolean executeCmd(String... params) {
 
-        return execute(new String[] {"cmd", "/c", command});
+        List<String> list = Generics.newArrayList();
+        list.add("cmd");
+        list.add("/c");
+        for (String p: params) {
+            list.add(p);
+        }
+
+        //return execute(new String[] {"cmd", "/c", command});
+        return execute(list.toArray(new String[list.size()]));
     }
 
     public static boolean executeCmdToUtf8Text(String command, File out) {
@@ -74,8 +83,8 @@ public class RuntimeExc implements Serializable {
         Process process;
         try {
             process = runtime.exec(params);
-        } catch (IOException e2) {
-            throw new RuntimeException(e2);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         try (InputStream in = process.getInputStream();
@@ -90,8 +99,8 @@ public class RuntimeExc implements Serializable {
                 throw new RuntimeException(e);
             }
 
-        } catch (IOException e1) {
-            throw new RuntimeException(e1);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         try (InputStream in = process.getErrorStream();
@@ -104,8 +113,8 @@ public class RuntimeExc implements Serializable {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        } catch (IOException e1) {
-            throw new RuntimeException(e1);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         try {
             int result = process.waitFor();

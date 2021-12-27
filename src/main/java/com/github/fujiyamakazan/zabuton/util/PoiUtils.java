@@ -28,7 +28,6 @@ public class PoiUtils {
         private FileInputStream in;
 
         public Workbook getBook(File file) {
-            PoiBook poi = new PoiBook();
             Workbook book;
             in = null;
             try {

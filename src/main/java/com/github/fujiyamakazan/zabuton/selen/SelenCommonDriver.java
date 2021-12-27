@@ -210,5 +210,12 @@ public abstract class SelenCommonDriver implements Serializable {
         }
     }
 
-}
+    public void sleep(int i) {
+        try {
+            Thread.sleep(i);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
+}
