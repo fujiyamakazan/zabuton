@@ -2,6 +2,9 @@ package com.github.fujiyamakazan.zabuton.util.jframe;
 
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.Serializable;
@@ -20,7 +23,9 @@ import org.apache.wicket.util.lang.Generics;
 
 import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageButton;
 import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageComponent;
+import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageDelayLabel;
 import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageLabel;
+import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageLink;
 import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageTextField;
 
 /**
@@ -31,38 +36,22 @@ public class JPage implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private JPageApplication app;
-    private final JFrame frame;
-    private final JPanel panelMain;
+    protected JFrame frame;
+    private JPanel panelMain;
     private boolean initialized;
     private boolean initializedSuper;
 
     protected List<JPageComponent<?>> components = Generics.newArrayList();
 
-    /* 閉じるボタンの処理 */
-    //private WindowAdapter windowListener;
+    protected Color backgroundColor = null;
+    protected Color foregroundColer = null;
+    protected int borderWidth;
+    protected Font baseFont = null;
 
     /**
      * コンストラクタです。
      */
     public JPage() {
-        frame = new JFrame();
-        frame.setLocation(20, 20);
-        frame.setSize(650, 300); // 高さは仮の値
-        frame.setResizable(false); // 最大化ボタン不要
-        frame.setAlwaysOnTop(true); // 最前面
-        frame.setLocationRelativeTo(null); // 画面中央へ
-        frame.setResizable(true); // リサイズ許可
-        frame.setForeground(Color.RED);
-
-        JScrollPane scrollpane = new JScrollPane();
-        frame.add(scrollpane);
-        scrollpane.setBackground(Color.GREEN);
-
-        panelMain = new JPanel();
-        scrollpane.setViewportView(panelMain);
-        panelMain.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5)); // 余白
-        //panelMain.setBorder(BorderFactory.createLineBorder(Color.red));
-        panelMain.setLayout(new BoxLayout(panelMain, BoxLayout.Y_AXIS));// 縦方向に子パネルを追加する。
 
     }
 
@@ -71,8 +60,30 @@ public class JPage implements Serializable {
      * 子クラスで拡張する場合は、必ずこの親クラスのメソッドも呼び出さなければいけません。
      */
     protected void onInitialize() {
-        /* 処理なし */
         initializedSuper = true;
+
+        settings();
+
+        frame = createFrame();
+        frame.setLocation(20, 20);
+        frame.setSize(650, 300); // 高さは仮の値
+        frame.setResizable(false); // 最大化ボタン不要
+        frame.setAlwaysOnTop(true); // 最前面
+        frame.setLocationRelativeTo(null); // 画面中央へ
+        frame.setResizable(true); // リサイズ許可
+
+        //frame.setForeground(Color.RED);
+
+        JScrollPane scrollpane = new JScrollPane();
+        frame.add(scrollpane);
+        //scrollpane.setBackground(Color.GREEN);
+
+        panelMain = new JPanel();
+        scrollpane.setViewportView(panelMain);
+        /* 余白 */
+        panelMain.setBorder(BorderFactory.createEmptyBorder(borderWidth, borderWidth, borderWidth, borderWidth));
+        //panelMain.setBorder(BorderFactory.createLineBorder(Color.red));
+        panelMain.setLayout(new BoxLayout(panelMain, BoxLayout.Y_AXIS));// 縦方向に子パネルを追加する。
 
         for (JPageComponent<?> pc : components) {
             pc.onInitialize();
@@ -90,6 +101,56 @@ public class JPage implements Serializable {
                 }
             });
         }
+
+
+        frame.addKeyListener(new KeyListener() {
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+                // TODO 自動生成されたメソッド・スタブ
+
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                // TODO 自動生成されたメソッド・スタブ
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_UP:
+                        System.out.println("up");
+                        break;
+                    case KeyEvent.VK_DOWN:
+                        System.out.println("down");
+                        break;
+                    case KeyEvent.VK_LEFT:
+                        System.out.println("left");
+                        break;
+                    case KeyEvent.VK_RIGHT:
+                        System.out.println("right");
+                        break;
+                    case KeyEvent.VK_ENTER:
+                        System.out.println("enter");
+                        break;
+                    default:
+                        /* 処理なし*/
+                        break;
+                }
+            }
+        });
+    }
+
+    protected JFrame createFrame() {
+        return new JFrame();
+    }
+
+    protected void settings() {
+        //this.backgroundColor = Color.WHITE;
+        this.foregroundColer = Color.BLACK;
+        this.borderWidth = 5;
     }
 
     public final void setApplication(JPageApplication app) {
@@ -133,25 +194,50 @@ public class JPage implements Serializable {
             linePanel.add(p);
             p.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1)); // 余白
             //p.setBorder(BorderFactory.createLineBorder(Color.red)); // デバッグ用に赤い線を表示
-            p.setBackground(Color.WHITE);
+
+            if (backgroundColor == null) {
+                p.setBackground(Color.WHITE);
+            } else {
+                p.setBackground(backgroundColor);
+            }
 
             /*
              * コンポーネントに含まれる複数のJFrameコンポーネントを配置します。
              */
             final List<JComponent> comps = componet.getJComponents();
             if (componet instanceof JPageButton) {
-                p.setLayout(new FlowLayout(FlowLayout.CENTER));
-//            } else  if (componet instanceof JPageLabel) {
-//                p.setLayout(new FlowLayout(FlowLayout.CENTER));
+                if (componet instanceof JPageLink) {
+                    /* リンク形式のボタンは左寄せで配置します。*/
+                    p.setLayout(new FlowLayout(FlowLayout.LEFT));
+                } else {
+                    /* ボタンはセンタリングで配置します。 */
+                    p.setLayout(new FlowLayout(FlowLayout.CENTER));
+                }
+
             } else {
                 /* 左寄せで配置します。*/
                 p.setLayout(new FlowLayout(FlowLayout.LEFT));
             }
 
-            //            }
             for (JComponent jc : comps) {
                 p.add(jc);
             }
+
+            /* 配色など */
+            for (JComponent jc : comps) {
+
+                if (backgroundColor != null) {
+                    jc.setBackground(backgroundColor);
+                }
+
+                jc.setForeground(foregroundColer);
+
+                if (baseFont != null) {
+                    jc.setFont(baseFont);
+                }
+
+            }
+
         }
     }
 
@@ -193,7 +279,14 @@ public class JPage implements Serializable {
 
     /** 表示後の拡張処理です。 */
     protected void onAfterShow() {
-        /* 必要に応じてオーバーライド */
+        for (JPageComponent<?> pc : components) {
+
+            /* メッセージの遅延表示 */
+            if (pc instanceof JPageDelayLabel) {
+                ((JPageDelayLabel) pc).active();
+
+            }
+        }
     }
 
     /**

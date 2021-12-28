@@ -1,7 +1,5 @@
 package com.github.fujiyamakazan.zabuton.util.jframe;
 
-import org.apache.wicket.model.Model;
-
 import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageLabel;
 
 /**
@@ -15,7 +13,17 @@ import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageLabel;
 public class JPageMessage extends JPage {
     private static final long serialVersionUID = 1L;
 
-    private Model<String> message = Model.of("");
+    //private Model<String> message = Model.of("");
+    private String message = "";
+
+    /**
+     * メッセージウィンドウを表示します。
+     */
+    public void show(String message) {
+        //this.message.setObject(message);
+        this.message = message;
+        super.show();
+    }
 
     @Override
     protected void onInitialize() {
@@ -24,10 +32,7 @@ public class JPageMessage extends JPage {
     }
 
 
-    public void show(String message) {
-        this.message.setObject(message);
-        super.show();
-    }
+
 
 
 }

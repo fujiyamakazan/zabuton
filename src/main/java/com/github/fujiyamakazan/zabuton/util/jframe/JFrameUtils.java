@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
  * @author fujiyama
  */
 public class JFrameUtils {
+    @SuppressWarnings("unused")
     private static final Logger log = LoggerFactory.getLogger(JFrameUtils.class);
 
     /**
@@ -41,12 +42,13 @@ public class JFrameUtils {
 //        simpleMessage.dispose();
 
 
+
 //        for (int i = 0; i < 4; i++) {
 //            System.out.println("ChoiceMessageDialogのサンプル");
 //            Model<Boolean> cancel = Model.of(false);
 //            Model<Boolean> choice1 = Model.of(false);
 //            Model<Boolean> choice2 = Model.of(false);
-//            JPageChoice pageChoice = new JPageChoice(
+//            JPageChoice<String> pageChoice = new JPageChoice<String>(
 //                    "〇〇を選択してください。", cancel);
 //            pageChoice.addChoice("キャンセル", cancel);
 //            pageChoice.addChoice("選択１", choice1);
@@ -55,6 +57,7 @@ public class JFrameUtils {
 //            System.out.println("cancel:" + cancel.getObject());
 //            System.out.println("choice1:" + choice1.getObject());
 //            System.out.println("choice2:" + choice2.getObject());
+//            System.out.println("selected:" + pageChoice.getSelectedOne().getLabel());
 //
 //        }
 

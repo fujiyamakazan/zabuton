@@ -7,14 +7,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
+import java.util.List;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
-
-import org.apache.wicket.model.Model;
 
 import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.MajicaCrawler;
 import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.RakutenBankCrawler;
@@ -23,12 +22,21 @@ import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.ShonanShinkinCrawle
 import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.UCSCardCrawler;
 import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.YahooCardCrawler;
 import com.github.fujiyamakazan.zabuton.util.EnvUtils;
-import com.github.fujiyamakazan.zabuton.util.jframe.JPage;
-import com.github.fujiyamakazan.zabuton.util.jframe.JPageApplication;
-import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageActiveLabel;
-import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageButton;
-import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageComponent;
 
+/**
+ * 本アプリケーションの中核クラスです。
+ * ユースケース
+ * 　UC01：オープニング
+ * 　　　　→ UC02, UC03
+ * 　UC02：データ作成
+ * 　　　　→ UC03
+ * 　UC03：データ実行
+ *
+ *
+ * @author k_inaba
+ *
+ */
+@SuppressWarnings("deprecation")
 public abstract class RakutenQuest implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -46,36 +54,43 @@ public abstract class RakutenQuest implements Serializable {
         if (APP_DIR.exists() == false) {
             APP_DIR.mkdirs();
         }
-        Model<Boolean> model = Model.of(false);
-        JPageApplication app = new JPageApplication();
-        app.invokePage(new JPage() {
-            private static final long serialVersionUID = 1L;
 
-            @Override
-            protected void onInitialize() {
-                super.onInitialize();
-                addLine(new JPageActiveLabel("メッセージです。あめんぼあかいなあいうえお。"));
-                addLine(new JPageButton("OK", model));
-            }
+        /*
+         * UC オープニング
+         */
+        SaveDataManager saveDataManager = new SaveDataManager(APP_DIR);
 
-            @Override
-            protected void onAfterShow() {
-                super.onAfterShow();
-                for (JPageComponent<?> pc : components) {
-                    if (pc instanceof JPageActiveLabel) {
-                        ((JPageActiveLabel)pc).atvie();
+        List<SaveData> datas = saveDataManager.getDatas();
 
-                    }
-                }
-            }
-        });
-        System.out.println(model.getObject());
+        GameWindow<SaveData> gw = new GameWindow<SaveData>();
+        gw.setMessage("せんたくしてください。", "２行目メッセージ");
+        for (SaveData sd : datas) {
+            gw.addChoice(sd.getName(), sd);
+        }
+        if (datas.size() <= 3) {
+            gw.addChoice("あたらしいデータ", null);
+        }
+        gw.show();
+
+        SaveData selected = gw.getSelected();
+        if (selected == null) {
+            System.out.println("データ作成処理へ");
+        } else {
+            System.out.println("データ実行処理へ");
+        }
+
+
+
+
         //playmidi();
         //playMidi();
         //playJournal();
 
     }
 
+
+
+    @SuppressWarnings("unused")
     private static void playJournal() {
         RakutenCrawler rakuten = new RakutenCrawler(YEAR, APP_DIR);
         rakuten.download();
@@ -104,6 +119,7 @@ public abstract class RakutenQuest implements Serializable {
         System.out.println("Rakuten-Securities:" + bank.getAssetSecurities());
     }
 
+    @SuppressWarnings({ "unused" })
     private static void playmidi() {
         //File file = new File(APP_DIR, "bgm\\GM115-110921-youseihouse-wav.wav");
         File file = new File(APP_DIR, "bgm\\kettei-01.wav");
@@ -131,6 +147,7 @@ public abstract class RakutenQuest implements Serializable {
         ac.stop();
     }
 
+    @SuppressWarnings("unused")
     private static void playMidi() {
         //        // MIDIデータを再生するハードウェア/ソフトウェア・デバイスのインスタンス。
         Sequencer sequencer = null;

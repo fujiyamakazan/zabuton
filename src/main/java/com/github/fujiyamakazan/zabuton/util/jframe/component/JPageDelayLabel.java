@@ -6,26 +6,31 @@ import com.github.fujiyamakazan.zabuton.util.ThreadUtils;
 /**
  * ラベルのコンポーネントモデルです。
  */
-public class JPageActiveLabel extends JPageLabel {
+public class JPageDelayLabel extends JPageLabel {
     private static final long serialVersionUID = 1L;
+    private String delayText;
 
-    public JPageActiveLabel(String text) {
-        super(text);
+    /**
+     * 遅延文字列をセットするコンストラクタです。
+     */
+    public JPageDelayLabel(String text) {
+        //super(text);
+        super("");
+        this.delayText = text;
     }
 
+    /**
+     * 遅延表示をします。
+     */
+    public void active() {
 
-    public void atvie() {
-        String text = super.label.getText();
-        super.label.setText("");
-
-        for (Character c: text.toCharArray()) {
+        for (Character c : delayText.toCharArray()) {
             String t = super.label.getText();
             t += c;
             super.label.setText(t);
             RakutenQuest.sound();
             ThreadUtils.sleep(100);
         }
-
 
     }
 
