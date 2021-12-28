@@ -9,7 +9,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.util.lang.Generics;
 
 import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageButton;
-import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageLabel;
 
 /**
  * JFrameでメッセージを表示します。
@@ -18,7 +17,7 @@ import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageLabel;
  *
  * @author fujiyama
  */
-public class JPageChoice<T extends Serializable> implements Serializable {
+public class JChoice<T extends Serializable> implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String message;
@@ -26,34 +25,14 @@ public class JPageChoice<T extends Serializable> implements Serializable {
     private List<JPageButton> choices = Generics.newArrayList();
     private JPageApplication app;
 
-    private Map<ChoiceElement<T>, Model<Boolean>> map = Generics.newHashMap();
-
-    public static class ChoiceElement<T extends Serializable> implements Serializable {
-
-        private static final long serialVersionUID = 1L;
-        private final String label;
-        private final T obj;
-
-        public ChoiceElement(String label, T obj) {
-            this.label = label;
-            this.obj = obj;
-        }
-
-        public String getLabel() {
-            return label;
-        }
-
-        public T getObject() {
-            return obj;
-        }
-    }
+    private Map<JChoiceElement<T>, Model<Boolean>> map = Generics.newHashMap();
 
     /**
      * インスタンスを生成します。
      * @param message メッセージ
      * @param cancel 閉じるボタンのモデル
      */
-    public JPageChoice(String message, Model<Boolean> cancel) {
+    public JChoice(String message, Model<Boolean> cancel) {
         this.message = message;
         this.cancel = cancel;
     }
@@ -62,7 +41,7 @@ public class JPageChoice<T extends Serializable> implements Serializable {
      * インスタンスを生成します。
      * @param message メッセージ
      */
-    public JPageChoice(String message) {
+    public JChoice(String message) {
         this(message, Model.of(false));
     }
 
@@ -72,7 +51,7 @@ public class JPageChoice<T extends Serializable> implements Serializable {
      * @param model 選択されたことを検知するモデル
      */
     public void addChoice(String label, Model<Boolean> model) {
-        map.put(new ChoiceElement<T>(label, null), model);
+        map.put(new JChoiceElement<T>(label, null), model);
         choices.add(createChoice(label, model));
     }
 
@@ -80,10 +59,16 @@ public class JPageChoice<T extends Serializable> implements Serializable {
      * 選択肢を追加します。
      * @param choice 選択肢
      */
-    public void addChoice(ChoiceElement<T> choice) {
+    public void addChoice(JChoiceElement<T> choice) {
         Model<Boolean> model = Model.of(false);
         map.put(choice, model);
         choices.add(createChoice(choice.getLabel(), model));
+    }
+
+    public void addAllChoice(List<JChoiceElement<T>> choices) {
+        for (JChoiceElement<T> choice : choices) {
+            addChoice(choice);
+        }
     }
 
     protected JPageButton createChoice(String label, Model<Boolean> model) {
@@ -94,9 +79,9 @@ public class JPageChoice<T extends Serializable> implements Serializable {
      * 選択されたラベルに対するモデルを返します。
      * @return
      */
-    public List<ChoiceElement<T>> getSelected() {
-        List<ChoiceElement<T>> results = Generics.newArrayList();
-        for (Map.Entry<ChoiceElement<T>, Model<Boolean>> entry : map.entrySet()) {
+    public List<JChoiceElement<T>> getSelected() {
+        List<JChoiceElement<T>> results = Generics.newArrayList();
+        for (Map.Entry<JChoiceElement<T>, Model<Boolean>> entry : map.entrySet()) {
             if (entry.getValue().getObject()) {
                 results.add(entry.getKey());
             }
@@ -108,8 +93,8 @@ public class JPageChoice<T extends Serializable> implements Serializable {
      * 選択されたラベルに対するモデルを返します。
      * @return
      */
-    public ChoiceElement<T> getSelectedOne() {
-        for (Map.Entry<ChoiceElement<T>, Model<Boolean>> entry : map.entrySet()) {
+    public JChoiceElement<T> getSelectedOne() {
+        for (Map.Entry<JChoiceElement<T>, Model<Boolean>> entry : map.entrySet()) {
             if (entry.getValue().getObject()) {
                 return entry.getKey();
             }
@@ -136,40 +121,8 @@ public class JPageChoice<T extends Serializable> implements Serializable {
     }
 
     protected JPage createPage(String message, List<JPageButton> choices) {
-        return new ChoicePage(message, choices);
+        return new JChoicePage(message, choices);
     }
-
-    protected static class ChoicePage extends JPage {
-        private static final long serialVersionUID = 1L;
-        private final List<JPageButton> choices;
-        private final String message;
-        private boolean horizontal = true;
-
-        protected ChoicePage(String message, List<JPageButton> choices) {
-            this.choices = choices;
-            this.message = message;
-        }
-
-        @Override
-        protected void onInitialize() {
-            super.onInitialize();
-            addLine(new JPageLabel(message));
-            if (horizontal) {
-                addLine(choices);
-            } else {
-                for (JPageButton button: choices) {
-                    addLine(button);
-                }
-            }
-
-        }
-
-        public void setHorizonal(boolean horizontal) {
-            this.horizontal = horizontal;
-        }
-
-    }
-
 
     /**
      * ウィンドウを閉じます。
@@ -180,7 +133,5 @@ public class JPageChoice<T extends Serializable> implements Serializable {
         }
         app.close();
     }
-
-
 
 }

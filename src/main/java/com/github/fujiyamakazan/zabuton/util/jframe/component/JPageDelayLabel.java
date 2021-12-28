@@ -1,6 +1,5 @@
 package com.github.fujiyamakazan.zabuton.util.jframe.component;
 
-import com.github.fujiyamakazan.zabuton.rakutenquest.RakutenQuest;
 import com.github.fujiyamakazan.zabuton.util.ThreadUtils;
 
 /**
@@ -28,7 +27,7 @@ public class JPageDelayLabel extends JPageLabel {
             String t = super.label.getText();
             t += c;
             super.label.setText(t);
-            RakutenQuest.sound();
+            //RakutenQuest.sound();
             ThreadUtils.sleep(100);
         }
 

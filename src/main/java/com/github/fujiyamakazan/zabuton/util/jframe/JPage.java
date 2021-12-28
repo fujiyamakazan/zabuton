@@ -3,8 +3,6 @@ package com.github.fujiyamakazan.zabuton.util.jframe;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.Serializable;
@@ -37,7 +35,8 @@ public class JPage implements Serializable {
 
     private JPageApplication app;
     protected JFrame frame;
-    private JPanel panelMain;
+    protected JScrollPane scrollpane;
+    protected JPanel panelMain;
     private boolean initialized;
     private boolean initializedSuper;
 
@@ -74,7 +73,7 @@ public class JPage implements Serializable {
 
         //frame.setForeground(Color.RED);
 
-        JScrollPane scrollpane = new JScrollPane();
+        scrollpane = new JScrollPane();
         frame.add(scrollpane);
         //scrollpane.setBackground(Color.GREEN);
 
@@ -101,46 +100,6 @@ public class JPage implements Serializable {
                 }
             });
         }
-
-
-        frame.addKeyListener(new KeyListener() {
-
-            @Override
-            public void keyTyped(KeyEvent e) {
-                // TODO 自動生成されたメソッド・スタブ
-
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                // TODO 自動生成されたメソッド・スタブ
-
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                switch (e.getKeyCode()) {
-                    case KeyEvent.VK_UP:
-                        System.out.println("up");
-                        break;
-                    case KeyEvent.VK_DOWN:
-                        System.out.println("down");
-                        break;
-                    case KeyEvent.VK_LEFT:
-                        System.out.println("left");
-                        break;
-                    case KeyEvent.VK_RIGHT:
-                        System.out.println("right");
-                        break;
-                    case KeyEvent.VK_ENTER:
-                        System.out.println("enter");
-                        break;
-                    default:
-                        /* 処理なし*/
-                        break;
-                }
-            }
-        });
     }
 
     protected JFrame createFrame() {
@@ -331,4 +290,11 @@ public class JPage implements Serializable {
         page1.show();
     }
 
+    public JFrame getFrame() {
+        return frame;
+    }
+
+    public JComponent getRootPane() {
+        return scrollpane;
+    }
 }

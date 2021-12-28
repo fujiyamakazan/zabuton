@@ -2,19 +2,22 @@ package com.github.fujiyamakazan.zabuton.rakutenquest;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.swing.AbstractAction;
 import javax.swing.JFrame;
+import javax.swing.KeyStroke;
 
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.lang.Generics;
 
+import com.github.fujiyamakazan.zabuton.util.jframe.JChoice;
+import com.github.fujiyamakazan.zabuton.util.jframe.JChoiceElement;
+import com.github.fujiyamakazan.zabuton.util.jframe.JChoicePage;
 import com.github.fujiyamakazan.zabuton.util.jframe.JPage;
-import com.github.fujiyamakazan.zabuton.util.jframe.JPageChoice;
-import com.github.fujiyamakazan.zabuton.util.jframe.JPageChoice.ChoiceElement;
 import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageButton;
 import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageDelayLabel;
 import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageLink;
@@ -27,15 +30,15 @@ public class GameWindow<T extends Serializable> implements Serializable {
     private static final Font FONT = new Font("ＭＳ ゴシック", Font.PLAIN, 10);
 
     private String[] messages;
-    private final List<ChoiceElement<T>> choices = Generics.newArrayList();
-    private ChoiceElement<T> selected;
+    private final List<JChoiceElement<T>> choices = Generics.newArrayList();
+    private JChoiceElement<T> selected;
 
     public void setMessage(String... messages) {
         this.messages = messages;
     }
 
     public void addChoice(String label, T obj) {
-        choices.add(new ChoiceElement<T>(label, obj));
+        choices.add(new JChoiceElement<T>(label, obj));
     }
 
     /**
@@ -43,11 +46,11 @@ public class GameWindow<T extends Serializable> implements Serializable {
      */
     public void show() {
 
-        // TODO スレッドの依存関係を整理する
-
         JPage msgWindow = new JPage() {
 
             private static final long serialVersionUID = 1L;
+
+            private JFrame msgWindowFrame;
 
             @Override
             protected void settings() {
@@ -59,46 +62,8 @@ public class GameWindow<T extends Serializable> implements Serializable {
 
             @Override
             protected JFrame createFrame() {
-                JFrame jframe = super.createFrame();
-                jframe.addKeyListener(new KeyListener() {
-
-                    @Override
-                    public void keyTyped(KeyEvent e) {
-                        // TODO 自動生成されたメソッド・スタブ
-
-                    }
-
-                    @Override
-                    public void keyReleased(KeyEvent e) {
-                        // TODO 自動生成されたメソッド・スタブ
-
-                    }
-
-                    @Override
-                    public void keyPressed(KeyEvent e) {
-                        switch (e.getKeyCode()) {
-                            case KeyEvent.VK_UP:
-                                System.out.println("up");
-                                break;
-                            case KeyEvent.VK_DOWN:
-                                System.out.println("down");
-                                break;
-                            case KeyEvent.VK_LEFT:
-                                System.out.println("left");
-                                break;
-                            case KeyEvent.VK_RIGHT:
-                                System.out.println("right");
-                                break;
-                            case KeyEvent.VK_ENTER:
-                                System.out.println("enter");
-                                break;
-                            default:
-                                /* 処理なし*/
-                                break;
-                        }
-                    }
-                });
-                return jframe;
+                msgWindowFrame = super.createFrame();
+                return msgWindowFrame;
             }
 
             @Override
@@ -113,35 +78,24 @@ public class GameWindow<T extends Serializable> implements Serializable {
             protected void onAfterShow() {
                 super.onAfterShow();
 
-                JFrame parentFrame = frame;
-
-                JPageChoice<T> jpChoice = new JPageChoice<T>("") {
+                JChoice<T> choice = new JChoice<T>("") {
                     private static final long serialVersionUID = 1L;
-
-                    // TODO マウスオーバーで仮選択とする
-                    // TODO 初期１件目を仮選択とする
 
                     @Override
                     protected JPageButton createChoice(String label, Model<Boolean> model) {
-                        return new JPageLink(label, model) {
-
-                            // TODO 仮選択されているときにアンダーラインを付ける
-                            // TODO 自身が選択されたら排他要素の仮選択を解除する
-
+                        return new JPageLink(label, Model.of(false)) {
                             private static final long serialVersionUID = 1L;
 
                             @Override
                             protected String getColor() {
                                 return "#ffffff";
                             }
-
                         };
                     }
 
                     @Override
                     protected JPage createPage(String message, List<JPageButton> choices) {
-
-                        ChoicePage choicePage = new ChoicePage(message, choices) {
+                        JChoicePage choicePage = new JChoicePage("", choices) {
                             private static final long serialVersionUID = 1L;
 
                             // TODO カーソルキーが押されたら仮選択を移動する
@@ -155,56 +109,74 @@ public class GameWindow<T extends Serializable> implements Serializable {
                                 baseFont = FONT;
                             }
 
-
-
-
-
-
-
                             @Override
                             protected void onAfterShow() {
                                 super.onAfterShow();
                                 /* メッセージウィンドウ下部に表示します。 */
                                 frame.setLocation(
-                                        parentFrame.getLocation().x,
-                                        parentFrame.getLocation().y
-                                                + parentFrame.getSize().height
-                                                + 20);
+                                    msgWindowFrame.getLocation().x,
+                                    msgWindowFrame.getLocation().y
+                                        + msgWindowFrame.getSize().height
+                                        + 20);
 
                                 // TODO 初期一番上を選択し、アンダーラインを入れる。
                                 // TODO カーソルで選択可能とする
                                 // TODO カーソル移動時にエフェクトを入れる
+
                             }
 
                         };
                         choicePage.setHorizonal(false);
-
                         return choicePage;
                     }
 
                 };
-
-                for (ChoiceElement<T> choice : choices) {
-                    jpChoice.addChoice(choice);
-                }
+                choice.addAllChoice(choices);
 
                 /* 表示 */
-                jpChoice.showDialog();
+                choice.showDialog();
 
                 /* 選択されたものを取得 */
-                selected = jpChoice.getSelectedOne();
+                selected = choice.getSelectedOne();
 
             }
-
         };
+
+        AbstractAction myActionUpOrLeft = new AbstractAction() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("UPが押されました");
+            }
+        };
+
+        KeyStroke ks = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+
+//        choicePage.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ks, "VK_UP");
+//        choicePage.getRootPane().getActionMap().put("VK_UP", myActionUpOrLeft);
+//
+//        msgWindow.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ks, "VK_UP");
+//        msgWindow.getRootPane().getActionMap().put("VK_UP", myActionUpOrLeft);
+
+
 
         msgWindow.show();
         msgWindow.dispose();
 
+
+        //            // TODO マウスオーバーで仮選択とする
+        //            // TODO 初期１件目を仮選択とする
+        //                    // TODO 仮選択されているときにアンダーラインを付ける
+        //                    // TODO 自身が選択されたら排他要素の仮選択を解除する
+
     }
 
     public T getSelected() {
-        return this.selected.getObject();
+        if (this.selected != null) {
+            return this.selected.getObject();
+        }
+        return null;
     }
 
 }
