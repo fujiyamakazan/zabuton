@@ -5,7 +5,8 @@ import java.util.List;
 
 
 /**
- * ListをStringに変換する
+ * ListをStringに変換します。
+ *
  * @author fujiyama
  */
 public class ListToStringer {
