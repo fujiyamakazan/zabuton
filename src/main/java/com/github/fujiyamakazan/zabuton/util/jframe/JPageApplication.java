@@ -15,6 +15,10 @@ public class JPageApplication implements Serializable {
 
     private final List<JPage> pages = Generics.newArrayList();
 
+    public static void start(JPage page) {
+        new JPageApplication().invokePage(page);
+    }
+
     /**
      * ページを起動します。
      * この時点で呼び出し元のスレッドを待機状態にします。

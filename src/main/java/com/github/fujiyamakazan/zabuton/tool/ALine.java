@@ -29,6 +29,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.github.fujiyamakazan.zabuton.util.ThrowableToString;
+import com.github.fujiyamakazan.zabuton.util.date.Chronus;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 
 /**
@@ -44,7 +45,7 @@ import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 public class ALine implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private SimpleDateFormat dfYyyyMMdd = new SimpleDateFormat("yyyy/MM/dd");
+    private SimpleDateFormat dfYyyyMMdd = new SimpleDateFormat(Chronus.POPULAR_JP);
     private SimpleDateFormat dfYyyyMMddHHmmss = new SimpleDateFormat(dfYyyyMMdd.toPattern() + " HH:mm:ss");
 
     private File setting = new File("a-line.setting.txt");

@@ -5,10 +5,16 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class DateFormatConverter implements Serializable {
+/**
+ * 「時」を司ります。
+ * @author fujiyama
+ */
+public class Chronus implements Serializable {
     private static final long serialVersionUID = 1L;
     @SuppressWarnings("unused")
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DateFormatConverter.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Chronus.class);
+
+    public static final String POPULAR_JP = "yyyy/MM/dd";
 
     public static String convert(String string, String from, String to) {
         Date d;
@@ -30,12 +36,27 @@ public class DateFormatConverter implements Serializable {
         }
     }
 
-
     private static SimpleDateFormat createDateFormat(String pattern) {
         SimpleDateFormat df = new SimpleDateFormat(pattern);
         df.setLenient(false); // 厳密
         return df;
     }
 
+    /**
+     * yyyy/MM/dd形式の文字列を日付にします。
+     * @param yyyyMMdd yyyy/MM/dd形式の文字列
+     * @return 日付
+     */
+    public static Date parse(String yyyyMMdd) {
+        try {
+            return createDateFormat(POPULAR_JP).parse(yyyyMMdd);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String formant(Date date, String pattern) {
+        return createDateFormat(pattern).format(date);
+    }
 
 }

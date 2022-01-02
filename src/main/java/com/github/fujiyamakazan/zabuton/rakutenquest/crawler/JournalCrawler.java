@@ -16,6 +16,7 @@ import com.github.fujiyamakazan.zabuton.rakutenquest.JournalCsv;
 import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
 import com.github.fujiyamakazan.zabuton.util.RetryWorker;
 import com.github.fujiyamakazan.zabuton.util.StringBuilderLn;
+import com.github.fujiyamakazan.zabuton.util.date.Chronus;
 import com.github.fujiyamakazan.zabuton.util.jframe.JFrameUtils;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 import com.ibm.icu.util.Calendar;
@@ -25,11 +26,10 @@ public abstract class JournalCrawler implements Serializable {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JournalCrawler.class);
 
     public static final String STANDRD_DRIVER_NAME = "chromedriver.exe";
-    protected static int DEFAULT_TIMEOUT = 5;
+    protected static final int DEFAULT_TIMEOUT = 5;
 
     protected SelenCommonDriver cmd;
 
-    protected final int year;
     private final String name;
     protected final File appDir;
     protected final File crawlerDir;
@@ -38,9 +38,8 @@ public abstract class JournalCrawler implements Serializable {
     /**
      * コンストラクタです。
      */
-    public JournalCrawler(String name, int year, File appDir) {
+    public JournalCrawler(String name, File appDir) {
         this.name = name;
-        this.year = year;
         this.appDir = appDir;
         this.crawlerDir = new File(appDir, name);
         this.crawlerDir.mkdirs();
@@ -254,6 +253,16 @@ public abstract class JournalCrawler implements Serializable {
 
     public String getName() {
         return name;
+    }
+
+
+    protected boolean in(String value, String datePattern) {
+        try {
+            Chronus.parse(value, datePattern);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 }

@@ -52,9 +52,13 @@ public class JPageButton extends JPageComponent<Boolean> {
                 /* 実装された主処理を実行 */
                 action.run();
 
+
+
                 /* アプリケーションを終了します。 */
-                if (action instanceof JPageChangeAction == false) {
-                    getPage().getApplication().close();
+                if (action.isFinal()) {
+                    if (action instanceof JPageChangeAction == false) {
+                        getPage().getApplication().close();
+                    }
                 }
 
             }
@@ -78,5 +82,12 @@ public class JPageButton extends JPageComponent<Boolean> {
     public void doClick() {
         button.doClick();
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + " " + this.button.getText();
+    }
+
+
 
 }

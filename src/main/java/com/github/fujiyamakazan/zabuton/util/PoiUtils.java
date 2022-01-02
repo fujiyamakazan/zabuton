@@ -87,7 +87,7 @@ public class PoiUtils {
     }
 
     public static String getString(Cell cell, boolean deep) {
-        long start = System.currentTimeMillis();
+        //long start = System.currentTimeMillis();
         String cellValue = null;
         if (cell != null) {
             if (cell.getCellType().equals(CellType.STRING)) {

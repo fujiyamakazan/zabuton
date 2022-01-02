@@ -9,11 +9,10 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-
 @Component
 public class ZabuTimer {
 
-    @Autowired(required=false)
+    @Autowired(required = false)
     private I_TimerListener listener;
 
     /** Bean生成後に一度だけスケジュールを起動する */
@@ -29,7 +28,7 @@ public class ZabuTimer {
             return;
         }
 
-        Runnable command = new Runnable(){
+        Runnable command = new Runnable() {
             @Override
             public void run() {
                 if (listener != null) {
@@ -45,9 +44,13 @@ public class ZabuTimer {
      * 呼び出されるリスナーの定義
      */
     public interface I_TimerListener {
-        /** @return 呼出し周期(秒) */
+
+        /**
+         * @return 呼出し周期(秒) です。
+         */
         int getSpan();
-        /** 処理 */
+
+        /** 処理をします。 */
         void tick();
     }
 }

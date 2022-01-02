@@ -15,6 +15,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.lang.Generics;
@@ -22,6 +23,7 @@ import org.apache.wicket.util.lang.Generics;
 import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageButton;
 import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageComponent;
 import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageDelayLabel;
+import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageInputComponent;
 import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageLabel;
 import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageLink;
 import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageTextField;
@@ -187,16 +189,18 @@ public class JPage implements Serializable {
 
                 if (backgroundColor != null) {
                     jc.setBackground(backgroundColor);
+                    if (backgroundColor.equals(Color.BLACK)) {
+                        if (jc instanceof JTextField) {
+                            ((JTextField)jc).setCaretColor(Color.WHITE);
+                        }
+                    }
                 }
-
                 jc.setForeground(foregroundColer);
 
                 if (baseFont != null) {
                     jc.setFont(baseFont);
                 }
-
             }
-
         }
     }
 
@@ -263,6 +267,14 @@ public class JPage implements Serializable {
                 }
             } else {
                 pc.updateModel();
+            }
+        }
+    }
+
+    public void setTextFromModel() {
+        for (JPageComponent<?> pc : components) {
+            if (pc instanceof JPageInputComponent) {
+                ((JPageInputComponent)pc).setTextFromModel();
             }
         }
     }

@@ -24,14 +24,14 @@ public class JournalCsv implements Serializable {
     private final File file;
     private final String[] fieldNames;
 
-    public JournalCsv(File crawlerDir, String name) {
-        this(crawlerDir, name, null);
-    }
-
-    public JournalCsv(String path) {
-        this.file = new File(path);
-        this.fieldNames = null;
-    }
+//    public JournalCsv(File crawlerDir, String name) {
+//        this(crawlerDir, name, null);
+//    }
+//
+//    public JournalCsv(String path) {
+//        this.file = new File(path);
+//        this.fieldNames = null;
+//    }
 
     public JournalCsv(File crawlerDir, String name, String[] fieldNames) {
         this.file = new File(crawlerDir, name);

@@ -6,23 +6,32 @@ import java.util.List;
 
 import org.apache.wicket.util.lang.Generics;
 
+/**
+ * staticメソッドだけにできるのでは？SaveDataへの統合を検討する。
+ * @author fujiyama
+ */
 public class SaveDataManager implements Serializable {
     private static final long serialVersionUID = 1L;
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SaveDataManager.class);
 
     private final List<SaveData> datas = Generics.newArrayList();
+    private final File dirDatas;
 
     /**
      * コンストラクタです。
      * メンバにセーブデータを登録します。
      */
     public SaveDataManager(File appDir) {
-        File dirData = new File(appDir, "datas");
-        if (dirData.exists() == false) {
-            dirData.mkdirs();
+        if (appDir.exists() == false) {
+            appDir.mkdirs();
         }
-        for (File file: dirData.listFiles()) {
+
+        this.dirDatas = new File(appDir, "datas");
+        if (dirDatas.exists() == false) {
+            dirDatas.mkdirs();
+        }
+        for (File file : dirDatas.listFiles()) {
             datas.add(new SaveData(file));
         }
 
@@ -30,5 +39,19 @@ public class SaveDataManager implements Serializable {
 
     public List<SaveData> getDatas() {
         return datas;
+    }
+
+    public SaveData get(File appDir, String name) {
+        File dirData = new File(appDir, "datas");
+        return new SaveData(new File(dirData, name));
+    }
+
+    public SaveData createSaveData(String name) {
+        File newDir = new File(dirDatas, name);
+        newDir.mkdirs();
+        SaveData newData = new SaveData(newDir);
+        this.datas.add(newData);
+        return newData;
+
     }
 }

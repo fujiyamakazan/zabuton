@@ -1,15 +1,10 @@
 package com.github.fujiyamakazan.zabuton.rakutenquest;
 
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.swing.AbstractAction;
 import javax.swing.JFrame;
-import javax.swing.KeyStroke;
 
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.lang.Generics;
@@ -27,11 +22,14 @@ public class GameWindow<T extends Serializable> implements Serializable {
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GameWindow.class);
 
-    private static final Font FONT = new Font("ＭＳ ゴシック", Font.PLAIN, 10);
-
     private String[] messages;
     private final List<JChoiceElement<T>> choices = Generics.newArrayList();
     private JChoiceElement<T> selected;
+    private RSounds sound;
+
+    public GameWindow(RSounds sound) {
+        this.sound = sound;
+    }
 
     public void setMessage(String... messages) {
         this.messages = messages;
@@ -46,19 +44,11 @@ public class GameWindow<T extends Serializable> implements Serializable {
      */
     public void show() {
 
-        JPage msgWindow = new JPage() {
+        JPage msgWindow = new RPage() {
 
             private static final long serialVersionUID = 1L;
 
             private JFrame msgWindowFrame;
-
-            @Override
-            protected void settings() {
-                backgroundColor = Color.BLACK;
-                foregroundColer = Color.WHITE;
-                borderWidth = 0;
-                baseFont = FONT;
-            }
 
             @Override
             protected JFrame createFrame() {
@@ -70,7 +60,14 @@ public class GameWindow<T extends Serializable> implements Serializable {
             protected void onInitialize() {
                 super.onInitialize();
                 for (String msg : messages) {
-                    addLine(new JPageDelayLabel(msg));
+                    addLine(new JPageDelayLabel(msg) {
+                        private static final long serialVersionUID = 1L;
+                        @Override
+                        protected void sound() {
+                            super.sound();
+                            sound.soundClick();
+                        }
+                    });
                 }
             }
 
@@ -83,7 +80,7 @@ public class GameWindow<T extends Serializable> implements Serializable {
 
                     @Override
                     protected JPageButton createChoice(String label, Model<Boolean> model) {
-                        return new JPageLink(label, Model.of(false)) {
+                        return new JPageLink(label, model) {
                             private static final long serialVersionUID = 1L;
 
                             @Override
@@ -106,7 +103,7 @@ public class GameWindow<T extends Serializable> implements Serializable {
                                 backgroundColor = Color.BLACK;
                                 foregroundColer = Color.WHITE;
                                 borderWidth = 0;
-                                baseFont = FONT;
+                                baseFont = RPage.FONT;
                             }
 
                             @Override
@@ -142,16 +139,16 @@ public class GameWindow<T extends Serializable> implements Serializable {
             }
         };
 
-        AbstractAction myActionUpOrLeft = new AbstractAction() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("UPが押されました");
-            }
-        };
-
-        KeyStroke ks = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+//        AbstractAction myActionUpOrLeft = new AbstractAction() {
+//            private static final long serialVersionUID = 1L;
+//
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                System.out.println("UPが押されました");
+//            }
+//        };
+//
+//        KeyStroke ks = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
 
 //        choicePage.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ks, "VK_UP");
 //        choicePage.getRootPane().getActionMap().put("VK_UP", myActionUpOrLeft);

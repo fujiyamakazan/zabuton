@@ -1,15 +1,17 @@
 package com.github.fujiyamakazan.zabuton.util.jframe.component;
+
 import java.util.List;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 
+import org.apache.commons.codec.binary.StringUtils;
 import org.apache.wicket.model.Model;
 
 /**
  * セレクトボックスのコンポーネントモデルです。
  */
-public class JPageSelect extends JPageComponent<String> {
+public class JPageSelect extends JPageComponent<String> implements JPageInputComponent {
     private static final long serialVersionUID = 1L;
     private final JComboBox<String> jc;
 
@@ -24,10 +26,24 @@ public class JPageSelect extends JPageComponent<String> {
 
         addJFrameComponent(new JLabel(label));
         addJFrameComponent(jc);
+
     }
 
     @Override
     public void updateModel() {
-        model.setObject((String)jc.getSelectedItem());
+        model.setObject((String) jc.getSelectedItem());
+    }
+
+    @Override
+    public void setTextFromModel() {
+        String selected = getModel().getObject();
+
+        for (int i = 0; i < jc.getItemCount(); i++) {
+            if (StringUtils.equals(jc.getItemAt(i), selected)) {
+                jc.setSelectedIndex(i);
+                return;
+            }
+
+        }
     }
 }

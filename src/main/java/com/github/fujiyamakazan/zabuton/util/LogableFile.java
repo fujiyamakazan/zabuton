@@ -8,10 +8,12 @@ import java.util.Date;
 
 import org.apache.commons.io.FileUtils;
 
+import com.github.fujiyamakazan.zabuton.util.date.Chronus;
+
 public class LogableFile extends File {
     private static final long serialVersionUID = 1L;
 
-    private SimpleDateFormat dfYyyyMMdd = new SimpleDateFormat("yyyy/MM/dd");
+    private SimpleDateFormat dfYyyyMMdd = new SimpleDateFormat(Chronus.POPULAR_JP);
     private SimpleDateFormat dfYyyyMMddHHmmss = new SimpleDateFormat(dfYyyyMMdd.toPattern() + " HH:mm:ss");
 
     public LogableFile(String pathname) {

@@ -30,7 +30,7 @@ public class BuildXml implements Serializable {
         String endTag = "<!-- dependency-end -->";
 
         String head = SubstringUtils.left(text, startTag);
-        String tail = SubstringUtils.right(text, endTag);
+        final String tail = SubstringUtils.right(text, endTag);
 
         StringBuilder sb = new StringBuilder();
         sb.append(head.trim() + "\n");
@@ -51,25 +51,25 @@ public class BuildXml implements Serializable {
      * build.xmlを実行する
      */
     public void exeBuildXml() {
-        //		try {
+        //      try {
         //
-        //			Project project = new Project();
-        //			project.init();
+        //          Project project = new Project();
+        //          project.init();
         //
-        //			File buildFile = new File("build.xml");
-        //			ProjectHelper.getProjectHelper().parse(project, buildFile);
-        //			BuildLogger buildLogger = new DefaultLogger();
-        //			buildLogger.setMessageOutputLevel(Project.MSG_INFO);
-        //			buildLogger.setOutputPrintStream(new PrintStream(System.out));
-        //			buildLogger.setErrorPrintStream(new PrintStream(System.err));
-        //			buildLogger.setEmacsMode(false);
-        //			project.addBuildListener(buildLogger); // loggerの設定
+        //          File buildFile = new File("build.xml");
+        //          ProjectHelper.getProjectHelper().parse(project, buildFile);
+        //          BuildLogger buildLogger = new DefaultLogger();
+        //          buildLogger.setMessageOutputLevel(Project.MSG_INFO);
+        //          buildLogger.setOutputPrintStream(new PrintStream(System.out));
+        //          buildLogger.setErrorPrintStream(new PrintStream(System.err));
+        //          buildLogger.setEmacsMode(false);
+        //          project.addBuildListener(buildLogger); // loggerの設定
         //
-        //			project.executeTarget(project.getDefaultTarget());
+        //          project.executeTarget(project.getDefaultTarget());
         //
-        //		} catch (BuildException e) {
-        //			throw new RuntimeException(e);
-        //		}
+        //      } catch (BuildException e) {
+        //          throw new RuntimeException(e);
+        //      }
     }
 
 }

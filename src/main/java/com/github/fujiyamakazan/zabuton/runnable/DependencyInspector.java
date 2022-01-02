@@ -61,9 +61,9 @@ public class DependencyInspector {
             final String artifactId = SubstringUtils.leftOfLast(artifactIdAndVersion, "-"); // ex.) commons-collections4
             final String version = SubstringUtils.right(artifactIdAndVersion, "-"); // ex.) 4.4
 
-            //			log.debug("jarName:" + jarName);
-            //			log.debug("artifactId:" + artifactId);
-            //			log.debug("version:" + version);
+            //          log.debug("jarName:" + jarName);
+            //          log.debug("artifactId:" + artifactId);
+            //          log.debug("version:" + version);
 
             final File jarInfo = new File(dirOut, artifactId);
             jarInfos.add(jarInfo);

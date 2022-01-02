@@ -15,7 +15,7 @@ import org.openqa.selenium.By;
 import com.github.fujiyamakazan.zabuton.rakutenquest.JournalCsv;
 import com.github.fujiyamakazan.zabuton.rakutenquest.RakutenQuest;
 import com.github.fujiyamakazan.zabuton.util.CsvUtils;
-import com.github.fujiyamakazan.zabuton.util.date.DateFormatConverter;
+import com.github.fujiyamakazan.zabuton.util.date.Chronus;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
 import com.github.fujiyamakazan.zabuton.util.text.TextMerger;
@@ -29,15 +29,17 @@ public class RakutenCrawler extends JournalCrawler {
     public static final String CREDIT = "CREDIT";
     public static final String POINT = "POINT";
 
-    private final JournalCsv masterCredit = new JournalCsv(crawlerDir, "credit_" + year + ".csv");
-    private final JournalCsv masterPoint = new JournalCsv(crawlerDir, "point_" + year + ".csv");
-    private final File summary = new File(crawlerDir, "summary_" + year + ".txt");
+    private final JournalCsv masterCredit = new JournalCsv(crawlerDir, "credit.csv",
+        new String[] {"利用日","利用店名","利用者","支払方法","支払金額"});
+    private final JournalCsv masterPoint = new JournalCsv(crawlerDir, "point.csv",
+        new String[] {"日付","サービス","内容","区分","ポイント", "備考"});
+    private final File summary = new File(crawlerDir, "summary.txt");
 
     /**
      * コンストラクタです。
      */
-    public RakutenCrawler(int year, File appDir) {
-        super("Rakuten", year, appDir);
+    public RakutenCrawler(File appDir) {
+        super("Rakuten", appDir);
         setMaster(CREDIT, masterCredit);
         setMaster(POINT, masterPoint);
         setSummary(summary);
@@ -101,7 +103,7 @@ public class RakutenCrawler extends JournalCrawler {
      */
     private void downloadCredit() {
 
-        final TextMerger textMerger = new TextMerger(masterCredit, year + "/");
+        final TextMerger textMerger = new TextMerger(masterCredit,Chronus.POPULAR_JP);
 
         int roopCounter = -1;
         while (roopCounter < 12) { // 1年分取得
@@ -145,7 +147,7 @@ public class RakutenCrawler extends JournalCrawler {
      */
     private void downloadPoint() {
 
-        final TextMerger textMerger = new TextMerger(masterPoint, year + "/");
+        final TextMerger textMerger = new TextMerger(masterPoint, Chronus.POPULAR_JP);
 
         int roopCounter = 0;
         while (roopCounter <= 15) { // 約１年分
@@ -208,7 +210,7 @@ public class RakutenCrawler extends JournalCrawler {
         String htmlAll = new Utf8Text(summary).read();
         int html1Index = 0;
         int html2Index = htmlAll.indexOf("<html", html1Index + 1);
-        int html3Index = htmlAll.indexOf("<html",html2Index + 1);
+        int html3Index = htmlAll.indexOf("<html", html2Index + 1);
         //String html1 = htmlAll.substring(html1Index, html2Index);
         String html2 = htmlAll.substring(html2Index, html3Index);
         String html3 = htmlAll.substring(html3Index);
@@ -225,8 +227,8 @@ public class RakutenCrawler extends JournalCrawler {
         String d1 = Jsoup.parse(html2).select(cssQueryDate).text();
         String d2 = Jsoup.parse(html3).select(cssQueryDate).text();
 
-        Date date1 = DateFormatConverter.parse(d1, "yyyy年MM月dd日");
-        Date date2 = DateFormatConverter.parse(d2, "yyyy年MM月dd日");
+        Date date1 = Chronus.parse(d1, "yyyy年MM月dd日");
+        Date date2 = Chronus.parse(d2, "yyyy年MM月dd日");
 
         /* 期限前のみ合計を取る */
         int summury = 0;
@@ -257,7 +259,7 @@ public class RakutenCrawler extends JournalCrawler {
      * 動作確認をします。
      */
     public static void main(String[] args) {
-        RakutenCrawler me = new RakutenCrawler(2021, RakutenQuest.APP_DIR);
+        RakutenCrawler me = new RakutenCrawler(RakutenQuest.APP_DIR);
         me.download();
         System.out.println(me.getAssetRakutenCredit());
         System.out.println(me.getAssetRakutenPoint());

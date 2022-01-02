@@ -12,6 +12,7 @@ import org.openqa.selenium.By;
 
 import com.github.fujiyamakazan.zabuton.rakutenquest.JournalCsv;
 import com.github.fujiyamakazan.zabuton.util.CsvUtils;
+import com.github.fujiyamakazan.zabuton.util.date.Chronus;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
 import com.github.fujiyamakazan.zabuton.util.text.TextMerger;
@@ -19,24 +20,26 @@ import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 
 public final class MajicaCrawler extends JournalCrawler {
     private static final long serialVersionUID = 1L;
+    private static final String[] FIELD_NAMES = new String[] { "利用日時", "利用店舗", "入金", "利用" };
 
-    private final JournalCsv journalCsv = new MajikaJournalCsv(crawlerDir, year + ".csv");
-    private final File summary = new File(crawlerDir, "summary_" + year + ".txt");
+    private final JournalCsv master = new JournalCsv(crawlerDir, "master.csv", FIELD_NAMES);
+    private final File summary = new File(crawlerDir, "summary.txt");
+
 
     public static class MajikaJournalCsv extends JournalCsv {
         private static final long serialVersionUID = 1L;
 
         public MajikaJournalCsv(File crawlerDir, String name) {
-            super(crawlerDir, name, new String[] { "利用日時", "利用店舗", "入金", "利用" });
+            super(crawlerDir, name, FIELD_NAMES);
         }
     }
 
     /**
      * コンストラクタです。
      */
-    public MajicaCrawler(int year, File appDir) {
-        super("Majica", year, appDir);
-        setMaster(journalCsv);
+    public MajicaCrawler(File appDir) {
+        super("Majica",  appDir);
+        setMaster(master);
         setSummary(summary);
     }
 
@@ -57,7 +60,7 @@ public final class MajicaCrawler extends JournalCrawler {
         cmd.type(By.name("pinOrPassword"), pm.getPassword());
         cmd.clickButtonAndWait("ログイン");
 
-        final TextMerger textMerger = new TextMerger(journalCsv, year + "/");
+        final TextMerger textMerger = new TextMerger(master, Chronus.POPULAR_JP);
 
         int roopCounter = 0;
         while (roopCounter < 1) { // 1回のみ
@@ -79,14 +82,10 @@ public final class MajicaCrawler extends JournalCrawler {
             Document doc = Jsoup.parse(html);
             Element table = doc.getElementsByClass("tline").first().getElementsByTag("table").first();
             for (Element tr : table.getElementsByTag("tr")) {
-                //                String date = tr.getElementsByTag("td").get(0).text(); // 利用日時
-                //                String body = tr.getElementsByTag("td").get(1).text(); // 利用店舗
-                //                String in = tr.getElementsByTag("td").get(2).text(); // 入金
-                //                String out = tr.getElementsByTag("td").get(3).text(); // 利用
-                String date = tr.getElementsByTag("td").get(journalCsv.getColumnIndex("利用日時")).text();
-                String body = tr.getElementsByTag("td").get(journalCsv.getColumnIndex("利用店舗")).text();
-                String in = tr.getElementsByTag("td").get(journalCsv.getColumnIndex("入金")).text();
-                String out = tr.getElementsByTag("td").get(journalCsv.getColumnIndex("利用")).text();
+                String date = tr.getElementsByTag("td").get(master.getColumnIndex("利用日時")).text();
+                String body = tr.getElementsByTag("td").get(master.getColumnIndex("利用店舗")).text();
+                String in = tr.getElementsByTag("td").get(master.getColumnIndex("入金")).text();
+                String out = tr.getElementsByTag("td").get(master.getColumnIndex("利用")).text();
 
                 /* 日付の降順となるように前に追加 */
                 lines.add(0, CsvUtils.convertString(new String[] { date, body, in, out }));
