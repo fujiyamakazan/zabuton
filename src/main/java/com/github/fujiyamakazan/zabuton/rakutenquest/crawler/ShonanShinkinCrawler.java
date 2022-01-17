@@ -21,14 +21,15 @@ import com.opencsv.CSVParser;
 public final class ShonanShinkinCrawler extends JournalCrawler {
     private static final long serialVersionUID = 1L;
 
-    private final JournalCsv master = new JournalCsv(crawlerDir, year + ".csv");
-    private final File summary = new File(crawlerDir, "summary_" + year + ".txt");
+    private final JournalCsv master = new JournalCsv(crawlerDir, "master.csv",
+        new String[] {"年月日","摘要","お支払金額","お預り金額","差引残高"});
+    private final File summary = new File(crawlerDir, "summary.txt");
 
     /**
      * コンストラクタです。
      */
-    public ShonanShinkinCrawler(int year, File appDir) {
-        super("ShonanShinkin", year, appDir);
+    public ShonanShinkinCrawler(File appDir) {
+        super("ShonanShinkin", appDir);
         setMaster(master);
         setSummary(summary);
     }
@@ -57,7 +58,7 @@ public final class ShonanShinkinCrawler extends JournalCrawler {
         cmd.clickAndWait(By.xpath("//input[@value='この口座の入出金明細を照会']"));
         sleep(5_000);
 
-        final TextMerger textMerger = new TextMerger(master, year + "-");
+        final TextMerger textMerger = new TextMerger(master, "yyyy-MM-dd");
 
         int roopCounter = 0;
         while (roopCounter < 1) { // 1回のみ

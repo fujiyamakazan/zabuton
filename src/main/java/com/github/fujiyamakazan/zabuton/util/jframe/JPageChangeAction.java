@@ -1,4 +1,5 @@
 package com.github.fujiyamakazan.zabuton.util.jframe;
+
 /**
  * JPageのボタンで行う画面遷移の処理を定義します。
  * @author fujiyama
@@ -8,7 +9,6 @@ public class JPageChangeAction extends JPageAction {
     private JPageApplication app;
     private JPage from;
     private JPage to;
-
 
     /**
      * コンストラクタです。
@@ -23,7 +23,5 @@ public class JPageChangeAction extends JPageAction {
     public void run() {
         app.changePage(from, to);
     }
-
-
 
 }

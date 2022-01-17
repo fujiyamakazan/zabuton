@@ -1,20 +1,15 @@
 package com.github.fujiyamakazan.zabuton.util.jframe;
 
-import java.io.Serializable;
-
 /**
  * JPageのボタンで行う処理を定義します。
  * @author fujiyama
  */
-public class JPageAction implements Serializable {
+public class JPageAct extends JPageAction {
     private static final long serialVersionUID = 1L;
 
-    public void run() {
-        /* 子クラスで実装 */
-    }
-
-    public boolean isFinal() {
-        return true;
+    @Override
+    public final boolean isFinal() {
+        return false;
     }
 
 }

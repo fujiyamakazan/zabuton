@@ -69,4 +69,9 @@ public abstract class JPageComponent<T extends Serializable> implements Serializ
         return this.page;
     }
 
+    @Override
+    public String toString() {
+        return "JPageComponent [" + model.getObject() + "]";
+    }
+
 }

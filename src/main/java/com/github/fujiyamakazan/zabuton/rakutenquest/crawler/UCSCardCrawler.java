@@ -14,7 +14,7 @@ import org.openqa.selenium.By;
 
 import com.github.fujiyamakazan.zabuton.rakutenquest.JournalCsv;
 import com.github.fujiyamakazan.zabuton.rakutenquest.RakutenQuest;
-import com.github.fujiyamakazan.zabuton.util.date.DateFormatConverter;
+import com.github.fujiyamakazan.zabuton.util.date.Chronus;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
 import com.github.fujiyamakazan.zabuton.util.string.RegexUtils;
@@ -28,14 +28,15 @@ public final class UCSCardCrawler extends JournalCrawler {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(UCSCardCrawler.class);
 
-    private final JournalCsv master = new JournalCsv(crawlerDir, year + ".csv");
-    private final File summary = new File(crawlerDir, "summary_" + year + ".txt");
+    private final JournalCsv master = new JournalCsv(crawlerDir, "master.csv",
+        new String[] { "支払方法コード", "支払方法", "利用日", "加盟店名称", "利用金額", "利用者", "海外利用有無サイン", "現地通貨額", "通貨名称", "換算レート" });
+    private final File summary = new File(crawlerDir, "summary.txt");
 
     /**
      * コンストラクタです。
      */
-    public UCSCardCrawler(int year, File appDir) {
-        super("UCSCard", year, appDir);
+    public UCSCardCrawler(File appDir) {
+        super("UCSCard", appDir);
         setMaster(master);
         setSummary(summary);
     }
@@ -73,13 +74,14 @@ public final class UCSCardCrawler extends JournalCrawler {
     }
 
     private void downloadJournal() {
-        final TextMerger textMerger = new TextMerger(master, null) {
+        final TextMerger textMerger = new TextMerger(master, "yyyyMMdd") {
             private static final long serialVersionUID = 1L;
 
             @Override
             protected boolean isAvailableLine(String line) {
                 try {
-                    return new CSVParser().parseLine(line)[2].startsWith(String.valueOf(year));
+                    //return new CSVParser().parseLine(line)[2].startsWith(String.valueOf(year));
+                    return in(new CSVParser().parseLine(line)[2]);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -139,9 +141,12 @@ public final class UCSCardCrawler extends JournalCrawler {
         deletePreFile();
 
         /* 各月のHTMLをダウンロードします。 */
-        By by1 = By.xpath("//section[contains(@class,'usage-details_defined-price')]/section[1]//img[@alt='詳細を見る']"); // 最新
-        By by2 = By.xpath("//section[contains(@class,'usage-details_defined-price')]/section[2]//img[@alt='詳細を見る']"); // その前
-        By by3 = By.xpath("//section[contains(@class,'usage-details_defined-price')]/section[3]//img[@alt='詳細を見る']"); // 前々月
+        By by1 = By.xpath(
+            "//section[contains(@class,'usage-details_defined-price')]/section[1]//img[@alt='詳細を見る']"); // 最新
+        By by2 = By.xpath(
+            "//section[contains(@class,'usage-details_defined-price')]/section[2]//img[@alt='詳細を見る']"); // その前
+        By by3 = By.xpath(
+            "//section[contains(@class,'usage-details_defined-price')]/section[3]//img[@alt='詳細を見る']"); // 前々月
         List<By> bys = Generics.newArrayList();
         bys.add(by1);
         bys.add(by2);
@@ -195,7 +200,7 @@ public final class UCSCardCrawler extends JournalCrawler {
             if (StringUtils.isEmpty(strPaymentDate)) {
                 paymentDate = null;
             } else {
-                paymentDate = DateFormatConverter.parse(strPaymentDate, "yyyy年MM月dd日");
+                paymentDate = Chronus.parse(strPaymentDate, "yyyy年MM月dd日");
                 log.debug(paymentDate.toString());
             }
 
@@ -216,13 +221,13 @@ public final class UCSCardCrawler extends JournalCrawler {
         }
 
         String msg = String.valueOf(amount) + "円"
-                + "(最後の支払日[" + lastPaymentDate + "]以降に発生した金額)";
+            + "(最後の支払日[" + lastPaymentDate + "]以降に発生した金額)";
 
         return "UCSマジカカード（クレジット）：" + msg;
     }
 
     public static void main(String[] args) {
-        UCSCardCrawler me = new UCSCardCrawler(2021, RakutenQuest.APP_DIR);
+        UCSCardCrawler me = new UCSCardCrawler(RakutenQuest.APP_DIR);
         System.out.println(me.getAssetUCSCredit());
     }
 

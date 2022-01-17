@@ -10,6 +10,7 @@ import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
+import com.github.fujiyamakazan.zabuton.util.date.Chronus;
 import com.ibm.icu.util.Calendar;
 
 /**
@@ -18,7 +19,7 @@ import com.ibm.icu.util.Calendar;
 public class Journal implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final DateFormat DF = new SimpleDateFormat("yyyy/MM/dd");
+    private final DateFormat DF = new SimpleDateFormat(Chronus.POPULAR_JP);
 
     /** 日付 */
     private Date date;
@@ -34,6 +35,9 @@ public class Journal implements Serializable {
 
     /** メモ */
     private String memo;
+
+    /** メモ(追加) */
+    private String memo2 = "";
 
     /** 記録元 */
     private String source;
@@ -125,6 +129,14 @@ public class Journal implements Serializable {
         this.memo = memo;
     }
 
+    public String getMemo2() {
+        return memo2;
+    }
+
+    public void setMemo2(String memo2) {
+        this.memo2 = memo2;
+    }
+
     public String getSource() {
         return source;
     }
@@ -168,7 +180,7 @@ public class Journal implements Serializable {
             + left + "\t"
             + right + "\t"
             + memo + "\t"
-            + "\t" // 突合メモ
+            + memo2 + "\t" // 突合メモ
             + activity + "\t"
             + source + "\t"
             + (rowIndex != null ? (rowIndex) : "");
@@ -181,7 +193,7 @@ public class Journal implements Serializable {
     @Override
     public String toString() {
         return "SuitoData [date="
-            + (date != null ? new SimpleDateFormat("yyyy/MM/dd").format(date) : "")
+            + (date != null ? new SimpleDateFormat(Chronus.POPULAR_JP).format(date) : "")
             + ", amount=" + amount + ", left=" + left + ", right=" + right + ", memo="
             + memo + ", source=" + source + ", activity=" + activity + "]";
     }

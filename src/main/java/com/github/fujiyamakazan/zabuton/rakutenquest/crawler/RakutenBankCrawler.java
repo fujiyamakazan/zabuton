@@ -3,7 +3,6 @@ package com.github.fujiyamakazan.zabuton.rakutenquest.crawler;
 import java.io.File;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.lang.Generics;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,6 +12,7 @@ import org.openqa.selenium.By;
 import com.github.fujiyamakazan.zabuton.rakutenquest.JournalCsv;
 import com.github.fujiyamakazan.zabuton.rakutenquest.RakutenQuest;
 import com.github.fujiyamakazan.zabuton.util.CsvUtils;
+import com.github.fujiyamakazan.zabuton.util.date.Chronus;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
 import com.github.fujiyamakazan.zabuton.util.text.TextMerger;
@@ -23,22 +23,25 @@ public class RakutenBankCrawler extends JournalCrawler {
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RakutenBankCrawler.class);
 
-    private final JournalCsv master = new RakutenBankJournalCsv(crawlerDir, year + ".csv");
-    private final File summary = new File(crawlerDir, "summary_" + year + ".txt");
+    private static final String[] FIELD_NAMES = new String[] { "取引日","入出金内容","入出金","取引後残高" };
+
+    private final JournalCsv master = new JournalCsv(crawlerDir, "master.csv", FIELD_NAMES);
+    private final File summary = new File(crawlerDir, "summary.txt");
 
     public static class RakutenBankJournalCsv extends JournalCsv {
+
         private static final long serialVersionUID = 1L;
 
         public RakutenBankJournalCsv(File crawlerDir, String name) {
-            super(crawlerDir, name, new String[] { "取引日","入出金内容","入出金","取引後残高" });
+            super(crawlerDir, name, FIELD_NAMES);
         }
     }
 
     /**
      * コンストラクタです。
      */
-    public RakutenBankCrawler(int year, File appDir) {
-        super("RakutenBank", year, appDir);
+    public RakutenBankCrawler(File appDir) {
+        super("RakutenBank", appDir);
         setMaster(master);
         setSummary(summary);
     }
@@ -89,7 +92,11 @@ public class RakutenBankCrawler extends JournalCrawler {
         Document docList = Jsoup.parse(htmlList);
         for (Element tr : docList.select("table tr")) {
             String line = tr.text();
-            if (StringUtils.startsWith(line, year + "/") == false) {
+            try {
+                if (in(line, Chronus.POPULAR_JP) == false) {
+                    continue;
+                }
+            } catch (Exception e) {
                 continue;
             }
             List<String> row = Generics.newArrayList();
@@ -99,13 +106,14 @@ public class RakutenBankCrawler extends JournalCrawler {
             rows.add(CsvUtils.convertString(row));
         }
 
-        final TextMerger textMerger = new TextMerger(master, year + "/");
+        final TextMerger textMerger = new TextMerger(master, Chronus.POPULAR_JP);
         textMerger.stock(rows);
         textMerger.flash();
 
         /* HTMLを保存 */
         new Utf8Text(summary).write(htmlAll);
     }
+
 
     /**
      * 楽天銀行の残高を返します。
@@ -132,7 +140,7 @@ public class RakutenBankCrawler extends JournalCrawler {
     }
 
     public static void main(String[] args) {
-        RakutenBankCrawler crawler = new RakutenBankCrawler(2021, RakutenQuest.APP_DIR);
+        RakutenBankCrawler crawler = new RakutenBankCrawler(RakutenQuest.APP_DIR);
         crawler.downloadCoreWork();
     }
 }

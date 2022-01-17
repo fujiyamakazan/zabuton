@@ -27,10 +27,15 @@ public class JPageDelayLabel extends JPageLabel {
             String t = super.label.getText();
             t += c;
             super.label.setText(t);
+            sound();
             //RakutenQuest.sound();
             ThreadUtils.sleep(100);
         }
 
+    }
+
+    protected void sound() {
+        /* 拡張ポイント */
     }
 
 }

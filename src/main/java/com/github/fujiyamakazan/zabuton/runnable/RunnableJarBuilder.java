@@ -52,7 +52,9 @@ public class RunnableJarBuilder {
 
         List<File> dependencies = Arrays.asList(dirDependency.listFiles());
         String licenseListTitle = projectName + "が使用するライブラリ";
-        DependencyInspector.scanJar(dependencies, dirDependencyInfo, licenseListTitle, JDEPS_TXT, javaHome);// TODO メソッドの場所が不自然
+        DependencyInspector.scanJar(
+            dependencies, dirDependencyInfo,
+            licenseListTitle, JDEPS_TXT, javaHome);// TODO メソッドの場所が不自然
 
         /*
          * JREを生成する

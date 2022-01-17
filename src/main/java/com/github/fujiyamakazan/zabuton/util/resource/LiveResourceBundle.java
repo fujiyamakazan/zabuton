@@ -55,11 +55,11 @@ public class LiveResourceBundle implements Serializable {
             ResourceBundle bundle = getBundle(baseName + "-overwrite");
             value = bundle.getString(key);
 
-        } catch (Exception e1) {
+        } catch (Exception e) {
             try {
                 ResourceBundle bundle = getBundle(baseName);
                 value = bundle.getString(key);
-            } catch (Exception e2) {
+            } catch (Exception exceptionSub) {
                 /* エラーとしない */
             }
         }

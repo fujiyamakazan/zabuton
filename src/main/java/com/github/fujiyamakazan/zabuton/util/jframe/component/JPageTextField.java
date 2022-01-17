@@ -10,24 +10,39 @@ import org.apache.wicket.model.Model;
 /**
  * テキストフィールドのコンポーネントモデルです。
  */
-public class JPageTextField extends JPageComponent<String> {
+public class JPageTextField extends JPageComponent<String> implements JPageInputComponent {
     private static final long serialVersionUID = 1L;
     private final JTextField textField;
+
+    public JPageTextField(String label, Model<String> model) {
+        this(label, model, null);
+    }
 
     /**
      * コンストラクタです。
      */
-    public JPageTextField(String label, Model<String> model) {
+    public JPageTextField(String label, Model<String> model, Integer length) {
         super(model);
-        textField = new JTextField(model.getObject());
+        if (length != null) {
+            textField = new JTextField(model.getObject(), length);
+        } else  {
+            textField = new JTextField(model.getObject());
+        }
+
         textField.setPreferredSize(new Dimension(300, 30));
 
         addJFrameComponent(new JLabel(label));
         addJFrameComponent(textField);
+
     }
 
     @Override
     public void updateModel() {
         model.setObject(textField.getText());
+    }
+
+    @Override
+    public void setTextFromModel() {
+        textField.setText(getModel().getObject());
     }
 }

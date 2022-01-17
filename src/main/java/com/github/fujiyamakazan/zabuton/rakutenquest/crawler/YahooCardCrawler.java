@@ -17,7 +17,7 @@ import org.openqa.selenium.By;
 
 import com.github.fujiyamakazan.zabuton.rakutenquest.JournalCsv;
 import com.github.fujiyamakazan.zabuton.util.CsvUtils;
-import com.github.fujiyamakazan.zabuton.util.date.DateFormatConverter;
+import com.github.fujiyamakazan.zabuton.util.date.Chronus;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
 import com.github.fujiyamakazan.zabuton.util.text.TextMerger;
@@ -29,23 +29,26 @@ public final class YahooCardCrawler extends JournalCrawler {
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(YahooCardCrawler.class);
 
-    private final JournalCsv masterFile = new YahooCardJournalCsv(crawlerDir, year + ".csv");
-    private final File summary = new File(crawlerDir, "summary_" + year + ".txt");
+    private static final String[] FIELD_NAMES = new String[] {"利用日","利用店名・商品名","利用金額"};
+
+    private final JournalCsv master = new JournalCsv(crawlerDir, "master.csv",
+        FIELD_NAMES);
+    private final File summary = new File(crawlerDir, "summary.txt");
 
     public static class YahooCardJournalCsv extends JournalCsv {
         private static final long serialVersionUID = 1L;
 
         public YahooCardJournalCsv(File crawlerDir, String name) {
-            super(crawlerDir, name, new String[] { "利用日","利用店名・商品名","利用金額" });
+            super(crawlerDir, name, FIELD_NAMES);
         }
     }
 
     /**
      * コンストラクタです。
      */
-    public YahooCardCrawler(int year, File appDir) {
-        super("YahooCard", year, appDir);
-        setMaster(masterFile);
+    public YahooCardCrawler(File appDir) {
+        super("YahooCard", appDir);
+        setMaster(master);
         setSummary(summary);
     }
 
@@ -88,7 +91,7 @@ public final class YahooCardCrawler extends JournalCrawler {
      * 明細情報の収集をします。
      */
     private void downloadJournal() {
-        final TextMerger textMerger = new TextMerger(masterFile, year + "/");
+        final TextMerger textMerger = new TextMerger(master, Chronus.POPULAR_JP);
 
         /* 翌月から過去１年間 */
         Iterator<String> iteratorJournal = createIte();
@@ -189,8 +192,8 @@ public final class YahooCardCrawler extends JournalCrawler {
             if (StringUtils.isEmpty(paymentMonth)) {
                 amount += MoneyUtils.toInt(amountOfMonth); // 計上
             } else {
-                String strPaymentDate = year + "年" + paymentMonth + paymentDay;
-                Date paymentDate = DateFormatConverter.parse(strPaymentDate, "yyyy年MM月dd日");
+                String strPaymentDate = day.substring(0,4) + "年" + paymentMonth + paymentDay;
+                Date paymentDate = Chronus.parse(strPaymentDate, "yyyy年MM月dd日");
                 if (paymentDate == null) {
                     /* 支払日の記載が無い */
                     amount += MoneyUtils.toInt(amountOfMonth); // 計上
@@ -224,7 +227,7 @@ public final class YahooCardCrawler extends JournalCrawler {
         return iterator;
     }
 
-    private static List<String> getJournalCsv(YahooCardCrawler me, Elements trs) {
+    private List<String> getJournalCsv(YahooCardCrawler me, Elements trs) {
         List<String> csvs = Generics.newArrayList();
         Tr: for (Element tr : trs) {
             List<String> csv = Generics.newArrayList();
@@ -236,9 +239,13 @@ public final class YahooCardCrawler extends JournalCrawler {
                 strTd = strTd.trim();
 
                 if (csv.isEmpty()) {
-                    /* 1列目が該当年度でなけれえば行をスキップ */
-                    if (strTd.startsWith(me.year + "/") == false
-                            && strTd.startsWith(me.year + " ") == false) {
+
+                    try {
+                        if (in(strTd, Chronus.POPULAR_JP) == false
+                                && in(strTd, "yyyy MM/dd") == false) {
+                            continue Tr;
+                        }
+                    } catch (Exception e) {
                         continue Tr;
                     }
                 }
