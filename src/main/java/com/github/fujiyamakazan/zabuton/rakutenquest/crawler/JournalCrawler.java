@@ -82,12 +82,6 @@ public abstract class JournalCrawler implements Serializable {
 
                         ChromeOptions options = new ChromeOptions();
                         options.setExperimentalOption("prefs", chromePrefs);
-
-                        //                        DesiredCapabilities cap = DesiredCapabilities.chrome();
-                        //                        cap.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
-                        //                        cap.setCapability(ChromeOptions.CAPABILITY, options);
-
-                        //WebDriver driver = new ChromeDriver(cap);
                         WebDriver driver = new ChromeDriver(options);
                         driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT, TimeUnit.SECONDS); // 暗黙的な待機時間を設定
 

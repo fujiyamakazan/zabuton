@@ -25,6 +25,8 @@ import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 public class PasswordManager extends JPageApplication {
     private static final long serialVersionUID = 1L;
 
+    public static boolean autologin;
+
     //private String url;
     private String sightKey;
 
@@ -72,6 +74,12 @@ public class PasswordManager extends JPageApplication {
     public void executeBySightKey(String sightKey) {
         this.sightKey = sightKey;
 
+        if (autologin) {
+            load();
+            return;
+        }
+
+
         this.mainPage = new MainPage();
         invokePage(this.mainPage);
 
@@ -88,6 +96,12 @@ public class PasswordManager extends JPageApplication {
             throw new RuntimeException(e);
         }
 
+        if (autologin) {
+            load();
+            return;
+        }
+
+
         this.mainPage = new MainPage();
         invokePage(this.mainPage);
 
@@ -102,21 +116,7 @@ public class PasswordManager extends JPageApplication {
         protected void onInitialize() {
             super.onInitialize();
 
-            /* 保存されているIDとPWを取得 */
-            File setting = new File(saveDir, sightKey);
-            Utf8Text utf8Text = new Utf8Text(setting);
-            if (setting.exists()) {
-                String savedText = CipherUtils.decrypt(PasswordManager.class.getSimpleName(), utf8Text.read());
-                for (String line : savedText.split("\n")) {
-                    KeyValue kv = StringSeparator.sparate(line, '=');
-                    if (kv.getKey().equals("id")) {
-                        modelId.setObject(kv.getValue());
-                    }
-                    if (kv.getKey().equals("pw")) {
-                        modelPw.setObject(kv.getValue());
-                    }
-                }
-            }
+            Utf8Text utf8Text = load();
 
             final Model<Boolean> modelSave = Model.of(true);
             final JPageAction doSave = new JPageAction() {
@@ -144,6 +144,8 @@ public class PasswordManager extends JPageApplication {
                     new JPageLink("保存されているパスワードを整理する", doLink));
         }
 
+
+
         @Override
         protected void onAfterShow() {
             super.onAfterShow();
@@ -161,6 +163,25 @@ public class PasswordManager extends JPageApplication {
 
         }
 
+    }
+
+    private Utf8Text load() {
+        /* 保存されているIDとPWを取得 */
+        File setting = new File(saveDir, sightKey);
+        Utf8Text utf8Text = new Utf8Text(setting);
+        if (setting.exists()) {
+            String savedText = CipherUtils.decrypt(PasswordManager.class.getSimpleName(), utf8Text.read());
+            for (String line : savedText.split("\n")) {
+                KeyValue kv = StringSeparator.sparate(line, '=');
+                if (kv.getKey().equals("id")) {
+                    modelId.setObject(kv.getValue());
+                }
+                if (kv.getKey().equals("pw")) {
+                    modelPw.setObject(kv.getValue());
+                }
+            }
+        }
+        return utf8Text;
     }
 
     private final class ListPage extends JPage {

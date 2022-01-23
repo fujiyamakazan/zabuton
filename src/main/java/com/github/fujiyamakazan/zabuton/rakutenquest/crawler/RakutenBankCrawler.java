@@ -23,7 +23,7 @@ public class RakutenBankCrawler extends JournalCrawler {
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RakutenBankCrawler.class);
 
-    private static final String[] FIELD_NAMES = new String[] { "取引日","入出金内容","入出金","取引後残高" };
+    private static final String[] FIELD_NAMES = new String[] { "取引日", "入出金内容", "入出金", "取引後残高" };
 
     private final JournalCsv master = new JournalCsv(crawlerDir, "master.csv", FIELD_NAMES);
     private final File summary = new File(crawlerDir, "summary.txt");
@@ -59,10 +59,12 @@ public class RakutenBankCrawler extends JournalCrawler {
         cmd.type(By.name("LOGIN:USER_ID"), pm.getId());
         cmd.type(By.name("LOGIN:LOGIN_PASSWORD"), pm.getPassword());
         cmd.clickAndWait(By.partialLinkText("ログイン"));
+        cmd.sleep(500);
 
         // TODO ここで支店番号や合言葉を求められる可能性がある。
 
-        cmd.get("https://fes.rakuten-bank.co.jp/MS/main/gns?COMMAND=BALANCE_INQUIRY_START&&CurrentPageID=HEADER_FOOTER_LINK");
+        cmd.get(
+            "https://fes.rakuten-bank.co.jp/MS/main/gns?COMMAND=BALANCE_INQUIRY_START&&CurrentPageID=HEADER_FOOTER_LINK");
 
         String html = "";
         html += cmd.getPageSource();
@@ -72,6 +74,7 @@ public class RakutenBankCrawler extends JournalCrawler {
         saveDaily("all.html", html);
 
         cmd.clickAndWait(By.partialLinkText("ログアウト"));
+        cmd.sleep(500);
         cmd.sleep(500);
         cmd.clickAndWait(By.xpath("//img[@alt='はい']"));
 
@@ -113,7 +116,6 @@ public class RakutenBankCrawler extends JournalCrawler {
         /* HTMLを保存 */
         new Utf8Text(summary).write(htmlAll);
     }
-
 
     /**
      * 楽天銀行の残高を返します。

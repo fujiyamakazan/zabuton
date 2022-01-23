@@ -61,6 +61,10 @@ public class RakutenCrawler extends JournalCrawler {
         cmd.type(By.name("p"), pm.getPassword());
         cmd.clickAndWait(By.xpath("//input[@value='ログイン']"));
 
+        /* カード選択 */
+        cmd.choiceByText(By.id("cardChangeForm:cardtype"), "楽天カード（MasterCard）");
+        cmd.sleep(2);
+
         /* クレジットカード */
         downloadCredit();
 

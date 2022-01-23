@@ -37,7 +37,7 @@ import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
  * 　UC01：オープニング
  * 　UC02：メインメニュー選択
  *</p>
- * @author k_inaba
+ * @author fujiyama
  *
  */
 public class RakutenQuest implements Serializable {
