@@ -96,7 +96,7 @@ public class JournalsTerm implements Serializable {
 
     private static Boolean inCore(String value, String pattern, Date start, Date next) {
 
-        log.debug("inCore:" + value + " pattern:" + pattern);
+        //log.debug("inCore:" + value + " pattern:" + pattern);
         boolean result;
         Date date;
         try {
@@ -112,7 +112,7 @@ public class JournalsTerm implements Serializable {
             result = false;
         }
 
-        log.debug(">>" + result);
+        //log.debug(">>" + result);
         return result;
     }
 
