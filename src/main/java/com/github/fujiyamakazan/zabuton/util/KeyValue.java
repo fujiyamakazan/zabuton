@@ -5,9 +5,12 @@ import java.io.Serializable;
 public class KeyValue implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final String key;
+    private String key;
 
     private String value;
+
+    public KeyValue() {
+    }
 
     public KeyValue(String key) {
         this.key = key;
