@@ -121,14 +121,14 @@ public class JournalBook implements Serializable {
 
             for (Journal journal : this.journals) {
                 csvWriter.writeNext(new String[] {
-                    DateFormatUtils.format(journal.getDate(), Chronus.POPULAR_JP),
-                    String.valueOf(journal.getAmount()),
-                    journal.getLeft(),
-                    journal.getRight(),
-                    journal.getMemo(),
-                    journal.getMemo2(),
-                    journal.getActivity(),
-                    journal.getSource()
+                        DateFormatUtils.format(journal.getDate(), Chronus.POPULAR_JP),
+                        String.valueOf(journal.getAmount()),
+                        journal.getLeft(),
+                        journal.getRight(),
+                        journal.getMemo(),
+                        journal.getMemo2(),
+                        journal.getActivity(),
+                        journal.getSource()
                 });
             }
             csvWriter.flush();

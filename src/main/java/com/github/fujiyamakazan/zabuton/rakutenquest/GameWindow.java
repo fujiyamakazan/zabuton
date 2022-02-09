@@ -62,6 +62,7 @@ public class GameWindow<T extends Serializable> implements Serializable {
                 for (String msg : messages) {
                     addLine(new JPageDelayLabel(msg) {
                         private static final long serialVersionUID = 1L;
+
                         @Override
                         protected void sound() {
                             super.sound();
@@ -111,10 +112,10 @@ public class GameWindow<T extends Serializable> implements Serializable {
                                 super.onAfterShow();
                                 /* メッセージウィンドウ下部に表示します。 */
                                 frame.setLocation(
-                                    msgWindowFrame.getLocation().x,
-                                    msgWindowFrame.getLocation().y
-                                        + msgWindowFrame.getSize().height
-                                        + 20);
+                                        msgWindowFrame.getLocation().x,
+                                        msgWindowFrame.getLocation().y
+                                                + msgWindowFrame.getSize().height
+                                                + 20);
 
                                 // TODO 初期一番上を選択し、アンダーラインを入れる。
                                 // TODO カーソルで選択可能とする
@@ -139,28 +140,25 @@ public class GameWindow<T extends Serializable> implements Serializable {
             }
         };
 
-//        AbstractAction myActionUpOrLeft = new AbstractAction() {
-//            private static final long serialVersionUID = 1L;
-//
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                System.out.println("UPが押されました");
-//            }
-//        };
-//
-//        KeyStroke ks = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+        //        AbstractAction myActionUpOrLeft = new AbstractAction() {
+        //            private static final long serialVersionUID = 1L;
+        //
+        //            @Override
+        //            public void actionPerformed(ActionEvent e) {
+        //                System.out.println("UPが押されました");
+        //            }
+        //        };
+        //
+        //        KeyStroke ks = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
 
-//        choicePage.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ks, "VK_UP");
-//        choicePage.getRootPane().getActionMap().put("VK_UP", myActionUpOrLeft);
-//
-//        msgWindow.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ks, "VK_UP");
-//        msgWindow.getRootPane().getActionMap().put("VK_UP", myActionUpOrLeft);
-
-
+        //        choicePage.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ks, "VK_UP");
+        //        choicePage.getRootPane().getActionMap().put("VK_UP", myActionUpOrLeft);
+        //
+        //        msgWindow.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ks, "VK_UP");
+        //        msgWindow.getRootPane().getActionMap().put("VK_UP", myActionUpOrLeft);
 
         msgWindow.show();
         msgWindow.dispose();
-
 
         //            // TODO マウスオーバーで仮選択とする
         //            // TODO 初期１件目を仮選択とする
@@ -169,6 +167,7 @@ public class GameWindow<T extends Serializable> implements Serializable {
 
     }
 
+    /** selected の値を返します。 */
     public T getSelected() {
         if (this.selected != null) {
             return this.selected.getObject();

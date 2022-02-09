@@ -15,7 +15,7 @@ public class ZabuTimer {
     @Autowired(required = false)
     private I_TimerListener listener;
 
-    /** Bean生成後に一度だけスケジュールを起動する */
+    /*** Bean生成後に一度だけスケジュールを起動します。 */
     @PostConstruct
     protected void startSchedule() {
 
@@ -41,11 +41,12 @@ public class ZabuTimer {
     }
 
     /**
-     * 呼び出されるリスナーの定義
+     * 呼び出されるリスナーの定義です。
      */
     public interface I_TimerListener {
 
         /**
+         * 呼出し周期(秒)を返します。
          * @return 呼出し周期(秒) です。
          */
         int getSpan();

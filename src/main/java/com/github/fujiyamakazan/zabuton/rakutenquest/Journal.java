@@ -16,6 +16,10 @@ import com.ibm.icu.util.Calendar;
 /**
  * 仕訳レコードです。
  */
+/**
+ * @author k_inaba
+ *
+ */
 public class Journal implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -97,6 +101,10 @@ public class Journal implements Serializable {
         this.date = date;
     }
 
+    /**
+     * 文字列から日付を登録します。
+     * @param strDate 登録する文字列
+     */
     public void setDate(String strDate) {
         try {
             this.date = DF.parse(strDate);

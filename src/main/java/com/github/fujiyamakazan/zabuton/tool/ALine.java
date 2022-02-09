@@ -64,6 +64,9 @@ public class ALine implements Serializable {
         private String message = "";
         private boolean start = false;
 
+        /**
+         * コンストラクタです。
+         */
         public SettingItems(String params) {
 
             String[] settings = params.split(",");

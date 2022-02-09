@@ -1,7 +1,7 @@
 package com.github.fujiyamakazan.zabuton;
 
 /**
- * zbuton自身をサーブレットコンテナで起動する
+ * zbuton自身をサーブレットコンテナで起動します。
  * @author fujiyama
  */
 public class Main {
