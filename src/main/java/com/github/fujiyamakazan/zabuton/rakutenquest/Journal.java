@@ -15,50 +15,47 @@ import com.ibm.icu.util.Calendar;
 
 /**
  * 仕訳レコードです。
- */
-/**
- * @author k_inaba
- *
+ * @author fujiyama
  */
 public class Journal implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final DateFormat DF = new SimpleDateFormat(Chronus.POPULAR_JP);
+    private final DateFormat df = new SimpleDateFormat(Chronus.POPULAR_JP);
 
-    /** 日付 */
+    /** 日付です。 */
     private Date date;
 
-    /** 金額 */
+    /** 金額です。 */
     private int amount;
 
-    /** 借方 */
+    /** 借方です。 */
     private String left;
 
-    /** 貸方 */
+    /** 貸方です。 */
     private String right;
 
-    /** メモ */
+    /** メモです。 */
     private String memo;
 
-    /** メモ(追加) */
+    /** メモ(追加)です。 */
     private String memo2 = "";
 
-    /** 記録元 */
+    /** 記録元です。 */
     private String source;
 
-    /** 活動科目 */
+    /** 活動科目です。 */
     private String activity;
 
-    /** 記録元での生データ */
+    /** 記録元での生データです。 */
     private String rawOnSource;
 
-    /** 記録元でのキーワード */
+    /** 記録元でのキーワードです。 */
     private String keywordOnSource;
 
-    /** 記録元での残高 */
+    /** 記録元での残高です。 */
     private int summaryOnSource;
 
-    /** 記録元での行Index(ID) */
+    /** 記録元での行Index(ID)です。 */
     private String rowIndex;
 
     public Journal() {
@@ -94,7 +91,7 @@ public class Journal implements Serializable {
     }
 
     public String getDateString() {
-        return DF.format(date);
+        return df.format(date);
     }
 
     public void setDate(Date date) {
@@ -107,7 +104,7 @@ public class Journal implements Serializable {
      */
     public void setDate(String strDate) {
         try {
-            this.date = DF.parse(strDate);
+            this.date = df.parse(strDate);
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
@@ -180,7 +177,7 @@ public class Journal implements Serializable {
     public String getJournalString() {
         String formatedDate = null;
         if (date != null) {
-            formatedDate = DF.format(date);
+            formatedDate = df.format(date);
         }
 
         return formatedDate + "\t"

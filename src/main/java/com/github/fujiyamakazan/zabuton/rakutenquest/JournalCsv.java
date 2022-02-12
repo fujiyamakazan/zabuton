@@ -80,17 +80,13 @@ public class JournalCsv implements Serializable {
             this.csv = CsvUtils.splitCsv(line);
         }
 
-        /**
-         * @deprecated
-         */
-        public String get(int i) {
-            return csv[i + 1].trim();
-        }
-
         public String get(String name) {
             return csv[getColumnIndex(name) + 1].trim();
         }
 
+        /**
+         * 書式を指定して取得します。
+         */
         public Date get(String name, DateFormat df) {
             String str = csv[getColumnIndex(name) + 1].trim();
             Date date;
@@ -115,14 +111,14 @@ public class JournalCsv implements Serializable {
             return csv.length - 1;
         }
 
-        public boolean contains(String string) {
-            for (String str : csv) {
-                if (StringUtils.equals(str, string)) {
-                    return true;
-                }
-            }
-            return false;
-        }
+//        public boolean contains(String string) {
+//            for (String str : csv) {
+//                if (StringUtils.equals(str, string)) {
+//                    return true;
+//                }
+//            }
+//            return false;
+//        }
     }
 
     public static int getRowIndex(String line) throws IOException {
