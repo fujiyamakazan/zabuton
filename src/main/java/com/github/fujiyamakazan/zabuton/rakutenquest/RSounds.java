@@ -120,6 +120,7 @@ public class RSounds implements Serializable {
     }
 
 
+    @SuppressWarnings("deprecation")
     public void soundClick() {
         if (enabel == false) {
             return;
@@ -151,6 +152,10 @@ public class RSounds implements Serializable {
         //        ac.stop();
     }
 
+    /**
+     * soundKettei
+     */
+    @SuppressWarnings("deprecation")
     public void soundKettei() {
         if (enabel == false) {
             return;

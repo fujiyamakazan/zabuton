@@ -22,6 +22,7 @@ public class SaveData implements Serializable {
 
     private final File dir;
 
+    @SuppressWarnings("unused")
     private List<JournalBook> books = null;
     private JournalBook selectedBook;
 
