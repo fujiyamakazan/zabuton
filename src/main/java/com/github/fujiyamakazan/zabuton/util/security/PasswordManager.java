@@ -129,12 +129,14 @@ public class PasswordManager extends JPageApplication {
                         data.append("id=" + modelId.getObject() + "\n");
                         data.append("pw=" + modelPw.getObject() + "\n");
                         /* 暗号化 */
-                        String text = CipherUtils.encrypt(PasswordManager.class.getSimpleName(), data.toString());
+                        String text = CipherUtils.encrypt(
+                            PasswordManager.class.getSimpleName(), data.toString());
                         utf8Text.write(text);
                     }
                 }
             };
-            final JPageAction doLink = new JPageChangeAction(PasswordManager.this, MainPage.this, new ListPage());
+            final JPageAction doLink = new JPageChangeAction(
+                PasswordManager.this, MainPage.this, new ListPage());
 
             addLine(new JPageLabel("[" + sightKey + "]のIDとパスワードを入力してください。"));
             addLine(new JPageTextField("ID", modelId));

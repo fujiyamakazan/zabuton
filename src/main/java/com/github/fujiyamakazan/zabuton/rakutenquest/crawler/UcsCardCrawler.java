@@ -23,10 +23,10 @@ import com.github.fujiyamakazan.zabuton.util.text.TextMerger;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 import com.opencsv.CSVParser;
 
-public final class UCSCardCrawler extends JournalCrawler {
+public final class UcsCardCrawler extends JournalCrawler {
     private static final long serialVersionUID = 1L;
 
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(UCSCardCrawler.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(UcsCardCrawler.class);
 
     private final JournalCsv master = new JournalCsv(crawlerDir, "master.csv",
         new String[] { "支払方法コード", "支払方法", "利用日", "加盟店名称", "利用金額", "利用者", "海外利用有無サイン", "現地通貨額", "通貨名称", "換算レート" });
@@ -35,7 +35,7 @@ public final class UCSCardCrawler extends JournalCrawler {
     /**
      * コンストラクタです。
      */
-    public UCSCardCrawler(File appDir) {
+    public UcsCardCrawler(File appDir) {
         super("UCSCard", appDir);
         setMaster(master);
         setSummary(summary);
@@ -168,7 +168,7 @@ public final class UCSCardCrawler extends JournalCrawler {
     /**
      * 未払いの金額を返します。
      */
-    public String getAssetUCSCredit() {
+    public String getAssetUcsCredit() {
 
         String htmlAll = new Utf8Text(summary).read();
 
@@ -227,8 +227,8 @@ public final class UCSCardCrawler extends JournalCrawler {
     }
 
     public static void main(String[] args) {
-        UCSCardCrawler me = new UCSCardCrawler(RakutenQuest.APP_DIR);
-        System.out.println(me.getAssetUCSCredit());
+        UcsCardCrawler me = new UcsCardCrawler(RakutenQuest.APP_DIR);
+        System.out.println(me.getAssetUcsCredit());
     }
 
 }

@@ -78,12 +78,14 @@ public abstract class JournalCrawler implements Serializable {
                         /* ダウンロードフォルダ指定 */
                         HashMap<String, Object> chromePrefs = new HashMap<String, Object>();
                         chromePrefs.put("profile.default_content_settings.popups", 0);
-                        chromePrefs.put("download.default_directory", crawlerDailyDir.getAbsolutePath());
+                        chromePrefs.put("download.default_directory",
+                            crawlerDailyDir.getAbsolutePath());
 
                         ChromeOptions options = new ChromeOptions();
                         options.setExperimentalOption("prefs", chromePrefs);
                         WebDriver driver = new ChromeDriver(options);
-                        driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT, TimeUnit.SECONDS); // 暗黙的な待機時間を設定
+                        driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT,
+                            TimeUnit.SECONDS); // 暗黙的な待機時間を設定
 
                         return driver;
                     }
@@ -248,7 +250,6 @@ public abstract class JournalCrawler implements Serializable {
     public String getName() {
         return name;
     }
-
 
     protected boolean in(String value, String datePattern) {
         try {

@@ -27,11 +27,10 @@ public class JPageLink extends JPageButton {
         super(label, model);
     }
 
-
-
     @Override
     protected void addDecoration(JButton button) {
-        button.setText("<HTML><FONT color=\"" + getColor() + "\"><U>" + button.getText() + "</U></FONT></HTML>\"");
+        button.setText("<HTML><FONT color=\"" + getColor() + "\"><U>"
+            + button.getText() + "</U></FONT></HTML>\"");
         //button.setBackground(Color.WHITE);
         button.setBorder(BorderFactory.createEmptyBorder());
     }

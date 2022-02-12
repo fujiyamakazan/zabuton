@@ -119,6 +119,7 @@ public abstract class SelenCommonDriver implements Serializable {
     }
 
     /**
+     * テキストが含まれるかを検査します。
      * @param recoveryTimeoutSec 処理後に戻すときのタイムアウト時間
      */
     public boolean containsText(String text, int recoveryTimeoutSec) {
@@ -129,7 +130,8 @@ public abstract class SelenCommonDriver implements Serializable {
         try {
             return findElements(By.xpath("//*[contains(., '" + text + "')]")).isEmpty() == false;
         } finally {
-            this.originalDriver.manage().timeouts().implicitlyWait(recoveryTimeoutSec * 1000, TimeUnit.MILLISECONDS);
+            this.originalDriver.manage().timeouts().implicitlyWait(recoveryTimeoutSec * 1000,
+                TimeUnit.MILLISECONDS);
         }
 
     }

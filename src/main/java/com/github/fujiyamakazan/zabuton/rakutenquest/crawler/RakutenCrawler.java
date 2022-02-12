@@ -196,7 +196,8 @@ public class RakutenCrawler extends JournalCrawler {
                 }
 
                 /* 日付の降順となるように前に追加 */
-                lines.add(0, CsvUtils.convertString(new String[] { strDate, service, naiyo, kubun, value, note }));
+                lines.add(0, CsvUtils.convertString(new String[] {
+                    strDate, service, naiyo, kubun, value, note }));
             }
 
             if (textMerger.stock(lines) == false) {

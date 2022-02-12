@@ -19,11 +19,11 @@ public class RSounds implements Serializable {
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RSounds.class);
 
-    private final File APP_DIR;
+    private final File appDir;
     private boolean enabel;
 
     public RSounds(File dir, boolean enabel) {
-        this.APP_DIR = dir;
+        this.appDir = dir;
         this.enabel = enabel;
     }
 
@@ -86,7 +86,7 @@ public class RSounds implements Serializable {
 
         try {
             // MIDIファイルからMIDIデータ(Sequenceオブジェクト)を取得。
-            File file = new File(APP_DIR, "魔王魂  フィールド11.mid");
+            File file = new File(appDir, "魔王魂  フィールド11.mid");
             Sequence sequence = MidiSystem.getSequence(file);
 
             // 取得したMIDIデータをシーケンサに設定する。
@@ -126,7 +126,7 @@ public class RSounds implements Serializable {
         }
 
         //File file = new File(APP_DIR, "bgm\\GM115-110921-youseihouse-wav.wav");
-        File file = new File(APP_DIR, "se\\決定、ボタン押下2.wav");
+        File file = new File(appDir, "se\\決定、ボタン押下2.wav");
 
         AudioClip ac;
         try {
@@ -157,7 +157,7 @@ public class RSounds implements Serializable {
         }
 
         //File file = new File(APP_DIR, "bgm\\GM115-110921-youseihouse-wav.wav");
-        File file = new File(APP_DIR, "se\\kettei-01.wav");
+        File file = new File(appDir, "se\\kettei-01.wav");
 
         AudioClip ac;
         try {

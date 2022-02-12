@@ -33,11 +33,10 @@ public class DependencyInspector {
      * ・ライセンス関連ファイルの取得
      * ・バージョン情報の取得
      * ・依存するJREのモジュールの情報を取得
-     * @param jdepsTxt
-     * @param jdk
      *
      */
-    public static void scanJar(List<File> jars, File dirOut, String licenseListTitle, String jdepsTxt, File jdk) {
+    public static void scanJar(List<File> jars, File dirOut,
+        String licenseListTitle, String jdepsTxt, File jdk) {
 
         List<File> jarInfos = Generics.newArrayList();
 
@@ -48,7 +47,8 @@ public class DependencyInspector {
                 continue;
             }
 
-            final String jarName = SubstringUtils.left(jarFileName, ".jar"); // ex.) commons-collections4-4.4
+            final String jarName = SubstringUtils.left(jarFileName,
+                ".jar"); // ex.) commons-collections4-4.4
 
             //log.debug("■" + jarName);
 
@@ -56,7 +56,7 @@ public class DependencyInspector {
             if (artifactIdAndVersion.endsWith("-SNAPSHOT")) {
                 artifactIdAndVersion = SubstringUtils.left(artifactIdAndVersion, "-SNAPSHOT");
             }
-            final String artifactId = SubstringUtils.leftOfLast(artifactIdAndVersion, "-"); // ex.) commons-collections4
+            final String artifactId = SubstringUtils.leftOfLast(artifactIdAndVersion, "-");
             final String version = SubstringUtils.right(artifactIdAndVersion, "-"); // ex.) 4.4
 
             //          log.debug("jarName:" + jarName);
@@ -168,18 +168,18 @@ public class DependencyInspector {
                     return;
                 }
                 if (StringUtils.equals(entryName, "MANIFEST.MF")
-                        || StringUtils.equals(entryName, "DEPENDENCIES")
-                        || StringUtils.equals(entryName, "INDEX.LIST")
-                        || StringUtils.endsWith(entryName, ".class")
-                        || StringUtils.endsWith(entryName, ".xml")
-                        || StringUtils.endsWith(entryName, ".properties")
-                        || StringUtils.endsWith(entryName, ".xsd")
-                        || StringUtils.endsWith(entryName, ".json")) {
+                    || StringUtils.equals(entryName, "DEPENDENCIES")
+                    || StringUtils.equals(entryName, "INDEX.LIST")
+                    || StringUtils.endsWith(entryName, ".class")
+                    || StringUtils.endsWith(entryName, ".xml")
+                    || StringUtils.endsWith(entryName, ".properties")
+                    || StringUtils.endsWith(entryName, ".xsd")
+                    || StringUtils.endsWith(entryName, ".json")) {
                     return;
                 }
 
                 if (LicenseFileUtils.isLicenseFilename(entryName)
-                        || LicenseFileUtils.isNoteFileName(entryName)) {
+                    || LicenseFileUtils.isNoteFileName(entryName)) {
 
                     /* 保存 */
                     File f = new File(jarInfo, entryName);
@@ -212,11 +212,11 @@ public class DependencyInspector {
         err = err.trim();
 
         if (StringUtils.contains(outText, "エラー:")
-                && StringUtils.contains(outText, "はマルチリリースjarファイルですが--multi-releaseオプションが設定されていません")) {
+            && StringUtils.contains(outText, "はマルチリリースjarファイルですが--multi-releaseオプションが設定されていません")) {
 
             runtimeExc = new RuntimeExc();
             String[] params2 = ArrayUtils.addAll(params,
-                    new String[] { "--multi-release", "9", jar.getAbsolutePath() });
+                new String[] { "--multi-release", "9", jar.getAbsolutePath() });
             runtimeExc.exec(params2);
         }
 

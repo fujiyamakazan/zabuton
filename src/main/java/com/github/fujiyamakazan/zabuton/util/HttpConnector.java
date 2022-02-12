@@ -180,7 +180,8 @@ public class HttpConnector {
         }
     }
 
-    private static HttpURLConnection openConnection(String proxyHost, String proxyPort, URL url) throws IOException {
+    private static HttpURLConnection openConnection(
+        String proxyHost, String proxyPort, URL url) throws IOException {
         HttpURLConnection connection;
         SocketAddress addr = new InetSocketAddress(
                 proxyHost,

@@ -5,7 +5,9 @@ package com.github.fujiyamakazan.zabuton.util.string;
  * @author fuijyama
  */
 public class SubstringUtils {
+
     /**
+     * startWordとendWordに挟まれた文字列を返します。
      * @return startWordとendWordに挟まれた文字列。引数が不正であればnullを返す。
      */
     public static String between(String str, String startWord, String endWord) {
@@ -29,6 +31,7 @@ public class SubstringUtils {
     }
 
     /**
+     * startMarkとtailMarkに挟まれた文字を置換します。
      * @param src 変換前文字列
      * @param startMark 置換開始箇所を示すマーク
      * @param tailMark 置換終了箇所を示すマーク
@@ -62,6 +65,7 @@ public class SubstringUtils {
     }
 
     /**
+     * delimiterより左側の部分を返します。
      * @return delimiterより左側の部分
      */
     public static String left(String src, String delimiter) {
@@ -69,6 +73,7 @@ public class SubstringUtils {
     }
 
     /**
+     * delimiterより左側の部分を返します。
      * @return delimiterより左側の部分 (区切り文字は後方一致とする)
      */
     public static String leftOfLast(String src, String delimiter) {
@@ -84,6 +89,7 @@ public class SubstringUtils {
     }
 
     /**
+     * delimiterより右側の部分を返します。
      * @return delimiterより右側の部分
      */
     public static String right(String src, String delimiter) {
@@ -92,6 +98,7 @@ public class SubstringUtils {
     }
 
     /**
+     * delimiterより右側の部分を返します。
      * @return delimiterより右側の部分(区切り文字は前方一致とする)
      */
     public static String rightOfFirst(String src, String delimiter) {

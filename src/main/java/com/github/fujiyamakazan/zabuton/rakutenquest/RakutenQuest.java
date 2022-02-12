@@ -10,7 +10,7 @@ import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.MajicaCrawler;
 import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.RakutenBankCrawler;
 import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.RakutenCrawler;
 import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.ShonanShinkinCrawler;
-import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.UCSCardCrawler;
+import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.UcsCardCrawler;
 import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.YahooCardCrawler;
 import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.date.Chronus;
@@ -151,9 +151,9 @@ public class RakutenQuest implements Serializable {
                         System.out.println("Rakuten-Card:" + rakuten.getAssetRakutenCredit());
                         System.out.println("Rakuten-Point:" + rakuten.getAssetRakutenPoint());
 
-                        UCSCardCrawler ucs = new UCSCardCrawler(APP_DIR);
+                        UcsCardCrawler ucs = new UcsCardCrawler(APP_DIR);
                         ucs.download();
-                        System.out.println("UCS-Card:" + ucs.getAssetUCSCredit());
+                        System.out.println("UCS-Card:" + ucs.getAssetUcsCredit());
 
                         YahooCardCrawler yahoo = new YahooCardCrawler(APP_DIR);
                         yahoo.download();
