@@ -22,6 +22,9 @@ public class BuildXml implements Serializable {
         rewriteDependency(Arrays.asList(jars));
     }
 
+    /**
+     * Dependencyを記述します。
+     */
     public void rewriteDependency(List<File> jars) {
 
         String text = buildXmlFile.read();
@@ -37,7 +40,9 @@ public class BuildXml implements Serializable {
         sb.append(startTag + "\n");
 
         for (File jar : jars) {
-            sb.append("<zipfileset excludes=\"META-INF/*.SF\" src=\"${dir.dependency}/" + jar.getName() + "\"/>\n");
+            sb.append(
+                "<zipfileset excludes=\"META-INF/*.SF\" src=\"${dir.dependency}/"
+                    + jar.getName() + "\"/>\n");
         }
 
         sb.append(endTag + "\n");
@@ -48,7 +53,7 @@ public class BuildXml implements Serializable {
     }
 
     /**
-     * build.xmlを実行する
+     * build.xmlを実行します。
      */
     public void exeBuildXml() {
         //      try {

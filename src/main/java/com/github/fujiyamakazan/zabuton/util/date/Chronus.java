@@ -16,6 +16,9 @@ public class Chronus implements Serializable {
 
     public static final String POPULAR_JP = "yyyy/MM/dd";
 
+    /**
+     * 書式変更をします。
+     */
     public static String convert(String string, String from, String to) {
         Date d;
         try {
@@ -28,6 +31,9 @@ public class Chronus implements Serializable {
         return dfTo.format(d);
     }
 
+    /**
+     * Date型に変換します。
+     */
     public static Date parse(String string, String pattern) {
         try {
             return createDateFormat(pattern).parse(string);

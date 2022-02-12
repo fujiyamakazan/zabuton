@@ -22,16 +22,14 @@ import com.github.fujiyamakazan.zabuton.util.string.SubstringUtils;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 
 /**
- * 依存するライブラリ（Jar）の解析
- *
+ * 依存するライブラリ（Jar）の解析をします。
  * @author fujiyama
  */
 public class DependencyInspector {
     private static final Logger log = LoggerFactory.getLogger(DependencyInspector.class);
 
     /**
-     * jarをスキャンし以下を行う
-     *
+     * jarをスキャンし以下を行います。
      * ・ライセンス関連ファイルの取得
      * ・バージョン情報の取得
      * ・依存するJREのモジュールの情報を取得

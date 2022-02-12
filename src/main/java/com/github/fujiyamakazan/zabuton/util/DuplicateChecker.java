@@ -23,9 +23,9 @@ public class DuplicateChecker implements Serializable {
 
     }
 
-
     private static class Journal {
         private String memo;
+
         public Journal(String string, int i, String string2, String string3, String string4) {
             this.date = string;
             this.amount = i;
@@ -33,16 +33,16 @@ public class DuplicateChecker implements Serializable {
             this.right = string3;
             this.memo = string4;
         }
+
         private String date;
         private int amount;
         private String left;
         private String right;
+
         @Override
         public String toString() {
             return "Journal [memo=" + memo + "]";
         }
-
-
 
     }
 }

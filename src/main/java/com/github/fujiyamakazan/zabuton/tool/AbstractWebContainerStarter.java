@@ -52,6 +52,9 @@ public abstract class AbstractWebContainerStarter {
         this.port = getPortStart();
     }
 
+    /**
+     * コンストラクタです。
+     */
     public AbstractWebContainerStarter(Class<?> appClass, String subParams) {
         this.appClass = appClass;
         this.subParams = subParams;

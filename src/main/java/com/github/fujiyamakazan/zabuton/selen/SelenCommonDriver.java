@@ -119,7 +119,7 @@ public abstract class SelenCommonDriver implements Serializable {
     }
 
     /**
-     * @param recoveryTimeout 処理後に戻すときのタイムアウト時間
+     * @param recoveryTimeoutSec 処理後に戻すときのタイムアウト時間
      */
     public boolean containsText(String text, int recoveryTimeoutSec) {
 

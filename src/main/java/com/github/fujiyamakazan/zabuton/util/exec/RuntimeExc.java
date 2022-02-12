@@ -51,7 +51,6 @@ public class RuntimeExc implements Serializable {
 
     /**
      * コマンドプロンプトを実行します。
-     * @param command コマンド
      * @return リターンコードが0のときにTrueを返します。
      */
     public static boolean executeCmd(String... params) {
@@ -59,7 +58,7 @@ public class RuntimeExc implements Serializable {
         List<String> list = Generics.newArrayList();
         list.add("cmd");
         list.add("/c");
-        for (String p: params) {
+        for (String p : params) {
             list.add(p);
         }
 
@@ -69,7 +68,7 @@ public class RuntimeExc implements Serializable {
 
     public static boolean executeCmdToUtf8Text(String command, File out) {
         String arg2 = "chcp 65001|" + command + " > " + out.getAbsolutePath();
-        return execute(new String[] {"cmd", "/c", arg2});
+        return execute(new String[] { "cmd", "/c", arg2 });
     }
 
     /**
@@ -77,7 +76,9 @@ public class RuntimeExc implements Serializable {
      * @param params コマンド
      */
     public void exec(String... params) {
-        String enc = System.getProperty("os.name").toLowerCase().startsWith("windows") ? "MS932" : "UTF-8";
+        String enc = System.getProperty("os.name").toLowerCase().startsWith("windows")
+            ? "MS932"
+            : "UTF-8";
 
         Runtime runtime = Runtime.getRuntime();
         Process process;
@@ -88,8 +89,7 @@ public class RuntimeExc implements Serializable {
         }
 
         try (InputStream in = process.getInputStream();
-                BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName(enc)));
-                ) {
+            BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName(enc)));) {
             String line;
             try {
                 while ((line = br.readLine()) != null) {
@@ -104,7 +104,7 @@ public class RuntimeExc implements Serializable {
         }
 
         try (InputStream in = process.getErrorStream();
-                BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName(enc)));) {
+            BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName(enc)));) {
             try {
                 String line;
                 while ((line = br.readLine()) != null) {
@@ -157,7 +157,5 @@ public class RuntimeExc implements Serializable {
     public boolean isSuccess() {
         return this.success;
     }
-
-
 
 }
