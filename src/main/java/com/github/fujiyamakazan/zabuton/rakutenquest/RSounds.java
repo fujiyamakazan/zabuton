@@ -14,6 +14,7 @@ import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 
+@SuppressWarnings("deprecation")
 public class RSounds implements Serializable {
     private static final long serialVersionUID = 1L;
     @SuppressWarnings("unused")
@@ -27,38 +28,38 @@ public class RSounds implements Serializable {
         this.enabel = enabel;
     }
 
-//    @SuppressWarnings({ "unused" })
-//    private void playmidi() {
-//        if (enabel == false) {
-//            return;
-//        }
-//
-//
-//        //File file = new File(APP_DIR, "bgm\\GM115-110921-youseihouse-wav.wav");
-//        File file = new File(APP_DIR, "se\\kettei-01.wav");
-//
-//        AudioClip ac;
-//        try {
-//            ac = Applet.newAudioClip(file.toURI().toURL());
-//        } catch (MalformedURLException e1) {
-//            throw new RuntimeException(e1);
-//        }
-//
-//        //BGMのループ再生
-//        //ac.loop();
-//
-//        //BGMを一回再生
-//        ac.play();
-//
-//        try {
-//            Thread.sleep(1000 * 30);
-//        } catch (InterruptedException e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//        //BGMを停止
-//        ac.stop();
-//    }
+    //    @SuppressWarnings({ "unused" })
+    //    private void playmidi() {
+    //        if (enabel == false) {
+    //            return;
+    //        }
+    //
+    //
+    //        //File file = new File(APP_DIR, "bgm\\GM115-110921-youseihouse-wav.wav");
+    //        File file = new File(APP_DIR, "se\\kettei-01.wav");
+    //
+    //        AudioClip ac;
+    //        try {
+    //            ac = Applet.newAudioClip(file.toURI().toURL());
+    //        } catch (MalformedURLException e1) {
+    //            throw new RuntimeException(e1);
+    //        }
+    //
+    //        //BGMのループ再生
+    //        //ac.loop();
+    //
+    //        //BGMを一回再生
+    //        ac.play();
+    //
+    //        try {
+    //            Thread.sleep(1000 * 30);
+    //        } catch (InterruptedException e) {
+    //            throw new RuntimeException(e);
+    //        }
+    //
+    //        //BGMを停止
+    //        ac.stop();
+    //    }
 
     @SuppressWarnings("unused")
     private void playMidi() {
@@ -119,8 +120,9 @@ public class RSounds implements Serializable {
         sequencer.close();
     }
 
-
-    @SuppressWarnings("deprecation")
+    /**
+     * クリック音を鳴らします。
+     */
     public void soundClick() {
         if (enabel == false) {
             return;
@@ -153,9 +155,8 @@ public class RSounds implements Serializable {
     }
 
     /**
-     * soundKettei
+     * 決定音を鳴らします。
      */
-    @SuppressWarnings("deprecation")
     public void soundKettei() {
         if (enabel == false) {
             return;
@@ -187,6 +188,9 @@ public class RSounds implements Serializable {
         //        ac.stop();
     }
 
+    /**
+     * ビープ音を鳴らします。
+     */
     public void beep() {
         if (enabel == false) {
             return;

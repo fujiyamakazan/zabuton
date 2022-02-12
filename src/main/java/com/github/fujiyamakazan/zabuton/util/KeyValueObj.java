@@ -3,8 +3,6 @@ package com.github.fujiyamakazan.zabuton.util;
 import java.io.Serializable;
 
 public class KeyValueObj<K, V> implements Serializable {
-
-    /** serialVersionUID */
     private static final long serialVersionUID = 1L;
 
     private K key;

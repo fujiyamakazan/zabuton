@@ -79,7 +79,6 @@ public class RakutenQuest implements Serializable {
     /**
      * UC03 仕訳します。
      * （事前条件）台帳が選択済み
-     * @param saveData
      */
     public void ucResistJournal(SaveData saveData, JournalBook book) {
         JPageApplication.start(new RPage() {

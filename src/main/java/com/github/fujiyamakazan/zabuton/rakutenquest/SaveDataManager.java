@@ -46,6 +46,9 @@ public class SaveDataManager implements Serializable {
         return new SaveData(new File(dirData, name));
     }
 
+    /**
+     * セーブデータを作成します。
+     */
     public SaveData createSaveData(String name) {
         File newDir = new File(dirDatas, name);
         newDir.mkdirs();

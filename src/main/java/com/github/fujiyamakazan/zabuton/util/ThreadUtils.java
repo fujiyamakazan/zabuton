@@ -7,6 +7,10 @@ public class ThreadUtils implements Serializable {
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ThreadUtils.class);
 
+    /**
+     * スレッドを指定したミリ秒で停止します。
+     * @param millis ミリ秒
+     */
     public static void sleep(int millis) {
         try {
             Thread.sleep(millis);

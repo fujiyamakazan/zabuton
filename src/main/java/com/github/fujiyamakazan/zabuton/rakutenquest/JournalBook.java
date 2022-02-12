@@ -40,6 +40,9 @@ public class JournalBook implements Serializable {
         return file.getName().substring("journals".length(), file.getName().length() - ".txt".length());
     }
 
+    /**
+     * 台帳を作成します。
+     */
     public static JournalBook create(File dir, String termPattern) {
         JournalsTerm term = new JournalsTerm(Integer.parseInt(termPattern));
         File f = new File(dir, "journals" + term.getName() + ".txt");
@@ -48,6 +51,9 @@ public class JournalBook implements Serializable {
         return new JournalBook(f);
     }
 
+    /**
+     * 仕訳情報を追加します。
+     */
     public void addJournal(Journal journal) {
         if (journals == null) {
             loadJournals();
@@ -55,6 +61,9 @@ public class JournalBook implements Serializable {
         journals.add(journal);
     }
 
+    /**
+     * 仕訳情報を取得します。
+     */
     public Journal getJournalLast() {
         if (journals == null) {
             loadJournals();
@@ -111,6 +120,9 @@ public class JournalBook implements Serializable {
 
     }
 
+    /**
+     * 保存します。
+     */
     public void save() {
 
         FileWriter fileWriter = null;

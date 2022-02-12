@@ -174,6 +174,9 @@ public class Journal implements Serializable {
         this.keywordOnSource = keywordOnSource;
     }
 
+    /**
+     * 仕訳用文字列を返します。
+     */
     public String getJournalString() {
         String formatedDate = null;
         if (date != null) {

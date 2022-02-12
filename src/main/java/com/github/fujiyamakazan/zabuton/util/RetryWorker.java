@@ -10,6 +10,9 @@ public abstract class RetryWorker implements Serializable {
 
     private static final Logger log = LoggerFactory.getLogger(RetryWorker.class);
 
+    /**
+     * 処理を実行します。
+     */
     public void start() {
         int count = 0;
         while (true) {

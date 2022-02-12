@@ -1,7 +1,7 @@
 package com.github.fujiyamakazan.zabuton.util;
 
 /**
- * Excelの列名に準拠した処理
+ * Excelの列名に準拠した処理です。
  * @author fujiyama
  */
 public class ExcelSequencer {

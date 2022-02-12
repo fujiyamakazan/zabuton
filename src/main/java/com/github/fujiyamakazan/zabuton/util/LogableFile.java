@@ -20,6 +20,9 @@ public class LogableFile extends File {
         super(pathname);
     }
 
+    /**
+     * ログ出力をします。
+     */
     public void writeLog(String msg) {
         String text = getNow() + " " + msg;
         try {

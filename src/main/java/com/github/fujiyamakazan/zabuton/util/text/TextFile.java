@@ -157,6 +157,9 @@ public abstract class TextFile implements Serializable {
     }
 
 
+    /**
+     * 最終行を返します。
+     */
     public String getFinalLine() {
         String text = read().trim();
         int lastLn = text.lastIndexOf("\n");

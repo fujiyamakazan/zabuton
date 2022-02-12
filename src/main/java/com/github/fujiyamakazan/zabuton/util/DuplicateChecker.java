@@ -10,19 +10,6 @@ public class DuplicateChecker implements Serializable {
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DuplicateChecker.class);
 
-    public static void main(String[] args) {
-        List<Journal> journals = Generics.newArrayList();
-        journals.add(new Journal("2021/01/01", 100, "TEST", "ABC", "memo1"));
-        journals.add(new Journal("2021/01/01", 100, "TEST", "ABC", "memo2"));
-        journals.add(new Journal("2021/01/01", 100, "TEST", "ABC", "memo3"));
-        journals.add(new Journal("2021/01/01", 100, "TEST", "ABC", "memo4"));
-
-        System.out.println(ListToStringer.convert(journals));
-
-        /* */
-
-    }
-
     private static class Journal {
         private String memo;
 
@@ -34,9 +21,13 @@ public class DuplicateChecker implements Serializable {
             this.memo = string4;
         }
 
+        @SuppressWarnings("unused")
         private String date;
+        @SuppressWarnings("unused")
         private int amount;
+        @SuppressWarnings("unused")
         private String left;
+        @SuppressWarnings("unused")
         private String right;
 
         @Override
@@ -44,5 +35,18 @@ public class DuplicateChecker implements Serializable {
             return "Journal [memo=" + memo + "]";
         }
 
+    }
+
+    /**
+     * 動作確認をします。
+     */
+    public static void main(String[] args) {
+        List<Journal> journals = Generics.newArrayList();
+        journals.add(new Journal("2021/01/01", 100, "TEST", "ABC", "memo1"));
+        journals.add(new Journal("2021/01/01", 100, "TEST", "ABC", "memo2"));
+        journals.add(new Journal("2021/01/01", 100, "TEST", "ABC", "memo3"));
+        journals.add(new Journal("2021/01/01", 100, "TEST", "ABC", "memo4"));
+
+        System.out.println(ListToStringer.convert(journals));
     }
 }

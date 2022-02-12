@@ -122,7 +122,7 @@ public class FileInfo {
     }
 
     /**
-     * マージします
+     * マージします。
      */
     public void merge(FileInfo other) {
         //        /* 同じものがあればマージ */
@@ -218,6 +218,9 @@ public class FileInfo {
         }
     }
 
+    /**
+     * Fileオブジェクトを返します。
+     */
     public File getReal() {
         if (this.file == null) {
             this.file = new File(this.getFullName());

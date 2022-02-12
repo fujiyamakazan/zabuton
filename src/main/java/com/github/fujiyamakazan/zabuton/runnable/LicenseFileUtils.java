@@ -5,12 +5,15 @@ import org.apache.commons.lang3.StringUtils;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 
 /**
+ * ライセンスファイルのユーティリティです。
  * TODO 不要になった処理の除去
- *
  * @author fujiyama
  */
 public class LicenseFileUtils {
 
+    /**
+     * 判定処理をします。
+     */
     public static boolean isNoteFileName(String fileName) {
         return StringUtils.startsWithIgnoreCase(fileName, "NOTICE")
             || StringUtils.startsWithIgnoreCase(fileName, "README")
@@ -21,6 +24,9 @@ public class LicenseFileUtils {
         return StringUtils.startsWithIgnoreCase(fileName, "LICENSE");
     }
 
+    /**
+     * 判定処理をします。
+     */
     public static boolean isApache2(Utf8Text file) {
         boolean nextVerCheck = false;
         for (String line : file.readLines()) {
@@ -39,6 +45,9 @@ public class LicenseFileUtils {
         return false;
     }
 
+    /**
+     * 判定処理をします。
+     */
     public static boolean isEpl1(Utf8Text file) {
         for (String line : file.readLines()) {
             if (StringUtils.equals(line, "Eclipse Public License - v 1.0")) {
@@ -48,6 +57,9 @@ public class LicenseFileUtils {
         return false;
     }
 
+    /**
+     * 判定処理をします。
+     */
     public static boolean isCddl1(Utf8Text file) {
         for (String line : file.readLines()) {
             if (StringUtils.equals(line, "COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0")) {

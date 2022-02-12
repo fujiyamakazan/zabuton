@@ -2,6 +2,10 @@ package com.github.fujiyamakazan.zabuton.util;
 
 public class StringSeparator {
 
+    /**
+     * 文字列をdelimiterで分割します。
+     * @param string 文字列
+     */
     public static KeyValue sparate(String string, char delimiter) {
         int index = string.indexOf(delimiter);
         final KeyValue kv;

@@ -29,7 +29,7 @@ public final class YahooCardCrawler extends JournalCrawler {
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(YahooCardCrawler.class);
 
-    private static final String[] FIELD_NAMES = new String[] {"利用日","利用店名・商品名","利用金額"};
+    private static final String[] FIELD_NAMES = new String[] { "利用日", "利用店名・商品名", "利用金額" };
 
     private final JournalCsv master = new JournalCsv(crawlerDir, "master.csv",
         FIELD_NAMES);
@@ -192,7 +192,7 @@ public final class YahooCardCrawler extends JournalCrawler {
             if (StringUtils.isEmpty(paymentMonth)) {
                 amount += MoneyUtils.toInt(amountOfMonth); // 計上
             } else {
-                String strPaymentDate = day.substring(0,4) + "年" + paymentMonth + paymentDay;
+                String strPaymentDate = day.substring(0, 4) + "年" + paymentMonth + paymentDay;
                 Date paymentDate = Chronus.parse(strPaymentDate, "yyyy年MM月dd日");
                 if (paymentDate == null) {
                     /* 支払日の記載が無い */
@@ -210,7 +210,7 @@ public final class YahooCardCrawler extends JournalCrawler {
             }
         }
         new Utf8Text(summary).write(String.valueOf(amount) + "円"
-                + "(最後の支払日[" + lastPaymentDate + "]以降に発生した金額)");
+            + "(最後の支払日[" + lastPaymentDate + "]以降に発生した金額)");
     }
 
     private static Iterator<String> createIte() {
@@ -242,7 +242,7 @@ public final class YahooCardCrawler extends JournalCrawler {
 
                     try {
                         if (in(strTd, Chronus.POPULAR_JP) == false
-                                && in(strTd, "yyyy MM/dd") == false) {
+                            && in(strTd, "yyyy MM/dd") == false) {
                             continue Tr;
                         }
                     } catch (Exception e) {
@@ -262,12 +262,11 @@ public final class YahooCardCrawler extends JournalCrawler {
         return "ヤフーカード（クレジット）：" + new Utf8Text(summary).read();
     }
 
-
-//    public static void main(String[] args) {
-//        YahooCardCrawler yahoo = new YahooCardCrawler(2021, RakutenQuest.APP_DIR);
-//        String html = new Utf8Text(new File(yahoo.crawlerDir, "202201.html")).read();
-//        Document doc = Jsoup.parse(html);
-//
-//    }
+    //    public static void main(String[] args) {
+    //        YahooCardCrawler yahoo = new YahooCardCrawler(2021, RakutenQuest.APP_DIR);
+    //        String html = new Utf8Text(new File(yahoo.crawlerDir, "202201.html")).read();
+    //        Document doc = Jsoup.parse(html);
+    //
+    //    }
 
 }

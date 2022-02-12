@@ -27,6 +27,9 @@ public class PoiUtils {
 
         private FileInputStream in;
 
+        /**
+         * Workbookを返します。
+         */
         public Workbook getBook(File file) {
             Workbook book;
             in = null;
@@ -40,6 +43,9 @@ public class PoiUtils {
             return book;
         }
 
+        /**
+         * ストリームを閉じます。
+         */
         public void close() {
             try {
                 in.close();
@@ -50,6 +56,9 @@ public class PoiUtils {
 
     }
 
+    /**
+     * 動作確認をします。
+     */
     public static void main(String[] args) {
 
         File file = new File(EnvUtils.getUserDesktop(), "xxx.xls");
@@ -86,6 +95,9 @@ public class PoiUtils {
         return getString(cell, false);
     }
 
+    /**
+     * 文字列を取得します。
+     */
     public static String getString(Cell cell, boolean deep) {
         //long start = System.currentTimeMillis();
         String cellValue = null;
@@ -125,6 +137,9 @@ public class PoiUtils {
         return cellValue;
     }
 
+    /**
+     * 「.0」を除去します。
+     */
     public static String trimZero(double numericCellValue) {
         String cellValue;
         //double numericCellValue = cell.getNumericCellValue();
@@ -135,12 +150,18 @@ public class PoiUtils {
         return cellValue;
     }
 
+    /**
+     * 比較処理をします。
+     */
     public static boolean equalsStringValue(Cell cell, String startKey) {
         return cell != null
             && cell.getCellType().equals(CellType.STRING)
             && cell.getStringCellValue().equals(startKey);
     }
 
+    /**
+     * 日付を返します。
+     */
     public static Date toDateByExcelSerial(String cellValue) {
 
         /*

@@ -65,6 +65,9 @@ public class JChoice<T extends Serializable> implements Serializable {
         choices.add(createChoice(choice.getLabel(), model));
     }
 
+    /**
+     * 選択肢を追加します。
+     */
     public void addAllChoice(List<JChoiceElement<T>> choices) {
         for (JChoiceElement<T> choice : choices) {
             addChoice(choice);

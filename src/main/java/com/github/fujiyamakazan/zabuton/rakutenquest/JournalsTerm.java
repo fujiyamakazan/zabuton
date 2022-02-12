@@ -61,6 +61,9 @@ public class JournalsTerm implements Serializable {
         /* 期末が終了した直後の日付 */
         private final Date next;
 
+        /**
+         * コンストラクタです。
+         */
         public TermAction(String pattern, Date start, Date next) {
             this.pattern = pattern;
             this.start = start;
@@ -116,6 +119,9 @@ public class JournalsTerm implements Serializable {
         return result;
     }
 
+    /**
+     * テスト実行します。
+     */
     public static void main(String[] args) {
 
         JournalsTerm term1 = new JournalsTerm(2021);

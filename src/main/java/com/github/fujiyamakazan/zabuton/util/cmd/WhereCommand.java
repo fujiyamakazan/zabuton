@@ -13,14 +13,9 @@ public class WhereCommand implements Serializable {
     private final Date date;
     private final String path;
 
-    public static void main(String[] args) {
-        String line = "   8454445   2017/01/09      11:38:47  C:\\Users\\xxx\\Music\\00 xxx xxx.mp3";
-        WhereCommand where = new WhereCommand(line);
-        System.out.println(where.getSize());
-        System.out.println(where.getDate());
-        System.out.println(where.getPath());
-    }
-
+    /**
+     * コンストラクタです。
+     */
     public WhereCommand(String line) {
 
         String size = null;
@@ -98,6 +93,15 @@ public class WhereCommand implements Serializable {
             + ", path=" + path + "]";
     }
 
-
+    /**
+     * 動作確認をします。
+     */
+    public static void main(String[] args) {
+        String line = "   8454445   2017/01/09      11:38:47  C:\\Users\\xxx\\Music\\00 xxx xxx.mp3";
+        WhereCommand where = new WhereCommand(line);
+        System.out.println(where.getSize());
+        System.out.println(where.getDate());
+        System.out.println(where.getPath());
+    }
 
 }

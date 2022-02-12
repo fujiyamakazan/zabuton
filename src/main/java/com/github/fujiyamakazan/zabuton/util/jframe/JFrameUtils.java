@@ -22,45 +22,42 @@ public class JFrameUtils {
      */
     public static void main(String[] args) {
 
-//        log.debug("ダイアログでメッセージを表示します。");
-//        showDialog("テストメッセージ９０１２３４５６７８９０");
-//
-//        log.debug("ダイアログでメッセージを表示します。エラーメッセージのアイコンを表示します。");
-//        showErrorDialog("テストメッセージ９０１２３４５６７８９０");
-//
-//        log.debug("ダイアログで確認ダイアログを表示します。");
-//        for (int i = 0; i < 3; i++) {
-//            boolean result = showConfirmDialog("テストメッセージ９０１２３４５６７８９０");
-//            System.out.println(result);
-//        }
-//        log.debug("SimpleMessageのサンプル");
-//        SimpleMessage simpleMessage = new SimpleMessage();
-//        for (int i = 0; i < 5; i++) {
-//            simpleMessage.show(i + " テストメッセージ９０１２３４５６７８９０");
-//            ThreadSleep.threadSleep(1000);
-//        }
-//        simpleMessage.dispose();
+        //        log.debug("ダイアログでメッセージを表示します。");
+        //        showDialog("テストメッセージ９０１２３４５６７８９０");
+        //
+        //        log.debug("ダイアログでメッセージを表示します。エラーメッセージのアイコンを表示します。");
+        //        showErrorDialog("テストメッセージ９０１２３４５６７８９０");
+        //
+        //        log.debug("ダイアログで確認ダイアログを表示します。");
+        //        for (int i = 0; i < 3; i++) {
+        //            boolean result = showConfirmDialog("テストメッセージ９０１２３４５６７８９０");
+        //            System.out.println(result);
+        //        }
+        //        log.debug("SimpleMessageのサンプル");
+        //        SimpleMessage simpleMessage = new SimpleMessage();
+        //        for (int i = 0; i < 5; i++) {
+        //            simpleMessage.show(i + " テストメッセージ９０１２３４５６７８９０");
+        //            ThreadSleep.threadSleep(1000);
+        //        }
+        //        simpleMessage.dispose();
 
-
-
-//        for (int i = 0; i < 4; i++) {
-//            System.out.println("ChoiceMessageDialogのサンプル");
-//            Model<Boolean> cancel = Model.of(false);
-//            Model<Boolean> choice1 = Model.of(false);
-//            Model<Boolean> choice2 = Model.of(false);
-//            JPageChoice<String> pageChoice = new JPageChoice<String>(
-//                    "〇〇を選択してください。", cancel);
-//            pageChoice.addChoice("キャンセル", cancel);
-//            pageChoice.addChoice("選択１", choice1);
-//            pageChoice.addChoice("選択２", choice2);
-//            pageChoice.showDialog();
-//            System.out.println("cancel:" + cancel.getObject());
-//            System.out.println("choice1:" + choice1.getObject());
-//            System.out.println("choice2:" + choice2.getObject());
-//            System.out.println("selected:" + pageChoice.getSelectedOne().getLabel());
-//
-//        }
-
+        //        for (int i = 0; i < 4; i++) {
+        //            System.out.println("ChoiceMessageDialogのサンプル");
+        //            Model<Boolean> cancel = Model.of(false);
+        //            Model<Boolean> choice1 = Model.of(false);
+        //            Model<Boolean> choice2 = Model.of(false);
+        //            JPageChoice<String> pageChoice = new JPageChoice<String>(
+        //                    "〇〇を選択してください。", cancel);
+        //            pageChoice.addChoice("キャンセル", cancel);
+        //            pageChoice.addChoice("選択１", choice1);
+        //            pageChoice.addChoice("選択２", choice2);
+        //            pageChoice.showDialog();
+        //            System.out.println("cancel:" + cancel.getObject());
+        //            System.out.println("choice1:" + choice1.getObject());
+        //            System.out.println("choice2:" + choice2.getObject());
+        //            System.out.println("selected:" + pageChoice.getSelectedOne().getLabel());
+        //
+        //        }
 
         System.out.println("End");
 
@@ -115,7 +112,6 @@ public class JFrameUtils {
         return showConfirmDialogCore(parent, message, JOptionPane.INFORMATION_MESSAGE);
     }
 
-
     private static void showDialogCore(Component parent, String message, int iconType) {
         JFrame tmpForm = null;
         if (parent == null) {
@@ -125,10 +121,10 @@ public class JFrameUtils {
         }
 
         JOptionPane.showMessageDialog(
-                parent,
-                message,
-                "",
-                iconType);
+            parent,
+            message,
+            "",
+            iconType);
 
         if (tmpForm != null) {
             tmpForm.dispose();
@@ -143,11 +139,11 @@ public class JFrameUtils {
         }
 
         int ans = JOptionPane.showConfirmDialog(
-                parent,
-                message,
-                "",
-                JOptionPane.OK_CANCEL_OPTION, // [OK][取消] //JOptionPane.OK_OPTION, // [はい][いいえ]
-                iconType);
+            parent,
+            message,
+            "",
+            JOptionPane.OK_CANCEL_OPTION, // [OK][取消] //JOptionPane.OK_OPTION, // [はい][いいえ]
+            iconType);
 
         boolean result = ans == JOptionPane.YES_OPTION;
 

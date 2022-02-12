@@ -22,6 +22,9 @@ public class RPage extends JPage {
         baseFont = FONT;
     }
 
+    /**
+     * 一定時間の後、非表示にします。
+     */
     public void toast(int i) {
         show();
         ThreadUtils.sleep(i * 1000);

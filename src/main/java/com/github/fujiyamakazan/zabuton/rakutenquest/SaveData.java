@@ -34,6 +34,9 @@ public class SaveData implements Serializable {
         return FilenameUtils.removeExtension(this.dir.getName());
     }
 
+    /**
+     * 項目を取得します。
+     */
     public List<String> getItems() {
         List<String> items = Generics.newArrayList();
         items.addAll(getFirstCoumns("assets.txt"));
@@ -44,6 +47,9 @@ public class SaveData implements Serializable {
         return items;
     }
 
+    /**
+     * 借方項目を返します。
+     */
     public List<String> getItemsLeft() {
         List<String> items = Generics.newArrayList();
         items.addAll(getFirstCoumns("assets.txt"));
@@ -54,6 +60,9 @@ public class SaveData implements Serializable {
         return items;
     }
 
+    /**
+     * 貸方項目を返します。
+     */
     public List<String> getItemsRight() {
         List<String> items = Generics.newArrayList();
         items.addAll(getFirstCoumns("assets.txt"));
@@ -103,6 +112,9 @@ public class SaveData implements Serializable {
         return list;
     }
 
+    /**
+     * 台帳を返します。
+     */
     public List<JournalBook> getBooks() {
 
         final List<JournalBook> list = Generics.newArrayList();

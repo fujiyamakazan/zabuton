@@ -8,6 +8,9 @@ public class MoneyUtils implements Serializable {
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(MoneyUtils.class);
 
+    /**
+     * 金額を示すテキストを整数に変換します。
+     */
     public static int toInt(String text) {
         if (text == null) {
             text = "";

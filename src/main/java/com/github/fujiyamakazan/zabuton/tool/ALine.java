@@ -33,13 +33,7 @@ import com.github.fujiyamakazan.zabuton.util.date.Chronus;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 
 /**
- * A-LINE
- *
- * <pre>
- *
- *
- * </pre>
- *
+ * A-LINEアプリです。
  * @author fujiyama
  */
 public class ALine implements Serializable {

@@ -21,12 +21,6 @@ import java.nio.charset.StandardCharsets;
 
 public class HttpConnector {
 
-    public static void main(String[] args) {
-        //String str = get("https://pgse.seesaa.net/", "xx.xx.xx.xx", "8080", StandardCharsets.UTF_8);
-        String str = post("https://pgse.seesaa.net/", "abc", "xx.xx.xx.xx", "8080", StandardCharsets.UTF_8, "");
-        System.out.println(str);
-    }
-
     /**
      * URLを指定してGETで接続します。
      */
@@ -81,12 +75,12 @@ public class HttpConnector {
      * TODO 動作確認未実施
      */
     public static String post(
-            String url,
-            String postBody,
-            String proxyHost,
-            String proxyPort,
-            Charset charset,
-            String contextType) {
+        String url,
+        String postBody,
+        String proxyHost,
+        String proxyPort,
+        Charset charset,
+        String contextType) {
 
         StringBuilder sb = new StringBuilder();
         try {
@@ -102,7 +96,7 @@ public class HttpConnector {
                 connection.setRequestProperty("Content-Type", contextType);
 
                 BufferedWriter writer = new BufferedWriter(
-                        new OutputStreamWriter(connection.getOutputStream(), charset));
+                    new OutputStreamWriter(connection.getOutputStream(), charset));
                 writer.write(postBody);
                 writer.flush();
 
@@ -111,7 +105,7 @@ public class HttpConnector {
                     BufferedReader reader = null;
                     try {
                         isr = new InputStreamReader(connection.getInputStream(),
-                                StandardCharsets.UTF_8);
+                            StandardCharsets.UTF_8);
                         reader = new BufferedReader(isr);
                         String line;
                         while ((line = reader.readLine()) != null) {
@@ -139,7 +133,7 @@ public class HttpConnector {
      * URLを指定してファイルをダウンロードします。
      */
     public static void download(String url, File toFile, String proxyHost, String proxyPort)
-            throws Exception {
+        throws Exception {
 
         URL urlObj = new URL(url);
 
@@ -159,7 +153,7 @@ public class HttpConnector {
             if (toFile != null) {
                 dataInStream = new DataInputStream(conn.getInputStream());
                 dataOutStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(
-                        toFile)));
+                    toFile)));
                 byte[] b = new byte[4096]; // TODO 左記の値を検討
                 int readByte = 0;
                 while (-1 != (readByte = dataInStream.read(b))) {
@@ -184,12 +178,21 @@ public class HttpConnector {
         String proxyHost, String proxyPort, URL url) throws IOException {
         HttpURLConnection connection;
         SocketAddress addr = new InetSocketAddress(
-                proxyHost,
-                Integer.valueOf(proxyPort));
+            proxyHost,
+            Integer.valueOf(proxyPort));
         Proxy proxy = new Proxy(Proxy.Type.HTTP, addr);
 
         connection = (HttpURLConnection) url.openConnection(proxy);
         return connection;
+    }
+
+    /**
+     * 動作確認をします。
+     */
+    public static void main(String[] args) {
+        //String str = get("https://pgse.seesaa.net/", "xx.xx.xx.xx", "8080", StandardCharsets.UTF_8);
+        String str = post("https://pgse.seesaa.net/", "abc", "xx.xx.xx.xx", "8080", StandardCharsets.UTF_8, "");
+        System.out.println(str);
     }
 
 }

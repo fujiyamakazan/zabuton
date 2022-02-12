@@ -25,7 +25,7 @@ public abstract class JPageComponent<T extends Serializable> implements Serializ
 
     private JPage page;
 
-    private final List<JComponent> jComponents = Generics.newArrayList();
+    private final List<JComponent> jcomponents = Generics.newArrayList();
 
     public JPageComponent(Model<T> model) {
         this.model = model;
@@ -37,7 +37,7 @@ public abstract class JPageComponent<T extends Serializable> implements Serializ
      */
     protected void addJFrameComponent(JComponent component) {
         component.setFont(new Font("ＭＳ ゴシック", Font.PLAIN, 20));
-        jComponents.add(component);
+        jcomponents.add(component);
     }
 
     /**
@@ -46,7 +46,7 @@ public abstract class JPageComponent<T extends Serializable> implements Serializ
     public abstract void updateModel();
 
     public List<JComponent> getJComponents() {
-        return jComponents;
+        return jcomponents;
     }
 
     public void setPage(JPage page) {

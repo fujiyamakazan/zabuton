@@ -14,6 +14,9 @@ public class SelenSample implements Serializable {
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SelenSample.class);
 
+    /**
+     * 処理を実行します。
+     */
     public static void main(String[] args) {
 
         SelenCommonDriver driver = new SelenCommonDriver() {

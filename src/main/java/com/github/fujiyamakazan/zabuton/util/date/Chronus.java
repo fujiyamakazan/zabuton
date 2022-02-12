@@ -42,12 +42,6 @@ public class Chronus implements Serializable {
         }
     }
 
-    private static SimpleDateFormat createDateFormat(String pattern) {
-        SimpleDateFormat df = new SimpleDateFormat(pattern);
-        df.setLenient(false); // 厳密
-        return df;
-    }
-
     /**
      * yyyy/MM/dd形式の文字列を日付にします。
      * @param yyyyMMdd yyyy/MM/dd形式の文字列
@@ -63,6 +57,12 @@ public class Chronus implements Serializable {
 
     public static String formant(Date date, String pattern) {
         return createDateFormat(pattern).format(date);
+    }
+
+    private static SimpleDateFormat createDateFormat(String pattern) {
+        SimpleDateFormat df = new SimpleDateFormat(pattern);
+        df.setLenient(false); // 厳密
+        return df;
     }
 
 }

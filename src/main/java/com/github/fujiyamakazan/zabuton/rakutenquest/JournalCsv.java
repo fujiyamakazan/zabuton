@@ -24,14 +24,14 @@ public class JournalCsv implements Serializable {
     private final File file;
     private final String[] fieldNames;
 
-//    public JournalCsv(File crawlerDir, String name) {
-//        this(crawlerDir, name, null);
-//    }
-//
-//    public JournalCsv(String path) {
-//        this.file = new File(path);
-//        this.fieldNames = null;
-//    }
+    //    public JournalCsv(File crawlerDir, String name) {
+    //        this(crawlerDir, name, null);
+    //    }
+    //
+    //    public JournalCsv(String path) {
+    //        this.file = new File(path);
+    //        this.fieldNames = null;
+    //    }
 
     public JournalCsv(File crawlerDir, String name, String[] fieldNames) {
         this.file = new File(crawlerDir, name);
@@ -42,6 +42,9 @@ public class JournalCsv implements Serializable {
         return file;
     }
 
+    /**
+     * ヘッダーのチェックをします。
+     */
     public boolean validHeader(String line) {
         if (fieldNames == null) {
             return line.startsWith("\"#\"");
@@ -54,6 +57,9 @@ public class JournalCsv implements Serializable {
         return "\"#\"";
     }
 
+    /**
+     * 行を取得します。
+     */
     public List<Row> getRrows() {
         List<String> lines = new Utf8Text(file).readLines();
         List<Row> rows = Generics.newArrayList();
@@ -111,14 +117,14 @@ public class JournalCsv implements Serializable {
             return csv.length - 1;
         }
 
-//        public boolean contains(String string) {
-//            for (String str : csv) {
-//                if (StringUtils.equals(str, string)) {
-//                    return true;
-//                }
-//            }
-//            return false;
-//        }
+        //        public boolean contains(String string) {
+        //            for (String str : csv) {
+        //                if (StringUtils.equals(str, string)) {
+        //                    return true;
+        //                }
+        //            }
+        //            return false;
+        //        }
     }
 
     public static int getRowIndex(String line) throws IOException {

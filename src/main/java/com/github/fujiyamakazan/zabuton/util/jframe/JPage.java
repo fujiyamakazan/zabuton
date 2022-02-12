@@ -271,6 +271,9 @@ public class JPage implements Serializable {
         }
     }
 
+    /**
+     * モデルを登録します。
+     */
     public void setTextFromModel() {
         for (JPageComponent<?> pc : components) {
             if (pc instanceof JPageInputComponent) {

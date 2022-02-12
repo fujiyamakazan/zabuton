@@ -22,6 +22,9 @@ public abstract class JournalFactory implements Serializable {
     protected final JournalsTerm term;
     protected final String name;
 
+    /**
+     * コンストラクタです。
+     */
     public JournalFactory(String name, JournalsTerm term, File dir) {
         this.name = name;
         this.term = term;
@@ -32,6 +35,9 @@ public abstract class JournalFactory implements Serializable {
 
     //protected abstract List<Journal> createJournal(List<Journal> templates);
 
+    /**
+     * 主処理を実行します。
+     */
     public List<Journal> execute(List<Journal> existDatas, List<Journal> templates) {
 
         crawler.download();
@@ -116,10 +122,10 @@ public abstract class JournalFactory implements Serializable {
                     tk = "";
                 }
 
-//                if (k.contains("楽天キャッシュ・チャージ")
-//                    && tk.contains("楽天キャッシュ・チャージ")) {
-//                    System.out.println();
-//                }
+                //                if (k.contains("楽天キャッシュ・チャージ")
+                //                    && tk.contains("楽天キャッシュ・チャージ")) {
+                //                    System.out.println();
+                //                }
 
                 final boolean hit;
                 if (tk.equals("*")) {

@@ -30,41 +30,41 @@ public class TextMerger implements Serializable {
      */
     public static void main(String[] args) {
 
-//        int year = 2021;
-//        JournalCsv fileMaster = new JournalCsv("C:\\tmp\\textMaster" + year + ".txt");
-//        List<File> additionlFiles = Generics.newArrayList();
-//        additionlFiles.add(new File("C:\\tmp\\text追加2.txt")); // 処理は最新の追加テキストから順に行う。
-//        additionlFiles.add(new File("C:\\tmp\\text追加1.txt"));
-//
-//        TextMerger textMerger = new TextMerger(fileMaster, null) {
-//            private static final long serialVersionUID = 1L;
-//
-//            @Override
-//            protected boolean isAvailableLine(String line) {
-//                try {
-//                    return new CSVParser().parseLine(line)[0].equals(String.valueOf(year));
-//                } catch (IOException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//        };
-//        for (File additionalFile : additionlFiles) { // 遡及回数は一定の上限値を決める。（無限ループの防止。）
-//
-//            Utf8Text utf8Text = new Utf8Text(additionalFile);
-//            String additionalText = utf8Text.read();
-//
-//            textMerger.stock(Arrays.asList(additionalText.split("\n")));
-//            if (textMerger.hasNext() == false) {
-//                break;
-//            }
-//        }
-//        if (textMerger.isFinish() == false) {
-//            /* マスターがあるにもかかわらず、最後に処理したテキストにもマスター追加済みレコードと一致するものが無ければ、
-//             * 遡及回数の不足と考えられる。処理を中断し、警告をする。
-//             */
-//            throw new RuntimeException("遡及処理の上限回数が不足しています。");
-//        }
-//        textMerger.flash();
+        //        int year = 2021;
+        //        JournalCsv fileMaster = new JournalCsv("C:\\tmp\\textMaster" + year + ".txt");
+        //        List<File> additionlFiles = Generics.newArrayList();
+        //        additionlFiles.add(new File("C:\\tmp\\text追加2.txt")); // 処理は最新の追加テキストから順に行う。
+        //        additionlFiles.add(new File("C:\\tmp\\text追加1.txt"));
+        //
+        //        TextMerger textMerger = new TextMerger(fileMaster, null) {
+        //            private static final long serialVersionUID = 1L;
+        //
+        //            @Override
+        //            protected boolean isAvailableLine(String line) {
+        //                try {
+        //                    return new CSVParser().parseLine(line)[0].equals(String.valueOf(year));
+        //                } catch (IOException e) {
+        //                    throw new RuntimeException(e);
+        //                }
+        //            }
+        //        };
+        //        for (File additionalFile : additionlFiles) { // 遡及回数は一定の上限値を決める。（無限ループの防止。）
+        //
+        //            Utf8Text utf8Text = new Utf8Text(additionalFile);
+        //            String additionalText = utf8Text.read();
+        //
+        //            textMerger.stock(Arrays.asList(additionalText.split("\n")));
+        //            if (textMerger.hasNext() == false) {
+        //                break;
+        //            }
+        //        }
+        //        if (textMerger.isFinish() == false) {
+        //            /* マスターがあるにもかかわらず、最後に処理したテキストにもマスター追加済みレコードと一致するものが無ければ、
+        //             * 遡及回数の不足と考えられる。処理を中断し、警告をする。
+        //             */
+        //            throw new RuntimeException("遡及処理の上限回数が不足しています。");
+        //        }
+        //        textMerger.flash();
 
     }
 

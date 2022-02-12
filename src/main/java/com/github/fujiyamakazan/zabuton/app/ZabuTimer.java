@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class ZabuTimer {
 
     @Autowired(required = false)
-    private I_TimerListener listener;
+    private ITimerListener listener;
 
     /*** Bean生成後に一度だけスケジュールを起動します。 */
     @PostConstruct
@@ -43,7 +43,7 @@ public class ZabuTimer {
     /**
      * 呼び出されるリスナーの定義です。
      */
-    public interface I_TimerListener {
+    public interface ITimerListener {
 
         /**
          * 呼出し周期(秒)を返します。

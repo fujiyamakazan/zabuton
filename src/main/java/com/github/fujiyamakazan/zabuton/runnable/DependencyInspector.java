@@ -148,7 +148,7 @@ public class DependencyInspector {
     }
 
     /**
-     * ライセンス関連ファイルを取得する
+     * ライセンス関連ファイルを取得します。
      */
     private static void scanTextInJar(File jar, final String jarName, final File jarInfo) {
         ZipUtils.unzip(jar, new UnzipTask() {
@@ -192,6 +192,9 @@ public class DependencyInspector {
         });
     }
 
+    /**
+     * jdeps.exeを実行します。
+     */
     public static Set<String> invokeJdeps(File jdk, File jar) {
 
         File jdeps = new File(jdk, "bin/jdeps.exe"); // ライブラリが使用するモジュールを解析するプログラム

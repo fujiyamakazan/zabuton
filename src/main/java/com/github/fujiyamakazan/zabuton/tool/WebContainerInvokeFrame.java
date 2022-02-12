@@ -96,14 +96,14 @@ public class WebContainerInvokeFrame extends JFrame {
 
     }
 
-//    /**
-//     * @param action ブラウザを起動しWebアプリケーションを表示する処理
-//     * @deprecated 廃止予定
-//     */
-//    public void start(Runnable action) {
-//        /* フレームを初期化 */
-//        initializeFrame(action);
-//    }
+    //    /**
+    //     * @param action ブラウザを起動しWebアプリケーションを表示する処理
+    //     * @deprecated 廃止予定
+    //     */
+    //    public void start(Runnable action) {
+    //        /* フレームを初期化 */
+    //        initializeFrame(action);
+    //    }
 
     /**
      * フレームを初期化します。

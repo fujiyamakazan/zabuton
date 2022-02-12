@@ -8,13 +8,13 @@ import org.apache.wicket.util.lang.Generics;
 
 public abstract class ListDfMucher<T> {
 
-    /** Aだけにしかないオブジェクト */
+    /** Aだけにしかないオブジェクトです。 */
     private final List<T> restLeft;
 
-    /** Bだけにしかないオブジェクト */
+    /** Bだけにしかないオブジェクトです。 */
     private final List<T> restRight;
 
-    /** [eq]メソッドをもとにマッチしたオブジェクト */
+    /** [eq]メソッドをもとにマッチしたオブジェクトです。 */
     private List<KeyValueObj<T, T>> pairs = Generics.newArrayList();
 
     public ListDfMucher(List<T> listA, List<T> listB) {
@@ -22,6 +22,9 @@ public abstract class ListDfMucher<T> {
         this.restRight = new ArrayList<T>(listB); // 参照を切る
     }
 
+    /**
+     * 主処理です。
+     */
     public void execute() {
         for (Iterator<T> iteA = restLeft.iterator(); iteA.hasNext();) {
             T a = iteA.next();

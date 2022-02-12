@@ -35,12 +35,18 @@ public abstract class SelenCommonDriver implements Serializable {
 
     protected abstract WebDriver createDriver();
 
+    /**
+     * URLを指定して表示します。
+     */
     public void get(String url) {
         originalDriver.get(url);
         /* ページの表示を待ちます */
         //new WebDriverWait(this.originalDriver, 1).until(ExpectedConditions.);
     }
 
+    /**
+     * 画面要素を指定してクリックします。
+     */
     public void clickAndWait(By by) {
 
         WebElement element = findElement(by);
@@ -72,6 +78,9 @@ public abstract class SelenCommonDriver implements Serializable {
             .until(ExpectedConditions.visibilityOfElementLocated(By.tagName("body")));
     }
 
+    /**
+     * 属性valueを指定し、サブミットボタンをクリックします。
+     */
     public void clickButtonAndWait(String value) {
         By by = By.xpath("//input[@type='submit' and @value='" + value + "']");
         clickAndWait(by);
@@ -104,12 +113,18 @@ public abstract class SelenCommonDriver implements Serializable {
         }
     }
 
+    /**
+     * キーダウンをします。
+     */
     public void down(int i) {
         for (int j = 0; j < i; j++) {
             findElement(BODY).sendKeys(Keys.DOWN);
         }
     }
 
+    /**
+     * セレクトボックスを選択します。
+     */
     public void choiceByText(By by, String value) {
         WebElement element = findElement(by);
         if (element.getTagName().equals("select") == false) {
@@ -144,6 +159,9 @@ public abstract class SelenCommonDriver implements Serializable {
         return this.originalDriver.getPageSource();
     }
 
+    /**
+     * 画面要素を取得します。
+     */
     public WebElement findElement(By by) {
 
         /*
@@ -157,6 +175,9 @@ public abstract class SelenCommonDriver implements Serializable {
         return originalDriver.findElement(by);
     }
 
+    /**
+     * 画面要素を取得します。
+     */
     public List<WebElement> findElements(By by) {
 
         /*
@@ -205,6 +226,9 @@ public abstract class SelenCommonDriver implements Serializable {
 
     }
 
+    /**
+     * タイトルの検査をします。
+     */
     public void assertTitleContains(String partialTitle) {
         String title = this.originalDriver.getTitle();
         if (title.contains(partialTitle) == false) {
@@ -212,6 +236,10 @@ public abstract class SelenCommonDriver implements Serializable {
         }
     }
 
+    /**
+     * 中断処理を入れます。
+     * @param i ミリ秒
+     */
     public void sleep(int i) {
         try {
             Thread.sleep(i);

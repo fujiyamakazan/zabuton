@@ -16,7 +16,7 @@ import com.github.fujiyamakazan.zabuton.util.file.FileDeleteUtils;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 
 /**
- * 配布用に最小限のJREを作成する
+ * 配布用に最小限のJREを作成します。
  *
  * @author fujiyama
  */
