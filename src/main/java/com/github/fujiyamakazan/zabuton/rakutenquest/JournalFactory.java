@@ -110,7 +110,7 @@ public abstract class JournalFactory implements Serializable {
     //        return row.get("取引日", new SimpleDateFormat(Chronus.POPULAR_JP));
     //    }
 
-    private void fullupTemplate(List<Journal> templates, List<Journal> journals) {
+    private static void fullupTemplate(List<Journal> templates, List<Journal> journals) {
         for (Journal journal : journals) {
             for (Journal template : templates) {
                 if (journal.getSource().equals(template.getSource()) == false) {

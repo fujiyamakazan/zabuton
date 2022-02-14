@@ -111,7 +111,7 @@ public final class ShonanShinkinCrawler extends JournalCrawler {
 
     }
 
-    private String getSummary(File file) {
+    private static String getSummary(File file) {
 
         String finalLine = "";
         for (String line : new ShiftJisText(file).readLines()) {

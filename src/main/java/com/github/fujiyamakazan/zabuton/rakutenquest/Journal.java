@@ -194,7 +194,7 @@ public class Journal implements Serializable {
             + (rowIndex != null ? (rowIndex) : "");
     }
 
-    private String toMoney(int price) {
+    private static String toMoney(int price) {
         return String.format("%,d", price);
     }
 

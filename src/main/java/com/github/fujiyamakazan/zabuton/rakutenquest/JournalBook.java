@@ -26,7 +26,6 @@ import com.opencsv.ICSVWriter;
 public class JournalBook implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JournalBook.class);
 
     private File file;
