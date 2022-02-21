@@ -14,10 +14,10 @@ public class JChoiceElement<T extends Serializable> implements Serializable {
     }
 
     public String getLabel() {
-        return label;
+        return this.label;
     }
 
     public T getObject() {
-        return obj;
+        return this.obj;
     }
 }

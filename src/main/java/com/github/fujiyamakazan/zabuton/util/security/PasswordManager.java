@@ -41,8 +41,8 @@ public class PasswordManager extends JPageApplication {
      */
     public PasswordManager(String appId) {
         this.saveDir = new File(EnvUtils.getAppData(appId), "PasswordManager");
-        if (saveDir.exists() == false) {
-            saveDir.mkdirs();
+        if (this.saveDir.exists() == false) {
+            this.saveDir.mkdirs();
         }
     }
 
@@ -51,17 +51,17 @@ public class PasswordManager extends JPageApplication {
      */
     public PasswordManager(File appDir) {
         this.saveDir = new File(appDir, "PasswordManager");
-        if (saveDir.exists() == false) {
-            saveDir.mkdirs();
+        if (this.saveDir.exists() == false) {
+            this.saveDir.mkdirs();
         }
     }
 
     public String getId() {
-        return modelId.getObject();
+        return this.modelId.getObject();
     }
 
     public String getPassword() {
-        return modelPw.getObject();
+        return this.modelPw.getObject();
     }
 
     //    public void setIsAutoLogin(boolean autoLogin) {
@@ -126,8 +126,8 @@ public class PasswordManager extends JPageApplication {
                 public void run() {
                     if (modelSave.getObject()) {
                         StringBuilder data = new StringBuilder();
-                        data.append("id=" + modelId.getObject() + "\n");
-                        data.append("pw=" + modelPw.getObject() + "\n");
+                        data.append("id=" + PasswordManager.this.modelId.getObject() + "\n");
+                        data.append("pw=" + PasswordManager.this.modelPw.getObject() + "\n");
                         /* 暗号化 */
                         String text = CipherUtils.encrypt(
                             PasswordManager.class.getSimpleName(), data.toString());
@@ -138,11 +138,11 @@ public class PasswordManager extends JPageApplication {
             final JPageAction doLink = new JPageChangeAction(
                 PasswordManager.this, MainPage.this, new ListPage());
 
-            addLine(new JPageLabel("[" + sightKey + "]のIDとパスワードを入力してください。"));
-            addLine(new JPageTextField("ID", modelId));
-            addLine(new JPagePassword("PW", modelPw));
-            saveButton = new JPageButton("OK", doSave);
-            addLine(saveButton, new JPageCheckBox("端末に保存", modelSave),
+            addLine(new JPageLabel("[" + PasswordManager.this.sightKey + "]のIDとパスワードを入力してください。"));
+            addLine(new JPageTextField("ID", PasswordManager.this.modelId));
+            addLine(new JPagePassword("PW", PasswordManager.this.modelPw));
+            this.saveButton = new JPageButton("OK", doSave);
+            addLine(this.saveButton, new JPageCheckBox("端末に保存", modelSave),
                     new JPageLink("保存されているパスワードを整理する", doLink));
         }
 
@@ -169,17 +169,17 @@ public class PasswordManager extends JPageApplication {
 
     private Utf8Text load() {
         /* 保存されているIDとPWを取得 */
-        File setting = new File(saveDir, sightKey);
+        File setting = new File(this.saveDir, this.sightKey);
         Utf8Text utf8Text = new Utf8Text(setting);
         if (setting.exists()) {
             String savedText = CipherUtils.decrypt(PasswordManager.class.getSimpleName(), utf8Text.read());
             for (String line : savedText.split("\n")) {
                 KeyValue kv = StringSeparator.sparate(line, '=');
                 if (kv.getKey().equals("id")) {
-                    modelId.setObject(kv.getValue());
+                    this.modelId.setObject(kv.getValue());
                 }
                 if (kv.getKey().equals("pw")) {
-                    modelPw.setObject(kv.getValue());
+                    this.modelPw.setObject(kv.getValue());
                 }
             }
         }
@@ -198,14 +198,14 @@ public class PasswordManager extends JPageApplication {
 
                 @Override
                 public void run() {
-                    for (File f : saveDir.listFiles()) {
+                    for (File f : PasswordManager.this.saveDir.listFiles()) {
                         f.delete();
                     }
                 }
             };
-            final JPageAction doLink = new JPageChangeAction(PasswordManager.this, ListPage.this, mainPage);
+            final JPageAction doLink = new JPageChangeAction(PasswordManager.this, ListPage.this, PasswordManager.this.mainPage);
 
-            addLine(new JPageLabel("このパソコンには" + saveDir.listFiles().length + "件のパスワードが保存されています。"));
+            addLine(new JPageLabel("このパソコンには" + PasswordManager.this.saveDir.listFiles().length + "件のパスワードが保存されています。"));
             addLine(new JPageButton("削除", doDelete), new JPageLink("戻る", doLink));
         }
 

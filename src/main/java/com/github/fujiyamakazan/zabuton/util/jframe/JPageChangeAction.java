@@ -21,7 +21,7 @@ public class JPageChangeAction extends JPageAction {
 
     @Override
     public void run() {
-        app.changePage(from, to);
+        this.app.changePage(this.from, this.to);
     }
 
 }

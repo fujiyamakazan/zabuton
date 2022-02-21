@@ -39,7 +39,7 @@ public class FileDropPanel extends Panel {
     private boolean single;
 
     public List<FileUpload> getFiles() {
-        return fileUploads;
+        return this.fileUploads;
     }
 
     public FileDropPanel(String id) {
@@ -62,8 +62,8 @@ public class FileDropPanel extends Panel {
         private String size;
 
         public FileInfo(FileUpload upload) {
-            name = upload.getClientFileName();
-            size = Bytes.bytes(upload.getSize()).toString() + " byte";
+            this.name = upload.getClientFileName();
+            this.size = Bytes.bytes(upload.getSize()).toString() + " byte";
         }
     }
 
@@ -81,7 +81,7 @@ public class FileDropPanel extends Panel {
             @Override
             protected List<FileInfo> load() {
                 List<FileInfo> fileInfos = Generics.newArrayList();
-                for (FileUpload upload : fileUploads) {
+                for (FileUpload upload : FileDropPanel.this.fileUploads) {
                     fileInfos.add(new FileInfo(upload));
                 }
                 return fileInfos;
@@ -102,9 +102,9 @@ public class FileDropPanel extends Panel {
                     private static final long serialVersionUID = 1L;
                     @Override
                     public void onClick() {
-                        FileUpload targetUpload = fileUploads.get(index);
+                        FileUpload targetUpload = FileDropPanel.this.fileUploads.get(index);
                         targetUpload.delete();
-                        fileUploads.remove(index);
+                        FileDropPanel.this.fileUploads.remove(index);
                     }
                 });
             }

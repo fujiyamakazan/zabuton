@@ -26,7 +26,6 @@ import com.opencsv.ICSVWriter;
 public class JournalBook implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JournalBook.class);
 
     private File file;
@@ -37,7 +36,7 @@ public class JournalBook implements Serializable {
     }
 
     public String getName() {
-        return file.getName().substring("journals".length(), file.getName().length() - ".txt".length());
+        return this.file.getName().substring("journals".length(), this.file.getName().length() - ".txt".length());
     }
 
     /**
@@ -55,30 +54,30 @@ public class JournalBook implements Serializable {
      * 仕訳情報を追加します。
      */
     public void addJournal(Journal journal) {
-        if (journals == null) {
+        if (this.journals == null) {
             loadJournals();
         }
-        journals.add(journal);
+        this.journals.add(journal);
     }
 
     /**
      * 仕訳情報を取得します。
      */
     public Journal getJournalLast() {
-        if (journals == null) {
+        if (this.journals == null) {
             loadJournals();
         }
-        return journals.get(journals.size() - 1);
+        return this.journals.get(this.journals.size() - 1);
     }
 
     private void loadJournals() {
-        journals = Generics.newArrayList();
+        this.journals = Generics.newArrayList();
         if (this.file.exists()) {
             FileReader fileReader;
             CSVReader csvReader;
             try {
 
-                fileReader = new FileReader(file);
+                fileReader = new FileReader(this.file);
                 CSVParser parser = new CSVParserBuilder().withSeparator('\t').build();
                 csvReader = new CSVReaderBuilder(fileReader).withCSVParser(parser).build();
 
@@ -128,7 +127,7 @@ public class JournalBook implements Serializable {
         FileWriter fileWriter = null;
         ICSVWriter csvWriter = null;
         try {
-            fileWriter = new FileWriter(file);
+            fileWriter = new FileWriter(this.file);
             csvWriter = new CSVWriterBuilder(fileWriter).withSeparator('\t').build();
 
             for (Journal journal : this.journals) {

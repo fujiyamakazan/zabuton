@@ -28,17 +28,17 @@ public final class UcsCardCrawler extends JournalCrawler {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(UcsCardCrawler.class);
 
-    private final JournalCsv master = new JournalCsv(crawlerDir, "master.csv",
+    private final JournalCsv master = new JournalCsv(this.crawlerDir, "master.csv",
         new String[] { "支払方法コード", "支払方法", "利用日", "加盟店名称", "利用金額", "利用者", "海外利用有無サイン", "現地通貨額", "通貨名称", "換算レート" });
-    private final File summary = new File(crawlerDir, "summary.txt");
+    private final File summary = new File(this.crawlerDir, "summary.txt");
 
     /**
      * コンストラクタです。
      */
     public UcsCardCrawler(File appDir) {
         super("UCSCard", appDir);
-        setMaster(master);
-        setSummary(summary);
+        setMaster(this.master);
+        setSummary(this.summary);
     }
 
     @Override
@@ -48,15 +48,15 @@ public final class UcsCardCrawler extends JournalCrawler {
          * ログイン
          */
         final String url = "https://www.ucscard.co.jp/NetServe/login/";
-        cmd.get(url);
+        this.cmd.get(url);
 
-        PasswordManager pm = new PasswordManager(crawlerDir);
+        PasswordManager pm = new PasswordManager(this.crawlerDir);
         pm.executeByUrl(url);
 
-        cmd.type(By.id("webId"), pm.getId());
-        cmd.type(By.id("password"), pm.getPassword());
-        cmd.clickAndWait(By.xpath("//input[@value='ログイン']"));
-        cmd.clickAndWait(By.partialLinkText("ご利用明細照会"));
+        this.cmd.type(By.id("webId"), pm.getId());
+        this.cmd.type(By.id("password"), pm.getPassword());
+        this.cmd.clickAndWait(By.xpath("//input[@value='ログイン']"));
+        this.cmd.clickAndWait(By.partialLinkText("ご利用明細照会"));
 
         /* 明細のダウンロード */
         //String summaryText = "";
@@ -74,7 +74,7 @@ public final class UcsCardCrawler extends JournalCrawler {
     }
 
     private void downloadJournal() {
-        final TextMerger textMerger = new TextMerger(master, "yyyyMMdd") {
+        final TextMerger textMerger = new TextMerger(this.master, "yyyyMMdd") {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -102,14 +102,14 @@ public final class UcsCardCrawler extends JournalCrawler {
             /* CSVダウンロードボタンのある画面へ移動 */
             By entryBy = iterator.next();
             if (entryBy != null) {
-                cmd.clickAndWait(entryBy);
+                this.cmd.clickAndWait(entryBy);
             }
 
             /* 明細をダウンロード */
-            if (cmd.isPresent(By.xpath("//a[img[@alt='ご利用明細ダウンロード(CSV)']]")) == false) {
+            if (this.cmd.isPresent(By.xpath("//a[img[@alt='ご利用明細ダウンロード(CSV)']]")) == false) {
                 continue;
             }
-            cmd.clickAndWait(By.xpath("//a[img[@alt='ご利用明細ダウンロード(CSV)']]"));
+            this.cmd.clickAndWait(By.xpath("//a[img[@alt='ご利用明細ダウンロード(CSV)']]"));
             new DownloadWait().start(); // ファイルダウンロードを待つ
 
             /* CSVを整形 */
@@ -153,15 +153,15 @@ public final class UcsCardCrawler extends JournalCrawler {
         bys.add(by3);
         StringBuilder sb = new StringBuilder();
         for (By by : bys) {
-            cmd.get("https://www.ucscard.co.jp/NetServe/NavigationAction.do");
-            cmd.clickAndWait(by);
-            sb.append(cmd.getPageSource());
+            this.cmd.get("https://www.ucscard.co.jp/NetServe/NavigationAction.do");
+            this.cmd.clickAndWait(by);
+            sb.append(this.cmd.getPageSource());
         }
 
         saveDaily("summarys.html", sb.toString()); // 当日の作業記録として保存
 
         /* Summary保存 */
-        new Utf8Text(summary).write(sb.toString());
+        new Utf8Text(this.summary).write(sb.toString());
 
     }
 
@@ -170,7 +170,7 @@ public final class UcsCardCrawler extends JournalCrawler {
      */
     public String getAssetUcsCredit() {
 
-        String htmlAll = new Utf8Text(summary).read();
+        String htmlAll = new Utf8Text(this.summary).read();
 
         int html1Index = 0;
         int html2Index = htmlAll.indexOf("<html", html1Index + 1);

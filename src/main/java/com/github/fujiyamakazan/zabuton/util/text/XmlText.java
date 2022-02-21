@@ -38,7 +38,7 @@ public class XmlText implements Serializable {
     public List<String> getText(String xpath) {
         List<String> results = Generics.newArrayList();
         try {
-            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
+            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(this.file);
             XPath xpathObj = XPathFactory.newInstance().newXPath();
             XPathExpression expr = xpathObj.compile(xpath);
             NodeList nodeList = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);

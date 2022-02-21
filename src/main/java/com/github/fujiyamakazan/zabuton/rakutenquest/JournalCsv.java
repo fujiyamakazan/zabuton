@@ -39,18 +39,18 @@ public class JournalCsv implements Serializable {
     }
 
     public File getFile() {
-        return file;
+        return this.file;
     }
 
     /**
      * ヘッダーのチェックをします。
      */
     public boolean validHeader(String line) {
-        if (fieldNames == null) {
+        if (this.fieldNames == null) {
             return line.startsWith("\"#\"");
         }
 
-        return line.equals(getHeader() + "," + CsvUtils.convertString(fieldNames));
+        return line.equals(getHeader() + "," + CsvUtils.convertString(this.fieldNames));
     }
 
     public static String getHeader() {
@@ -61,7 +61,7 @@ public class JournalCsv implements Serializable {
      * 行を取得します。
      */
     public List<Row> getRrows() {
-        List<String> lines = new Utf8Text(file).readLines();
+        List<String> lines = new Utf8Text(this.file).readLines();
         List<Row> rows = Generics.newArrayList();
         for (String line : lines) {
             line = line.trim();
@@ -87,14 +87,14 @@ public class JournalCsv implements Serializable {
         }
 
         public String get(String name) {
-            return csv[getColumnIndex(name) + 1].trim();
+            return this.csv[getColumnIndex(name) + 1].trim();
         }
 
         /**
          * 書式を指定して取得します。
          */
         public Date get(String name, DateFormat df) {
-            String str = csv[getColumnIndex(name) + 1].trim();
+            String str = this.csv[getColumnIndex(name) + 1].trim();
             Date date;
             try {
                 date = df.parse(str);
@@ -106,25 +106,28 @@ public class JournalCsv implements Serializable {
         }
 
         public int getIndex() {
-            return Integer.parseInt(csv[0]);
+            return Integer.parseInt(this.csv[0]);
         }
 
         public String getData() {
-            return line;
+            return this.line;
         }
 
         public int length() {
-            return csv.length - 1;
+            return this.csv.length - 1;
         }
 
-        //        public boolean contains(String string) {
-        //            for (String str : csv) {
-        //                if (StringUtils.equals(str, string)) {
-        //                    return true;
-        //                }
-        //            }
-        //            return false;
-        //        }
+        /**
+         * 含まれるかを検査します。
+         */
+        public boolean contains(String string) {
+            for (String str : this.csv) {
+                if (StringUtils.equals(str, string)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     public static int getRowIndex(String line) throws IOException {
@@ -132,7 +135,7 @@ public class JournalCsv implements Serializable {
     }
 
     public int getColumnIndex(String name) {
-        return Arrays.asList(fieldNames).indexOf(name);
+        return Arrays.asList(this.fieldNames).indexOf(name);
     }
 
 }

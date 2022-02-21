@@ -42,9 +42,7 @@ public abstract class ZabuApp extends WebApplication {
         mountPage(URL_INFOPATH, ZabuInfoPage.class);
 
         /* SpringBeanを利用する */
-        AnnotationConfigApplicationContext ctx;
-        try {
-            ctx = new AnnotationConfigApplicationContext();
+        try (AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext()) {
             ctx.scan(this.getClass().getPackageName()); // アプリケーションと同じ階層のコンポーネントをスキャンする
             ctx.scan(ZabuApp.class.getPackageName()); // ZabuAppと同じ階層のコンポーネントをスキャンする
             ctx.refresh();

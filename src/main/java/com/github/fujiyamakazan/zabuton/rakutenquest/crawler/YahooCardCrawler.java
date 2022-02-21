@@ -31,9 +31,9 @@ public final class YahooCardCrawler extends JournalCrawler {
 
     private static final String[] FIELD_NAMES = new String[] { "利用日", "利用店名・商品名", "利用金額" };
 
-    private final JournalCsv master = new JournalCsv(crawlerDir, "master.csv",
+    private final JournalCsv master = new JournalCsv(this.crawlerDir, "master.csv",
         FIELD_NAMES);
-    private final File summary = new File(crawlerDir, "summary.txt");
+    private final File summary = new File(this.crawlerDir, "summary.txt");
 
     public static class YahooCardJournalCsv extends JournalCsv {
         private static final long serialVersionUID = 1L;
@@ -48,8 +48,8 @@ public final class YahooCardCrawler extends JournalCrawler {
      */
     public YahooCardCrawler(File appDir) {
         super("YahooCard", appDir);
-        setMaster(master);
-        setSummary(summary);
+        setMaster(this.master);
+        setSummary(this.summary);
     }
 
     @Override
@@ -59,15 +59,15 @@ public final class YahooCardCrawler extends JournalCrawler {
          * ログイン
          */
         final String url = "https://member1.card.yahoo.co.jp/usage/detail";
-        cmd.get(url);
+        this.cmd.get(url);
 
-        PasswordManager pm = new PasswordManager(crawlerDir);
+        PasswordManager pm = new PasswordManager(this.crawlerDir);
         pm.executeByUrl(url);
 
-        cmd.type(By.name("login"), pm.getId());
-        cmd.clickAndWait(By.name("btnNext"));
-        cmd.type(By.name("passwd"), pm.getPassword());
-        cmd.clickAndWait(By.name("btnSubmit"));
+        this.cmd.type(By.name("login"), pm.getId());
+        this.cmd.clickAndWait(By.name("btnNext"));
+        this.cmd.type(By.name("passwd"), pm.getPassword());
+        this.cmd.clickAndWait(By.name("btnSubmit"));
 
         /*
          * 明細情報の収集
@@ -82,8 +82,8 @@ public final class YahooCardCrawler extends JournalCrawler {
         /*
          * ログアウト
          */
-        cmd.get("https://accounts.yahoo.co.jp/profile");
-        cmd.clickAndWait(By.partialLinkText("ログアウト"));
+        this.cmd.get("https://accounts.yahoo.co.jp/profile");
+        this.cmd.clickAndWait(By.partialLinkText("ログアウト"));
 
     }
 
@@ -91,7 +91,7 @@ public final class YahooCardCrawler extends JournalCrawler {
      * 明細情報の収集をします。
      */
     private void downloadJournal() {
-        final TextMerger textMerger = new TextMerger(master, Chronus.POPULAR_JP);
+        final TextMerger textMerger = new TextMerger(this.master, Chronus.POPULAR_JP);
 
         /* 翌月から過去１年間 */
         Iterator<String> iteratorJournal = createIte();
@@ -103,19 +103,19 @@ public final class YahooCardCrawler extends JournalCrawler {
 
             /* CSVダウンロードボタンのある画面へ移動 */
             String day = iteratorJournal.next();
-            cmd.get("https://member1.card.yahoo.co.jp/usage/detail/" + day);
+            this.cmd.get("https://member1.card.yahoo.co.jp/usage/detail/" + day);
 
-            if (cmd.containsText("ご利用明細はありません", DEFAULT_TIMEOUT)) {
+            if (this.cmd.containsText("ご利用明細はありません", DEFAULT_TIMEOUT)) {
                 continue;
             }
 
             /* 明細情報を取得 */
             final List<String> lines = Generics.newArrayList();
-            String html = cmd.getPageSource();
+            String html = this.cmd.getPageSource();
             saveDaily(day + ".html", html);
             Document doc = Jsoup.parse(html);
 
-            boolean presentCsv = cmd.isPresent(By.partialLinkText("CSVダウンロード"));
+            boolean presentCsv = this.cmd.isPresent(By.partialLinkText("CSVダウンロード"));
 
             Elements trs = doc.select("div.mainDetail__table--big table tr");
             if (presentCsv) {
@@ -166,13 +166,13 @@ public final class YahooCardCrawler extends JournalCrawler {
             deletePreFile();
 
             String day = iteratorSummary.next();
-            cmd.get("https://member1.card.yahoo.co.jp/usage/detail/" + day);
+            this.cmd.get("https://member1.card.yahoo.co.jp/usage/detail/" + day);
 
-            if (cmd.containsText("ご利用明細はありません", DEFAULT_TIMEOUT)) {
+            if (this.cmd.containsText("ご利用明細はありません", DEFAULT_TIMEOUT)) {
                 continue;
             }
 
-            String html = cmd.getPageSource();
+            String html = this.cmd.getPageSource();
             saveDaily(day + ".html", html);
 
             /* 残高集計 */
@@ -209,7 +209,7 @@ public final class YahooCardCrawler extends JournalCrawler {
                 }
             }
         }
-        new Utf8Text(summary).write(String.valueOf(amount) + "円"
+        new Utf8Text(this.summary).write(String.valueOf(amount) + "円"
             + "(最後の支払日[" + lastPaymentDate + "]以降に発生した金額)");
     }
 
@@ -259,7 +259,7 @@ public final class YahooCardCrawler extends JournalCrawler {
     }
 
     public String getAssetYahooCredit() {
-        return "ヤフーカード（クレジット）：" + new Utf8Text(summary).read();
+        return "ヤフーカード（クレジット）：" + new Utf8Text(this.summary).read();
     }
 
     //    public static void main(String[] args) {

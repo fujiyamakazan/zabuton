@@ -52,7 +52,7 @@ public abstract class KeyValuesText implements Serializable {
      * @return 値。キーが無ければnull。
      */
     public String get(String key) {
-        if (keyValueString == null) {
+        if (this.keyValueString == null) {
             this.keyValueString = read();
         }
         for (KeyValue kv: this.keyValueString) {
@@ -69,7 +69,7 @@ public abstract class KeyValuesText implements Serializable {
      * @param value 値
      */
     public void set(String key, String value) {
-        if (keyValueString == null) {
+        if (this.keyValueString == null) {
             this.keyValueString = read();
         }
         boolean exist = false;

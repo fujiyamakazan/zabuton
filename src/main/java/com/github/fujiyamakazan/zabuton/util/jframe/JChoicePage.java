@@ -19,11 +19,11 @@ public class JChoicePage extends JPage {
     @Override
     protected void onInitialize() {
         super.onInitialize();
-        addLine(new JPageLabel(message));
-        if (horizontal) {
-            addLine(choices);
+        addLine(new JPageLabel(this.message));
+        if (this.horizontal) {
+            addLine(this.choices);
         } else {
-            for (JPageButton button: choices) {
+            for (JPageButton button: this.choices) {
                 addLine(button);
             }
         }

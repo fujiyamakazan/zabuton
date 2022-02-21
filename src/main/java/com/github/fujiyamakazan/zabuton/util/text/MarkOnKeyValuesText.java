@@ -38,7 +38,7 @@ public class MarkOnKeyValuesText extends KeyValuesText {
 
         String head = null;
         StringBuilder sb = new StringBuilder();
-        List<String> lines = utf8File.readLines();
+        List<String> lines = this.utf8File.readLines();
         for (String line : lines) {
 
             if (StringUtils.startsWith(line, MARK)) {
@@ -73,6 +73,6 @@ public class MarkOnKeyValuesText extends KeyValuesText {
             lines.add(MARK + keyValue.getKey());
             lines.add(nulToBlank(keyValue.getValue()));
         }
-        utf8File.writeLines(lines);
+        this.utf8File.writeLines(lines);
     }
 }

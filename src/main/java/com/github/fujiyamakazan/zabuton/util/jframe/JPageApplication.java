@@ -28,9 +28,9 @@ public class JPageApplication implements Serializable {
         bind(page);
         page.show();
 
-        synchronized (lock) {
+        synchronized (this.lock) {
             try {
-                lock.wait();
+                this.lock.wait();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -43,12 +43,12 @@ public class JPageApplication implements Serializable {
      */
     public void close() {
 
-        for (JPage p : pages) {
+        for (JPage p : this.pages) {
             p.dispose();
         }
 
-        synchronized (lock) {
-            lock.notifyAll();
+        synchronized (this.lock) {
+            this.lock.notifyAll();
         }
     }
 
@@ -66,8 +66,8 @@ public class JPageApplication implements Serializable {
      * アプリケーションとページを紐づけます。
      */
     public void bind(JPage page) {
-        if (pages.contains(page) == false) {
-            pages.add(page);
+        if (this.pages.contains(page) == false) {
+            this.pages.add(page);
             page.setApplication(this);
         }
     }

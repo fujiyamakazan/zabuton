@@ -31,7 +31,7 @@ public abstract class TextFile implements Serializable {
     }
 
     public File getFile() {
-        return file;
+        return this.file;
     }
 
     public TextFile(String pathname) {
@@ -92,13 +92,13 @@ public abstract class TextFile implements Serializable {
      * @return ファイルから取得したテキスト。ファイルが無ければnullを返します。
      */
     public String read() {
-        if (file.exists() == false) {
+        if (this.file.exists() == false) {
             return null;
         }
 
         String text;
         try {
-            text = FileUtils.readFileToString(file, getCharset());
+            text = FileUtils.readFileToString(this.file, getCharset());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -130,7 +130,7 @@ public abstract class TextFile implements Serializable {
      */
     public void write(String data, boolean append) {
         try {
-            FileUtils.write(file, data, getCharset(), append);
+            FileUtils.write(this.file, data, getCharset(), append);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -150,7 +150,7 @@ public abstract class TextFile implements Serializable {
      */
     public void writeLines(List<String> lines, boolean append) {
         try {
-            FileUtils.writeLines(file, getCharset().toString(), lines, append);
+            FileUtils.writeLines(this.file, getCharset().toString(), lines, append);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

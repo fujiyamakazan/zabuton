@@ -18,35 +18,35 @@ public class MavenTargetDirectory implements Serializable {
     }
 
     public void setLibraryDirName(String name) {
-        this.dependency = new File(target, name);
+        this.dependency = new File(this.target, name);
     }
 
     public File getDependency() {
-        return dependency;
+        return this.dependency;
     }
 
     public void setLibraryInfoDirName(String name) {
-        this.dependencyInfo = new File(target, name);
+        this.dependencyInfo = new File(this.target, name);
     }
 
     public File getDependencyInfo() {
-        return dependencyInfo;
+        return this.dependencyInfo;
     }
 
     public void setJreDirName(String name) {
-        this.jre = new File(target, name);
+        this.jre = new File(this.target, name);
     }
 
     public File getJre() {
-        return jre;
+        return this.jre;
     }
 
     public void setReultName(String name) {
-        this.result = new File(target, name);
+        this.result = new File(this.target, name);
     }
 
     public File getResult() {
-        return result;
+        return this.result;
     }
 
 }

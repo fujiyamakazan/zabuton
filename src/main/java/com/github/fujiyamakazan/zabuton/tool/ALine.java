@@ -40,7 +40,7 @@ public class ALine implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private SimpleDateFormat dfYyyyMMdd = new SimpleDateFormat(Chronus.POPULAR_JP);
-    private SimpleDateFormat dfYyyyMMddHHmmss = new SimpleDateFormat(dfYyyyMMdd.toPattern() + " HH:mm:ss");
+    private SimpleDateFormat dfYyyyMMddHHmmss = new SimpleDateFormat(this.dfYyyyMMdd.toPattern() + " HH:mm:ss");
 
     private File setting = new File("a-line.setting.txt");
     private File aliveLog = new File("a-line.log.txt");
@@ -81,19 +81,19 @@ public class ALine implements Serializable {
                 }
 
                 if (StringUtils.equals(key, "use")) {
-                    use = StringUtils.equals(value, "1");
+                    this.use = StringUtils.equals(value, "1");
                 }
                 if (StringUtils.equals(key, "hour")) {
-                    hour = Integer.parseInt(value);
+                    this.hour = Integer.parseInt(value);
                 }
                 if (StringUtils.equals(key, "token")) {
-                    token = value;
+                    this.token = value;
                 }
                 if (StringUtils.equals(key, "msg")) {
-                    message = value;
+                    this.message = value;
                 }
                 if (StringUtils.equals(key, "start")) {
-                    start = StringUtils.equals(value, "1");
+                    this.start = StringUtils.equals(value, "1");
                 }
             }
         }
@@ -103,7 +103,7 @@ public class ALine implements Serializable {
         }
 
         public boolean isUse() {
-            return use;
+            return this.use;
         }
 
         public void setUse(boolean use) {
@@ -111,7 +111,7 @@ public class ALine implements Serializable {
         }
 
         public Integer getHour() {
-            return hour;
+            return this.hour;
         }
 
         public void setHour(Integer hour) {
@@ -119,7 +119,7 @@ public class ALine implements Serializable {
         }
 
         public String getToken() {
-            return token;
+            return this.token;
         }
 
         public void setToken(String token) {
@@ -127,7 +127,7 @@ public class ALine implements Serializable {
         }
 
         public String getMessage() {
-            return message;
+            return this.message;
         }
 
         public void setMessage(String message) {
@@ -135,7 +135,7 @@ public class ALine implements Serializable {
         }
 
         public boolean isStart() {
-            return start;
+            return this.start;
         }
 
         public void setStart(boolean start) {
@@ -144,9 +144,9 @@ public class ALine implements Serializable {
 
         @Override
         public String toString() {
-            return "A-LINE設定 [use=" + use + ", hour=" + hour + ", token=" + token + ", message="
-                + message + ", start="
-                + start + "]";
+            return "A-LINE設定 [use=" + this.use + ", hour=" + this.hour + ", token=" + this.token + ", message="
+                + this.message + ", start="
+                + this.start + "]";
         }
     }
 
@@ -219,7 +219,7 @@ public class ALine implements Serializable {
                 writeLog("A-LINEをテストします。");
             }
 
-            if (setting.exists() == false) {
+            if (this.setting.exists() == false) {
                 if (test) {
                     writeLog("まだ設定が終わっていません。");
                 }
@@ -229,7 +229,7 @@ public class ALine implements Serializable {
             /* ファイルから設定を読込む。 */
             String text;
             try {
-                text = FileUtils.readFileToString(setting, StandardCharsets.UTF_8);
+                text = FileUtils.readFileToString(this.setting, StandardCharsets.UTF_8);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -276,7 +276,7 @@ public class ALine implements Serializable {
                         msg += "本日最初の確認です。";
 
                         /* 最後のバックアップの情報も追加 */
-                        List<String> logLines = new Utf8Text(aliveLog).readLines();
+                        List<String> logLines = new Utf8Text(this.aliveLog).readLines();
                         Collections.reverse(logLines);
                         for (String line : logLines) {
                             if (StringUtils.endsWith(line, "WindowsBackupEnd")) {
@@ -333,7 +333,7 @@ public class ALine implements Serializable {
         text += "start=" + (this.settingItems.start ? "1" : "0") + ",";
 
         try {
-            FileUtils.write(setting, text, StandardCharsets.UTF_8);
+            FileUtils.write(this.setting, text, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -397,7 +397,7 @@ public class ALine implements Serializable {
             + "[" + getHostName() + "]"
             + "" + msg;
         try {
-            FileUtils.write(aliveLog, text + "\r\n", StandardCharsets.UTF_8, true);
+            FileUtils.write(this.aliveLog, text + "\r\n", StandardCharsets.UTF_8, true);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -408,12 +408,12 @@ public class ALine implements Serializable {
      */
     private List<String> getLogLinesToday() {
         List<String> logs = new ArrayList<String>();
-        if (aliveLog.exists() == false) {
+        if (this.aliveLog.exists() == false) {
             return logs;
         }
         List<String> lines;
         try {
-            lines = FileUtils.readLines(aliveLog, StandardCharsets.UTF_8);
+            lines = FileUtils.readLines(this.aliveLog, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -444,11 +444,11 @@ public class ALine implements Serializable {
     }
 
     private String getToday() {
-        return dfYyyyMMdd.format(new Date());
+        return this.dfYyyyMMdd.format(new Date());
     }
 
     private String getNow() {
-        return dfYyyyMMddHHmmss.format(new Date());
+        return this.dfYyyyMMddHHmmss.format(new Date());
     }
 
     protected String proxyHost() {
@@ -464,7 +464,7 @@ public class ALine implements Serializable {
     }
 
     public boolean existSetting() {
-        return setting.exists();
+        return this.setting.exists();
     }
 
 }

@@ -28,17 +28,17 @@ public class SaveDataManager implements Serializable {
         }
 
         this.dirDatas = new File(appDir, "datas");
-        if (dirDatas.exists() == false) {
-            dirDatas.mkdirs();
+        if (this.dirDatas.exists() == false) {
+            this.dirDatas.mkdirs();
         }
-        for (File file : dirDatas.listFiles()) {
-            datas.add(new SaveData(file));
+        for (File file : this.dirDatas.listFiles()) {
+            this.datas.add(new SaveData(file));
         }
 
     }
 
     public List<SaveData> getDatas() {
-        return datas;
+        return this.datas;
     }
 
     public SaveData get(File appDir, String name) {
@@ -50,7 +50,7 @@ public class SaveDataManager implements Serializable {
      * セーブデータを作成します。
      */
     public SaveData createSaveData(String name) {
-        File newDir = new File(dirDatas, name);
+        File newDir = new File(this.dirDatas, name);
         newDir.mkdirs();
         SaveData newData = new SaveData(newDir);
         this.datas.add(newData);

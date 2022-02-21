@@ -32,10 +32,10 @@ public class PoiUtils {
          */
         public Workbook getBook(File file) {
             Workbook book;
-            in = null;
+            this.in = null;
             try {
-                in = new FileInputStream(file);
-                book = WorkbookFactory.create(in);
+                this.in = new FileInputStream(file);
+                book = WorkbookFactory.create(this.in);
 
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -48,7 +48,7 @@ public class PoiUtils {
          */
         public void close() {
             try {
-                in.close();
+                this.in.close();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -59,6 +59,7 @@ public class PoiUtils {
     /**
      * 動作確認をします。
      */
+    @SuppressWarnings("resource") // TODO
     public static void main(String[] args) {
 
         File file = new File(EnvUtils.getUserDesktop(), "xxx.xls");
@@ -110,18 +111,27 @@ public class PoiUtils {
                 cellValue = "";
             } else if (cell.getCellType().equals(CellType.FORMULA)) {
                 if (deep) {
-                    /* 計算結果のキャッシュを取得 */
-                    Workbook book = cell.getSheet().getWorkbook();
-                    CreationHelper helper = book.getCreationHelper();
-                    FormulaEvaluator evaluator = helper.createFormulaEvaluator();
-                    CellValue value = evaluator.evaluate(cell);
-                    if (value.getCellType().equals(CellType.NUMERIC)) {
-                        //cellValue = String.valueOf(value.getNumberValue());
-                        cellValue = trimZero(value.getNumberValue());
-                    } else if (value.getCellType().equals(CellType.STRING)) {
-                        cellValue = value.getStringValue();
-                    } else {
-                        throw new RuntimeException("未知の形式：" + value.getCellType());
+                    Workbook book = null;
+                    try {
+                        /* 計算結果のキャッシュを取得 */
+                        book = cell.getSheet().getWorkbook();
+                        CreationHelper helper = book.getCreationHelper();
+                        FormulaEvaluator evaluator = helper.createFormulaEvaluator();
+                        CellValue value = evaluator.evaluate(cell);
+                        if (value.getCellType().equals(CellType.NUMERIC)) {
+                            //cellValue = String.valueOf(value.getNumberValue());
+                            cellValue = trimZero(value.getNumberValue());
+                        } else if (value.getCellType().equals(CellType.STRING)) {
+                            cellValue = value.getStringValue();
+                        } else {
+                            throw new RuntimeException("未知の形式：" + value.getCellType());
+                        }
+                    } finally {
+                        try {
+                            book.close();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 } else {
                     cellValue = cell.getCellFormula();

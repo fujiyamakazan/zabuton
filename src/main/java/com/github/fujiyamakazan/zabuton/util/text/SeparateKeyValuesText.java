@@ -36,7 +36,7 @@ public class SeparateKeyValuesText extends KeyValuesText {
     public List<KeyValue> read() {
         List<KeyValue> results = Generics.newArrayList();
 
-        List<String> lines = utf8File.readLines();
+        List<String> lines = this.utf8File.readLines();
         for (String line : lines) {
             if (line.contains(SEPARATOR)) {
                 final String key = SubstringUtils.left(line, SEPARATOR);
@@ -58,6 +58,6 @@ public class SeparateKeyValuesText extends KeyValuesText {
         for (KeyValue keyValue : super.keyValueString) {
             lines.add(keyValue.getKey() + SEPARATOR + nulToBlank(keyValue.getValue()));
         }
-        utf8File.writeLines(lines);
+        this.utf8File.writeLines(lines);
     }
 }

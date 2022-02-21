@@ -75,22 +75,22 @@ public class WhereCommand implements Serializable {
     }
 
     public Long getSize() {
-        return size;
+        return this.size;
     }
 
     public Date getDate() {
-        return date;
+        return this.date;
     }
 
     public String getPath() {
-        return path;
+        return this.path;
     }
 
     @Override
     public String toString() {
-        return "WhereCommand [size=" + size
-            + ", date=" + new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date)
-            + ", path=" + path + "]";
+        return "WhereCommand [size=" + this.size
+            + ", date=" + new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(this.date)
+            + ", path=" + this.path + "]";
     }
 
     /**

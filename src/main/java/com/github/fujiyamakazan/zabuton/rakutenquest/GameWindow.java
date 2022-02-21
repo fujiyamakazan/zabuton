@@ -36,7 +36,7 @@ public class GameWindow<T extends Serializable> implements Serializable {
     }
 
     public void addChoice(String label, T obj) {
-        choices.add(new JChoiceElement<T>(label, obj));
+        this.choices.add(new JChoiceElement<T>(label, obj));
     }
 
     /**
@@ -52,21 +52,21 @@ public class GameWindow<T extends Serializable> implements Serializable {
 
             @Override
             protected JFrame createFrame() {
-                msgWindowFrame = super.createFrame();
-                return msgWindowFrame;
+                this.msgWindowFrame = super.createFrame();
+                return this.msgWindowFrame;
             }
 
             @Override
             protected void onInitialize() {
                 super.onInitialize();
-                for (String msg : messages) {
+                for (String msg : GameWindow.this.messages) {
                     addLine(new JPageDelayLabel(msg) {
                         private static final long serialVersionUID = 1L;
 
                         @Override
                         protected void sound() {
                             super.sound();
-                            sound.soundClick();
+                            GameWindow.this.sound.soundClick();
                         }
                     });
                 }
@@ -101,17 +101,18 @@ public class GameWindow<T extends Serializable> implements Serializable {
 
                             @Override
                             protected void settings() {
-                                backgroundColor = Color.BLACK;
-                                foregroundColer = Color.WHITE;
-                                borderWidth = 0;
-                                baseFont = RPage.FONT;
+                                this.backgroundColor = Color.BLACK;
+                                this.foregroundColer = Color.WHITE;
+                                this.borderWidth = 0;
+                                this.baseFont = RPage.FONT;
                             }
 
+                            @SuppressWarnings("unqualified-field-access")
                             @Override
                             protected void onAfterShow() {
                                 super.onAfterShow();
                                 /* メッセージウィンドウ下部に表示します。 */
-                                frame.setLocation(
+                                this.frame.setLocation(
                                         msgWindowFrame.getLocation().x,
                                         msgWindowFrame.getLocation().y
                                                 + msgWindowFrame.getSize().height
@@ -129,13 +130,13 @@ public class GameWindow<T extends Serializable> implements Serializable {
                     }
 
                 };
-                choice.addAllChoice(choices);
+                choice.addAllChoice(GameWindow.this.choices);
 
                 /* 表示 */
                 choice.showDialog();
 
                 /* 選択されたものを取得 */
-                selected = choice.getSelectedOne();
+                GameWindow.this.selected = choice.getSelectedOne();
 
             }
         };

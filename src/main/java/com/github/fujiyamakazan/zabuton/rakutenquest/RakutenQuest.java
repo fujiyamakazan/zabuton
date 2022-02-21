@@ -179,7 +179,7 @@ public class RakutenQuest implements Serializable {
                     @Override
                     protected void sound() {
                         super.sound();
-                        sound.soundClick();
+                        RakutenQuest.this.sound.soundClick();
                     }
                 });
                 addLine(new JPageButton("<<", actionPre), new JPageButton("一括登録", actionIkkatsu));
@@ -211,7 +211,7 @@ public class RakutenQuest implements Serializable {
 
                 // TODO 入力チェックが欲しい
                 book.save();
-                sound.soundKettei();
+                RakutenQuest.this.sound.soundKettei();
             }
         });
     }
@@ -222,7 +222,7 @@ public class RakutenQuest implements Serializable {
      */
     public Model<JournalBook> ucSelectBook(final SaveData saveData) {
         List<JournalBook> books = saveData.getBooks();
-        GameWindow<JournalBook> gw = new GameWindow<JournalBook>(sound);
+        GameWindow<JournalBook> gw = new GameWindow<JournalBook>(this.sound);
         gw.setMessage("期間を選択してください。");
         for (JournalBook book : books) {
             gw.addChoice(book.getName(), book);
@@ -278,8 +278,8 @@ public class RakutenQuest implements Serializable {
         }.toast(1);
 
         final Model<SaveData> selectedData = new Model<SaveData>();
-        List<SaveData> datas = dataMng.getDatas();
-        GameWindow<SaveData> gw = new GameWindow<SaveData>(sound);
+        List<SaveData> datas = this.dataMng.getDatas();
+        GameWindow<SaveData> gw = new GameWindow<SaveData>(this.sound);
         gw.setMessage("せんたくしてください。");
         for (SaveData sd : datas) {
             gw.addChoice(sd.getName(), sd);
@@ -305,7 +305,7 @@ public class RakutenQuest implements Serializable {
                         @Override
                         public void run() {
                             super.run();
-                            selectedData.setObject(dataMng.createSaveData(modelName.getObject()));
+                            selectedData.setObject(RakutenQuest.this.dataMng.createSaveData(modelName.getObject()));
                         }
                     }));
                 }

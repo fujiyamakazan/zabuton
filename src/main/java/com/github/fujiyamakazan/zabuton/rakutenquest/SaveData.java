@@ -82,12 +82,12 @@ public class SaveData implements Serializable {
     }
 
     public String getSetting(String key) {
-        KeyValuesText text = new SeparateKeyValuesText(new Utf8Text(new File(dir, "settings.txt")));
+        KeyValuesText text = new SeparateKeyValuesText(new Utf8Text(new File(this.dir, "settings.txt")));
         return text.get(key);
     }
 
     public File getDir() {
-        return dir;
+        return this.dir;
     }
 
     public void select(JournalBook book) {
@@ -102,7 +102,7 @@ public class SaveData implements Serializable {
     private List<String> getFirstCoumns(String fileName) {
         CSVParser parser = new CSVParserBuilder().withSeparator('\t').build();
         List<String> list = Generics.newArrayList();
-        for (String str : new Utf8Text(new File(dir, fileName)).readLines()) {
+        for (String str : new Utf8Text(new File(this.dir, fileName)).readLines()) {
             try {
                 list.add(parser.parseLine(str)[0]);
             } catch (IOException e) {
@@ -118,7 +118,7 @@ public class SaveData implements Serializable {
     public List<JournalBook> getBooks() {
 
         final List<JournalBook> list = Generics.newArrayList();
-        for (File f : dir.listFiles()) {
+        for (File f : this.dir.listFiles()) {
             if (f.getName().startsWith("journals") && f.getName().endsWith(".txt")) {
                 list.add(new JournalBook(f));
             }

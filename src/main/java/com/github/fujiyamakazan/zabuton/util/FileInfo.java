@@ -47,7 +47,7 @@ public class FileInfo {
     }
 
     public FileInfo getParent() {
-        return parent;
+        return this.parent;
     }
 
     /**
@@ -77,7 +77,7 @@ public class FileInfo {
             return result;
 
         } else {
-            for (FileInfo child : children) {
+            for (FileInfo child : this.children) {
                 result.addAll(child.getLayer(offset - 1));
             }
             return result;
@@ -179,7 +179,7 @@ public class FileInfo {
 
     @Override
     public String toString() {
-        String string = name + "[" + children.size() + "]";
+        String string = this.name + "[" + this.children.size() + "]";
         for (FileInfo child : this.children) {
             String childString = child.toString();
             string += "\n└" + childString.toString().replaceAll("\n", "\n　");

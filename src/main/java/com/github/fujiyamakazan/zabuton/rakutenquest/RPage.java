@@ -16,10 +16,10 @@ public class RPage extends JPage {
 
     @Override
     protected final void settings() {
-        backgroundColor = Color.BLACK;
-        foregroundColer = Color.WHITE;
-        borderWidth = 0;
-        baseFont = FONT;
+        this.backgroundColor = Color.BLACK;
+        this.foregroundColer = Color.WHITE;
+        this.borderWidth = 0;
+        this.baseFont = FONT;
     }
 
     /**

@@ -40,9 +40,9 @@ public class JPageButton extends JPageComponent<Boolean> {
 
     private JPageButton(final Model<Boolean> model, final String label, final JPageAction action) {
         super(model);
-        button = new JButton();
-        button.setText(label);
-        button.addActionListener(new ActionListener() {
+        this.button = new JButton();
+        this.button.setText(label);
+        this.button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
@@ -65,9 +65,9 @@ public class JPageButton extends JPageComponent<Boolean> {
 
         });
 
-        addDecoration(button);
+        addDecoration(this.button);
 
-        addJFrameComponent(button);
+        addJFrameComponent(this.button);
     }
 
     protected void addDecoration(JButton button) {
@@ -80,7 +80,7 @@ public class JPageButton extends JPageComponent<Boolean> {
     }
 
     public void doClick() {
-        button.doClick();
+        this.button.doClick();
     }
 
     @Override

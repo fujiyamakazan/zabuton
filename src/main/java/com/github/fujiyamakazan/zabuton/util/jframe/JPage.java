@@ -61,44 +61,45 @@ public class JPage implements Serializable {
      * 子クラスで拡張する場合は、必ずこの親クラスのメソッドも呼び出さなければいけません。
      */
     protected void onInitialize() {
-        initializedSuper = true;
+        this.initializedSuper = true;
 
         settings();
 
-        frame = createFrame();
-        frame.setLocation(20, 20);
-        frame.setSize(650, 300); // 高さは仮の値
-        frame.setResizable(false); // 最大化ボタン不要
-        frame.setAlwaysOnTop(true); // 最前面
-        frame.setLocationRelativeTo(null); // 画面中央へ
-        frame.setResizable(true); // リサイズ許可
+        this.frame = createFrame();
+        this.frame.setLocation(20, 20);
+        this.frame.setSize(650, 300); // 高さは仮の値
+        this.frame.setResizable(false); // 最大化ボタン不要
+        this.frame.setAlwaysOnTop(true); // 最前面
+        this.frame.setLocationRelativeTo(null); // 画面中央へ
+        this.frame.setResizable(true); // リサイズ許可
 
         //frame.setForeground(Color.RED);
 
-        scrollpane = new JScrollPane();
-        frame.add(scrollpane);
+        this.scrollpane = new JScrollPane();
+        this.frame.add(this.scrollpane);
         //scrollpane.setBackground(Color.GREEN);
 
-        panelMain = new JPanel();
-        scrollpane.setViewportView(panelMain);
+        this.panelMain = new JPanel();
+        this.scrollpane.setViewportView(this.panelMain);
         /* 余白 */
-        panelMain.setBorder(BorderFactory.createEmptyBorder(borderWidth, borderWidth, borderWidth, borderWidth));
+        this.panelMain.setBorder(BorderFactory.createEmptyBorder(this.borderWidth,
+            this.borderWidth, this.borderWidth, this.borderWidth));
         //panelMain.setBorder(BorderFactory.createLineBorder(Color.red));
-        panelMain.setLayout(new BoxLayout(panelMain, BoxLayout.Y_AXIS));// 縦方向に子パネルを追加する。
+        this.panelMain.setLayout(new BoxLayout(this.panelMain, BoxLayout.Y_AXIS));// 縦方向に子パネルを追加する。
 
-        for (JPageComponent<?> pc : components) {
+        for (JPageComponent<?> pc : this.components) {
             pc.onInitialize();
         }
 
         /* 閉じるボタンの処理を設定 */
-        if (app != null) {
-            frame.addWindowListener(app.getWindowListener());
+        if (this.app != null) {
+            this.frame.addWindowListener(this.app.getWindowListener());
         } else {
             /* デフォルトでは閉じるときに自身を破棄する。 */
-            frame.addWindowListener(new WindowAdapter() {
+            this.frame.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosing(WindowEvent e) {
-                    frame.dispose();
+                    JPage.this.frame.dispose();
                 }
             });
         }
@@ -138,16 +139,16 @@ public class JPage implements Serializable {
      */
     protected final void addLine(List<? extends JPageComponent<?>> componets) {
 
-        lineSize++;
+        this.lineSize++;
 
         JPanel linePanel = new JPanel();
-        panelMain.add(linePanel);
+        this.panelMain.add(linePanel);
         linePanel.setLayout(new BoxLayout(linePanel, BoxLayout.X_AXIS)); // 横方向にコンポーネントを追加する
 
         for (JPageComponent<?> componet : componets) {
 
             /* ページとコンポーネントを紐づけます。 */
-            components.add(componet);
+            this.components.add(componet);
             componet.setPage(this);
 
             /* コンポーネント一つ一つを個別のパネルに配置して、横一列のパネルに乗せます。*/
@@ -156,10 +157,10 @@ public class JPage implements Serializable {
             p.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1)); // 余白
             //p.setBorder(BorderFactory.createLineBorder(Color.red)); // デバッグ用に赤い線を表示
 
-            if (backgroundColor == null) {
+            if (this.backgroundColor == null) {
                 p.setBackground(Color.WHITE);
             } else {
-                p.setBackground(backgroundColor);
+                p.setBackground(this.backgroundColor);
             }
 
             /*
@@ -187,18 +188,18 @@ public class JPage implements Serializable {
             /* 配色など */
             for (JComponent jc : comps) {
 
-                if (backgroundColor != null) {
-                    jc.setBackground(backgroundColor);
-                    if (backgroundColor.equals(Color.BLACK)) {
+                if (this.backgroundColor != null) {
+                    jc.setBackground(this.backgroundColor);
+                    if (this.backgroundColor.equals(Color.BLACK)) {
                         if (jc instanceof JTextField) {
-                            ((JTextField)jc).setCaretColor(Color.WHITE);
+                            ((JTextField) jc).setCaretColor(Color.WHITE);
                         }
                     }
                 }
-                jc.setForeground(foregroundColer);
+                jc.setForeground(this.foregroundColer);
 
-                if (baseFont != null) {
-                    jc.setFont(baseFont);
+                if (this.baseFont != null) {
+                    jc.setFont(this.baseFont);
                 }
             }
         }
@@ -210,27 +211,27 @@ public class JPage implements Serializable {
      */
     public final void show() {
 
-        if (initialized == false) {
+        if (this.initialized == false) {
 
             /* 初期化 */
             onInitialize();
 
-            if (initializedSuper == false) {
+            if (this.initializedSuper == false) {
                 throw new RuntimeException("onInitializeを実装する場合は、親クラスのメソッドも呼び出してください。");
             }
 
-            initialized = true;
+            this.initialized = true;
         }
 
         /* 画面表示直前処理 */
-        for (JPageComponent<?> pc : components) {
+        for (JPageComponent<?> pc : this.components) {
             pc.onBeforeShow();
         }
 
         /* 行数による高さ調整 */
         int width = this.frame.getSize().width;
         int height = 40; // 40 = フレームのヘッダーのおおよその高さ
-        height += (lineSize * 50); // 1行当たり50とする。
+        height += (this.lineSize * 50); // 1行当たり50とする。
         this.frame.setSize(width, height);
 
         /* 画面を表示する */
@@ -242,7 +243,7 @@ public class JPage implements Serializable {
 
     /** 表示後の拡張処理です。 */
     protected void onAfterShow() {
-        for (JPageComponent<?> pc : components) {
+        for (JPageComponent<?> pc : this.components) {
 
             /* メッセージの遅延表示 */
             if (pc instanceof JPageDelayLabel) {
@@ -258,7 +259,7 @@ public class JPage implements Serializable {
     public void submit(JPageButton button) {
 
         /* コンポーネントの入力値でモデルを更新します。 */
-        for (JPageComponent<?> pc : components) {
+        for (JPageComponent<?> pc : this.components) {
             if (pc instanceof JPageButton) {
                 if (pc.equals(button)) {
                     ((JPageButton) pc).getModel().setObject(true);
@@ -275,9 +276,9 @@ public class JPage implements Serializable {
      * モデルを登録します。
      */
     public void setTextFromModel() {
-        for (JPageComponent<?> pc : components) {
+        for (JPageComponent<?> pc : this.components) {
             if (pc instanceof JPageInputComponent) {
-                ((JPageInputComponent)pc).setTextFromModel();
+                ((JPageInputComponent) pc).setTextFromModel();
             }
         }
     }
@@ -306,10 +307,10 @@ public class JPage implements Serializable {
     }
 
     public JFrame getFrame() {
-        return frame;
+        return this.frame;
     }
 
     public JComponent getRootPane() {
-        return scrollpane;
+        return this.scrollpane;
     }
 }

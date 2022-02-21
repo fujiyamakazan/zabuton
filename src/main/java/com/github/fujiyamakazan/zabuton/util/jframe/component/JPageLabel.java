@@ -24,11 +24,11 @@ public class JPageLabel extends JPageComponent<String> {
     public JPageLabel(Model<String> model) {
         super(model);
 
-        label = new JLabel();
-        label.setVerticalAlignment(JLabel.TOP); // 上寄せ
+        this.label = new JLabel();
+        this.label.setVerticalAlignment(JLabel.TOP); // 上寄せ
 
 
-        addJFrameComponent(label);
+        addJFrameComponent(this.label);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class JPageLabel extends JPageComponent<String> {
         /*
          * 最新のモデルの情報でラベルの内容を更新します。
          */
-        label.setText(edit(model.getObject()));
+        this.label.setText(edit(this.model.getObject()));
     }
 
     private static String edit(String text) {

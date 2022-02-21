@@ -51,8 +51,8 @@ public class JChoice<T extends Serializable> implements Serializable {
      * @param model 選択されたことを検知するモデル
      */
     public void addChoice(String label, Model<Boolean> model) {
-        map.put(new JChoiceElement<T>(label, null), model);
-        choices.add(createChoice(label, model));
+        this.map.put(new JChoiceElement<T>(label, null), model);
+        this.choices.add(createChoice(label, model));
     }
 
     /**
@@ -61,8 +61,8 @@ public class JChoice<T extends Serializable> implements Serializable {
      */
     public void addChoice(JChoiceElement<T> choice) {
         Model<Boolean> model = Model.of(false);
-        map.put(choice, model);
-        choices.add(createChoice(choice.getLabel(), model));
+        this.map.put(choice, model);
+        this.choices.add(createChoice(choice.getLabel(), model));
     }
 
     /**
@@ -84,7 +84,7 @@ public class JChoice<T extends Serializable> implements Serializable {
      */
     public List<JChoiceElement<T>> getSelected() {
         List<JChoiceElement<T>> results = Generics.newArrayList();
-        for (Map.Entry<JChoiceElement<T>, Model<Boolean>> entry : map.entrySet()) {
+        for (Map.Entry<JChoiceElement<T>, Model<Boolean>> entry : this.map.entrySet()) {
             if (entry.getValue().getObject()) {
                 results.add(entry.getKey());
             }
@@ -97,7 +97,7 @@ public class JChoice<T extends Serializable> implements Serializable {
      * @return
      */
     public JChoiceElement<T> getSelectedOne() {
-        for (Map.Entry<JChoiceElement<T>, Model<Boolean>> entry : map.entrySet()) {
+        for (Map.Entry<JChoiceElement<T>, Model<Boolean>> entry : this.map.entrySet()) {
             if (entry.getValue().getObject()) {
                 return entry.getKey();
             }
@@ -110,17 +110,17 @@ public class JChoice<T extends Serializable> implements Serializable {
      * いずれかの選択肢、または閉じるボタンが押されると終了します。
      */
     public void showDialog() {
-        app = new JPageApplication() {
+        this.app = new JPageApplication() {
             private static final long serialVersionUID = 1L;
 
             @Override
             public WindowListener getWindowListener() {
-                cancel.setObject(true);
+                JChoice.this.cancel.setObject(true);
                 return super.getWindowListener();
             }
         };
-        JPage choicePage = createPage(message, choices);
-        app.invokePage(choicePage);
+        JPage choicePage = createPage(this.message, this.choices);
+        this.app.invokePage(choicePage);
     }
 
     protected JPage createPage(String message, List<JPageButton> choices) {
@@ -131,10 +131,10 @@ public class JChoice<T extends Serializable> implements Serializable {
      * ウィンドウを閉じます。
      */
     public void close() {
-        if (app == null) {
+        if (this.app == null) {
             throw new RuntimeException("まだshowDialogが呼出されていません。");
         }
-        app.close();
+        this.app.close();
     }
 
 }

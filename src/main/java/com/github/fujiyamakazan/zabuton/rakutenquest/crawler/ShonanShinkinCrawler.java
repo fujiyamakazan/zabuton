@@ -21,17 +21,17 @@ import com.opencsv.CSVParser;
 public final class ShonanShinkinCrawler extends JournalCrawler {
     private static final long serialVersionUID = 1L;
 
-    private final JournalCsv master = new JournalCsv(crawlerDir, "master.csv",
+    private final JournalCsv master = new JournalCsv(this.crawlerDir, "master.csv",
         new String[] { "年月日", "摘要", "お支払金額", "お預り金額", "差引残高" });
-    private final File summary = new File(crawlerDir, "summary.txt");
+    private final File summary = new File(this.crawlerDir, "summary.txt");
 
     /**
      * コンストラクタです。
      */
     public ShonanShinkinCrawler(File appDir) {
         super("ShonanShinkin", appDir);
-        setMaster(master);
-        setSummary(summary);
+        setMaster(this.master);
+        setSummary(this.summary);
     }
 
     @Override
@@ -41,24 +41,24 @@ public final class ShonanShinkinCrawler extends JournalCrawler {
          * ログイン
          */
         String url = "https://www.shinkin.co.jp/shonan/personal_bank/index.html";
-        cmd.get(url);
-        cmd.clickAndWait(By.partialLinkText("ログイン"));
+        this.cmd.get(url);
+        this.cmd.clickAndWait(By.partialLinkText("ログイン"));
 
-        PasswordManager pm = new PasswordManager(crawlerDir);
+        PasswordManager pm = new PasswordManager(this.crawlerDir);
         pm.executeByUrl(url);
 
-        cmd.type(By.name("userId"), pm.getId());
-        cmd.type(By.name("loginPwd"), pm.getPassword());
-        cmd.clickAndWait(By.name("LoginPage"));
+        this.cmd.type(By.name("userId"), pm.getId());
+        this.cmd.type(By.name("loginPwd"), pm.getPassword());
+        this.cmd.clickAndWait(By.name("LoginPage"));
         sleep(5_000);
 
-        cmd.clickAndWait(By.xpath("//input[@value='トップページへ']"));
+        this.cmd.clickAndWait(By.xpath("//input[@value='トップページへ']"));
         sleep(5_000);
 
-        cmd.clickAndWait(By.xpath("//input[@value='この口座の入出金明細を照会']"));
+        this.cmd.clickAndWait(By.xpath("//input[@value='この口座の入出金明細を照会']"));
         sleep(5_000);
 
-        final TextMerger textMerger = new TextMerger(master, "yyyy-MM-dd");
+        final TextMerger textMerger = new TextMerger(this.master, "yyyy-MM-dd");
 
         int roopCounter = 0;
         while (roopCounter < 1) { // 1回のみ
@@ -68,11 +68,11 @@ public final class ShonanShinkinCrawler extends JournalCrawler {
             deletePreFile();
 
             /* 明細をダウンロード */
-            cmd.clickAndWait(By.xpath("//label[contains(text(),'最新の明細から')]")); // 最新の明細から
-            cmd.choiceByText(By.xpath("//select[@class='formSelect']"), "100");
-            cmd.clickAndWait(By.xpath("//input[@value='明細を見る']"));
+            this.cmd.clickAndWait(By.xpath("//label[contains(text(),'最新の明細から')]")); // 最新の明細から
+            this.cmd.choiceByText(By.xpath("//select[@class='formSelect']"), "100");
+            this.cmd.clickAndWait(By.xpath("//input[@value='明細を見る']"));
             sleep(3_000);
-            cmd.clickAndWait(By.xpath("//input[@value='明細(CSV)をダウンロード']"));
+            this.cmd.clickAndWait(By.xpath("//input[@value='明細(CSV)をダウンロード']"));
             new DownloadWait().start(); // ファイルダウンロードを待つ
 
             /* CSVを整形 */
@@ -104,14 +104,14 @@ public final class ShonanShinkinCrawler extends JournalCrawler {
         textMerger.flash();
 
         /* Summary取得 */
-        new Utf8Text(summary).write(getSummary(getDownloadFileOne()));
+        new Utf8Text(this.summary).write(getSummary(getDownloadFileOne()));
 
         /* ログアウト */
-        cmd.clickAndWait(By.xpath("//a[text()='ログアウト']"));
+        this.cmd.clickAndWait(By.xpath("//a[text()='ログアウト']"));
 
     }
 
-    private String getSummary(File file) {
+    private static String getSummary(File file) {
 
         String finalLine = "";
         for (String line : new ShiftJisText(file).readLines()) {
@@ -165,7 +165,7 @@ public final class ShonanShinkinCrawler extends JournalCrawler {
     //    }
 
     public String getAssetShonanShinkin() {
-        String num = new Utf8Text(summary).read();
+        String num = new Utf8Text(this.summary).read();
         return "湘南信金：" + MoneyUtils.toInt(num) + "円";
     }
 

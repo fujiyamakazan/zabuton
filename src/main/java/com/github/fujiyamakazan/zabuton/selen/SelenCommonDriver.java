@@ -39,7 +39,7 @@ public abstract class SelenCommonDriver implements Serializable {
      * URLを指定して表示します。
      */
     public void get(String url) {
-        originalDriver.get(url);
+        this.originalDriver.get(url);
         /* ページの表示を待ちます */
         //new WebDriverWait(this.originalDriver, 1).until(ExpectedConditions.);
     }
@@ -172,7 +172,7 @@ public abstract class SelenCommonDriver implements Serializable {
 
         /* TODO 表示されるまで待つ */
 
-        return originalDriver.findElement(by);
+        return this.originalDriver.findElement(by);
     }
 
     /**
@@ -188,7 +188,7 @@ public abstract class SelenCommonDriver implements Serializable {
 
         /* TODO 表示されるまで待つ */
 
-        return originalDriver.findElements(by);
+        return this.originalDriver.findElements(by);
     }
 
     /**

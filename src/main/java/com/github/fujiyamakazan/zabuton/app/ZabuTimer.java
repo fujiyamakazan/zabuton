@@ -19,11 +19,11 @@ public class ZabuTimer {
     @PostConstruct
     protected void startSchedule() {
 
-        if (listener == null) {
+        if (this.listener == null) {
             return;
         }
 
-        long span = listener.getSpan();
+        long span = this.listener.getSpan();
         if (span < 0) {
             return;
         }
@@ -31,8 +31,8 @@ public class ZabuTimer {
         Runnable command = new Runnable() {
             @Override
             public void run() {
-                if (listener != null) {
-                    listener.tick();
+                if (ZabuTimer.this.listener != null) {
+                    ZabuTimer.this.listener.tick();
                 }
             }
         };

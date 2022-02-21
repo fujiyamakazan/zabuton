@@ -32,7 +32,7 @@ public class DuplicateChecker implements Serializable {
 
         @Override
         public String toString() {
-            return "Journal [memo=" + memo + "]";
+            return "Journal [memo=" + this.memo + "]";
         }
 
     }

@@ -17,7 +17,7 @@ public class KeyValueObj<K, V> implements Serializable {
     }
 
     public K getKey() {
-        return key;
+        return this.key;
     }
 
     public void setKey(K key) {
@@ -25,7 +25,7 @@ public class KeyValueObj<K, V> implements Serializable {
     }
 
     public V getValue() {
-        return value;
+        return this.value;
     }
 
     public void setValue(V value) {

@@ -23,7 +23,7 @@ public class JPageDelayLabel extends JPageLabel {
      */
     public void active() {
 
-        for (Character c : delayText.toCharArray()) {
+        for (Character c : this.delayText.toCharArray()) {
             String t = super.label.getText();
             t += c;
             super.label.setText(t);

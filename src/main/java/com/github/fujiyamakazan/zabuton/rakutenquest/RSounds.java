@@ -63,7 +63,7 @@ public class RSounds implements Serializable {
 
     @SuppressWarnings("unused")
     private void playMidi() {
-        if (enabel == false) {
+        if (this.enabel == false) {
             return;
         }
 
@@ -71,65 +71,68 @@ public class RSounds implements Serializable {
         Sequencer sequencer = null;
         //
         try {
-            // デバイスに接続されたデフォルトのSequencerを取得する。
-            sequencer = MidiSystem.getSequencer();
+            try {
+                // デバイスに接続されたデフォルトのSequencerを取得する。
+                sequencer = MidiSystem.getSequencer();
 
-            // デバイスを開き、リソースを獲得する。
-            sequencer.open();
-        } catch (MidiUnavailableException e) {
-            throw new RuntimeException(e);
+                // デバイスを開き、リソースを獲得する。
+                sequencer.open();
+            } catch (MidiUnavailableException e) {
+                throw new RuntimeException(e);
+            }
+
+            //        // コンソール入力からMIDIファイルのパスを取得する。
+            //        Scanner scanner = new Scanner(System.in);
+            //        System.out.print("MIDIファイルのパス >> ");
+            //        String path = scanner.next();
+
+            try {
+                // MIDIファイルからMIDIデータ(Sequenceオブジェクト)を取得。
+                File file = new File(this.appDir, "魔王魂  フィールド11.mid");
+                Sequence sequence = MidiSystem.getSequence(file);
+
+                // 取得したMIDIデータをシーケンサに設定する。
+                sequencer.setSequence(sequence);
+            } catch (InvalidMidiDataException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            // シーケンサー再生
+            sequencer.start();
+
+            try {
+                Thread.sleep(1000 * 5);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            //        // キー入力待ち
+            //        System.out.println("適当に文字列を入力すると終了します。");
+            //        System.out.print(">>");
+            //        scanner.next();
+            //        scanner.close();
+
+            // シーケンサー停止
+            sequencer.stop();
+        } finally {
+            // シーケンサーを閉じ、使用していたリソース解放する。
+            sequencer.close();
         }
 
-        //        // コンソール入力からMIDIファイルのパスを取得する。
-        //        Scanner scanner = new Scanner(System.in);
-        //        System.out.print("MIDIファイルのパス >> ");
-        //        String path = scanner.next();
-
-        try {
-            // MIDIファイルからMIDIデータ(Sequenceオブジェクト)を取得。
-            File file = new File(appDir, "魔王魂  フィールド11.mid");
-            Sequence sequence = MidiSystem.getSequence(file);
-
-            // 取得したMIDIデータをシーケンサに設定する。
-            sequencer.setSequence(sequence);
-        } catch (InvalidMidiDataException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        // シーケンサー再生
-        sequencer.start();
-
-        try {
-            Thread.sleep(1000 * 5);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-        //        // キー入力待ち
-        //        System.out.println("適当に文字列を入力すると終了します。");
-        //        System.out.print(">>");
-        //        scanner.next();
-        //        scanner.close();
-
-        // シーケンサー停止
-        sequencer.stop();
-
-        // シーケンサーを閉じ、使用していたリソース解放する。
-        sequencer.close();
     }
 
     /**
      * クリック音を鳴らします。
      */
     public void soundClick() {
-        if (enabel == false) {
+        if (this.enabel == false) {
             return;
         }
 
         //File file = new File(APP_DIR, "bgm\\GM115-110921-youseihouse-wav.wav");
-        File file = new File(appDir, "se\\決定、ボタン押下2.wav");
+        File file = new File(this.appDir, "se\\決定、ボタン押下2.wav");
 
         AudioClip ac;
         try {
@@ -158,12 +161,12 @@ public class RSounds implements Serializable {
      * 決定音を鳴らします。
      */
     public void soundKettei() {
-        if (enabel == false) {
+        if (this.enabel == false) {
             return;
         }
 
         //File file = new File(APP_DIR, "bgm\\GM115-110921-youseihouse-wav.wav");
-        File file = new File(appDir, "se\\kettei-01.wav");
+        File file = new File(this.appDir, "se\\kettei-01.wav");
 
         AudioClip ac;
         try {
@@ -192,7 +195,7 @@ public class RSounds implements Serializable {
      * ビープ音を鳴らします。
      */
     public void beep() {
-        if (enabel == false) {
+        if (this.enabel == false) {
             return;
         }
 

@@ -28,50 +28,50 @@ public class JPagePassword extends JPageComponent<String> {
     public JPagePassword(String label, Model<String> model) {
         super(model);
 
-        pw = new JPasswordField(model.getObject());
-        pw.setPreferredSize(new Dimension(300, 30));
-        pw.setVisible(!showText);
+        this.pw = new JPasswordField(model.getObject());
+        this.pw.setPreferredSize(new Dimension(300, 30));
+        this.pw.setVisible(!this.showText);
 
-        text = new JTextField(model.getObject());
-        text.setVisible(showText); // 初期非表示
-        text.setPreferredSize(new Dimension(300, 20));
+        this.text = new JTextField(model.getObject());
+        this.text.setVisible(this.showText); // 初期非表示
+        this.text.setPreferredSize(new Dimension(300, 20));
 
         JButton showPw = new JButton();
         showPw.setText("表示");
         showPw.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (showText) {
-                    String input = text.getText();
-                    text.setVisible(false);
-                    pw.setText(input);
-                    pw.setVisible(true);
+                if (JPagePassword.this.showText) {
+                    String input = JPagePassword.this.text.getText();
+                    JPagePassword.this.text.setVisible(false);
+                    JPagePassword.this.pw.setText(input);
+                    JPagePassword.this.pw.setVisible(true);
                 } else {
-                    String input = String.valueOf(pw.getPassword());
-                    final Point location = pw.getLocation();
-                    final Dimension size = pw.getSize();
-                    pw.setVisible(false);
-                    text.setText(input);
-                    text.setVisible(true);
-                    text.setLocation(location);
-                    text.setSize(size);
+                    String input = String.valueOf(JPagePassword.this.pw.getPassword());
+                    final Point location = JPagePassword.this.pw.getLocation();
+                    final Dimension size = JPagePassword.this.pw.getSize();
+                    JPagePassword.this.pw.setVisible(false);
+                    JPagePassword.this.text.setText(input);
+                    JPagePassword.this.text.setVisible(true);
+                    JPagePassword.this.text.setLocation(location);
+                    JPagePassword.this.text.setSize(size);
                 }
-                showText = !showText; // トグル
+                JPagePassword.this.showText = !JPagePassword.this.showText; // トグル
             }
         });
 
         addJFrameComponent(new JLabel(label));
-        addJFrameComponent(pw);
-        addJFrameComponent(text);
+        addJFrameComponent(this.pw);
+        addJFrameComponent(this.text);
         addJFrameComponent(showPw);
     }
 
     @Override
     public void updateModel() {
-        if (showText) {
-            model.setObject(text.getText());
+        if (this.showText) {
+            this.model.setObject(this.text.getText());
         } else {
-            model.setObject(String.valueOf(pw.getPassword()));
+            this.model.setObject(String.valueOf(this.pw.getPassword()));
         }
     }
 }

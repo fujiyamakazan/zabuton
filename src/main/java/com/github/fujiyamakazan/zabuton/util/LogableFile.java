@@ -14,7 +14,7 @@ public class LogableFile extends File {
     private static final long serialVersionUID = 1L;
 
     private SimpleDateFormat dfYyyyMMdd = new SimpleDateFormat(Chronus.POPULAR_JP);
-    private SimpleDateFormat dfYyyyMMddHHmmss = new SimpleDateFormat(dfYyyyMMdd.toPattern() + " HH:mm:ss");
+    private SimpleDateFormat dfYyyyMMddHHmmss = new SimpleDateFormat(this.dfYyyyMMdd.toPattern() + " HH:mm:ss");
 
     public LogableFile(String pathname) {
         super(pathname);
@@ -34,6 +34,6 @@ public class LogableFile extends File {
     }
 
     private String getNow() {
-        return dfYyyyMMddHHmmss.format(new Date());
+        return this.dfYyyyMMddHHmmss.format(new Date());
     }
 }

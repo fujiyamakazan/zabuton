@@ -18,13 +18,13 @@ public class JPageCheckBox extends JPageComponent<Boolean> {
      */
     public JPageCheckBox(String label, Model<Boolean> model) {
         super(model);
-        jc = new JCheckBox(label, model.getObject());
-        jc.setBackground(Color.WHITE);
-        addJFrameComponent(jc);
+        this.jc = new JCheckBox(label, model.getObject());
+        this.jc.setBackground(Color.WHITE);
+        addJFrameComponent(this.jc);
     }
 
     @Override
     public void updateModel() {
-        getModel().setObject(jc.isSelected());
+        getModel().setObject(this.jc.isSelected());
     }
 }

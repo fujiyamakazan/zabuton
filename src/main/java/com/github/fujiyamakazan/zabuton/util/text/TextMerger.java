@@ -80,7 +80,7 @@ public class TextMerger implements Serializable {
     private final String datePattern;
 
     public boolean hasNext() {
-        return hasNext;
+        return this.hasNext;
     }
 
     /**
@@ -103,14 +103,14 @@ public class TextMerger implements Serializable {
                 continue;
             }
 
-            if (masterLines.contains(line)) {
+            if (this.masterLines.contains(line)) {
                 throw new RuntimeException("重複するレコードを持つ不正なマスターです。" + line);
             }
 
             /* 行番号取得 */
             try {
                 int rowIndex = JournalCsv.getRowIndex(line);
-                maxRowIndex = Math.max(maxRowIndex, rowIndex);
+                this.maxRowIndex = Math.max(this.maxRowIndex, rowIndex);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -122,7 +122,7 @@ public class TextMerger implements Serializable {
                 continue;
             }
 
-            masterLines.add(line);
+            this.masterLines.add(line);
 
         }
     }
@@ -132,7 +132,7 @@ public class TextMerger implements Serializable {
      * 遡及回数の不足と考えられる。処理を中断し、警告をする。
      */
     public boolean isFinish() {
-        return masterLines.isEmpty() || existMaster;
+        return this.masterLines.isEmpty() || this.existMaster;
     }
 
     /**
@@ -150,9 +150,9 @@ public class TextMerger implements Serializable {
             if (isSkipLine(additionalLine)) {
                 continue;
             }
-            if (masterLines.contains(additionalLine)) {
+            if (this.masterLines.contains(additionalLine)) {
                 /*  マスターに同一のレコードがあれば、そのレコードは追記しない。 */
-                existMaster = true; // 重複する行があったことを記録
+                this.existMaster = true; // 重複する行があったことを記録
 
             } else {
                 String line = additionalLine;
@@ -161,14 +161,14 @@ public class TextMerger implements Serializable {
         }
         if (joins.isEmpty()) {
             /* テキスト内の全てのレコードがマスターに存在すれば、それ以上遡及しない。*/
-            hasNext = false;
+            this.hasNext = false;
 
         } else {
             /* 最新のファイルから処理しているので、後から処理したものを前方に追加する。*/
-            buffer.addAll(0, joins);
+            this.buffer.addAll(0, joins);
         }
 
-        return hasNext;
+        return this.hasNext;
 
     }
 
@@ -184,32 +184,32 @@ public class TextMerger implements Serializable {
             throw new RuntimeException("遡及処理の上限回数が不足しています。");
         }
 
-        Utf8Text master = new Utf8Text(masterText.getFile());
-        if (masterText.getFile().exists()) {
+        Utf8Text master = new Utf8Text(this.masterText.getFile());
+        if (this.masterText.getFile().exists()) {
             if (master.read().endsWith("\n") == false) {
-                buffer.add(0, "\n");
+                this.buffer.add(0, "\n");
             }
         }
 
         /* 行番号付与 */
         List<String> tmp = Generics.newArrayList();
-        for (String line : buffer) {
-            maxRowIndex = maxRowIndex + 1;
-            line = "\"" + maxRowIndex + "\"," + line;
+        for (String line : this.buffer) {
+            this.maxRowIndex = this.maxRowIndex + 1;
+            line = "\"" + this.maxRowIndex + "\"," + line;
             tmp.add(line);
         }
-        buffer.clear();
-        buffer.addAll(tmp);
+        this.buffer.clear();
+        this.buffer.addAll(tmp);
 
         /* マスターテキストに、追加テキストのレコードを追記する。ただし、マスターが無ければ新規作成する。 */
-        if (masterText.getFile().exists()) {
-            master.writeLines(buffer, true);
+        if (this.masterText.getFile().exists()) {
+            master.writeLines(this.buffer, true);
         } else {
-            buffer.add(0, JournalCsv.getHeader()); // 見出し行
-            master.writeLines(buffer);
+            this.buffer.add(0, JournalCsv.getHeader()); // 見出し行
+            master.writeLines(this.buffer);
         }
 
-        buffer.clear(); // 使用済みの為削除
+        this.buffer.clear(); // 使用済みの為削除
     }
 
     protected boolean isSkipLine(String line) {

@@ -39,7 +39,7 @@ public class RunnableJarBuilder {
 
         XmlText projectXml = new XmlText(new File(".project"));
         this.projectName = projectXml.getTextOne("/projectDescription/name");
-        log.debug("projectName:" + projectName);
+        log.debug("projectName:" + this.projectName);
 
         File dirTarget = new File("target");
         //File jar = new File(dirTarget, projectName + ".jar");
@@ -51,10 +51,10 @@ public class RunnableJarBuilder {
         File dirDependencyInfo = new File(dirTarget, "dependency-info");
 
         List<File> dependencies = Arrays.asList(dirDependency.listFiles());
-        String licenseListTitle = projectName + "が使用するライブラリ";
+        String licenseListTitle = this.projectName + "が使用するライブラリ";
         DependencyInspector.scanJar(
             dependencies, dirDependencyInfo,
-            licenseListTitle, JDEPS_TXT, javaHome);// TODO メソッドの場所が不自然
+            licenseListTitle, JDEPS_TXT, this.javaHome);// TODO メソッドの場所が不自然
 
         /*
          * JREを生成する
@@ -79,12 +79,12 @@ public class RunnableJarBuilder {
         log.debug("mods:" + mods);
 
         /* JREを作成する */
-        JreMaker.createJre(javaHome, dirJimage, mods);
+        JreMaker.createJre(this.javaHome, dirJimage, mods);
 
         /*
          * Jarを起動するためのスクリプトを作成する
          */
-        RunnableJarBuilder.createInvokeJarScripts(dirTarget, projectName, nameJimage);
+        RunnableJarBuilder.createInvokeJarScripts(dirTarget, this.projectName, nameJimage);
 
     }
 

@@ -66,7 +66,7 @@ public class WebContainerInvokeFrame extends JFrame {
                 try {
 
                     /* ブラウザを開いてアプリケーションを表示する */
-                    Desktop.getDesktop().browse(new URI(starter.getUrl()));
+                    Desktop.getDesktop().browse(new URI(WebContainerInvokeFrame.this.starter.getUrl()));
 
                 } catch (Exception t) {
                     throw new RuntimeException(t);
@@ -83,11 +83,11 @@ public class WebContainerInvokeFrame extends JFrame {
         Runnable statusWorker = new Runnable() {
             @Override
             public void run() {
-                if (starter.isRunning()) {
-                    startButton.setEnabled(true);
-                    startButton.setText("[" + getTitle() + "]へ");
+                if (WebContainerInvokeFrame.this.starter.isRunning()) {
+                    WebContainerInvokeFrame.this.startButton.setEnabled(true);
+                    WebContainerInvokeFrame.this.startButton.setText("[" + getTitle() + "]へ");
                 } else {
-                    startButton.setEnabled(false);
+                    WebContainerInvokeFrame.this.startButton.setEnabled(false);
                 }
             }
         };
@@ -134,12 +134,12 @@ public class WebContainerInvokeFrame extends JFrame {
         this.add(panel);
         panel.setLayout(new BorderLayout());
         this.startButton = new JButton();
-        panel.add(startButton, BorderLayout.CENTER); // パネルに配置
-        startButton.setSize(150, 80);
-        startButton.setFont(new Font(FONT, Font.PLAIN, 20));
-        startButton.setText("[" + getTitle() + "]は準備中です...");
-        startButton.setEnabled(false);
-        startButton.addActionListener(new ActionListener() {
+        panel.add(this.startButton, BorderLayout.CENTER); // パネルに配置
+        this.startButton.setSize(150, 80);
+        this.startButton.setFont(new Font(FONT, Font.PLAIN, 20));
+        this.startButton.setText("[" + getTitle() + "]は準備中です...");
+        this.startButton.setEnabled(false);
+        this.startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 /* ブラウザを起動しWebアプリケーションを表示する */

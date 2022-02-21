@@ -24,25 +24,25 @@ public class JPageTextField extends JPageComponent<String> implements JPageInput
     public JPageTextField(String label, Model<String> model, Integer length) {
         super(model);
         if (length != null) {
-            textField = new JTextField(model.getObject(), length);
+            this.textField = new JTextField(model.getObject(), length);
         } else  {
-            textField = new JTextField(model.getObject());
+            this.textField = new JTextField(model.getObject());
         }
 
-        textField.setPreferredSize(new Dimension(300, 30));
+        this.textField.setPreferredSize(new Dimension(300, 30));
 
         addJFrameComponent(new JLabel(label));
-        addJFrameComponent(textField);
+        addJFrameComponent(this.textField);
 
     }
 
     @Override
     public void updateModel() {
-        model.setObject(textField.getText());
+        this.model.setObject(this.textField.getText());
     }
 
     @Override
     public void setTextFromModel() {
-        textField.setText(getModel().getObject());
+        this.textField.setText(getModel().getObject());
     }
 }

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.wicket.util.lang.Generics;
+import org.openqa.selenium.SessionNotCreatedException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -43,7 +44,7 @@ public abstract class JournalCrawler implements Serializable {
         this.appDir = appDir;
         this.crawlerDir = new File(appDir, name);
         this.crawlerDir.mkdirs();
-        this.crawlerDailyDir = new File(crawlerDir, "daily");
+        this.crawlerDailyDir = new File(this.crawlerDir, "daily");
         this.crawlerDailyDir.mkdirs();
     }
 
@@ -55,7 +56,7 @@ public abstract class JournalCrawler implements Serializable {
             try {
 
                 /* 前回の処理結果を削除 */
-                for (File f : crawlerDailyDir.listFiles()) {
+                for (File f : this.crawlerDailyDir.listFiles()) {
                     f.delete();
                 }
 
@@ -66,7 +67,7 @@ public abstract class JournalCrawler implements Serializable {
                     @Override
                     protected WebDriver createDriver() {
 
-                        File driverFile = new File(appDir, STANDRD_DRIVER_NAME);
+                        File driverFile = new File(JournalCrawler.this.appDir, STANDRD_DRIVER_NAME);
                         if (driverFile.exists() == false) {
                             throw new RuntimeException("WebDriverが次の場所にありません。"
                                 + driverFile.getAbsolutePath()
@@ -79,11 +80,26 @@ public abstract class JournalCrawler implements Serializable {
                         HashMap<String, Object> chromePrefs = new HashMap<String, Object>();
                         chromePrefs.put("profile.default_content_settings.popups", 0);
                         chromePrefs.put("download.default_directory",
-                            crawlerDailyDir.getAbsolutePath());
+                            JournalCrawler.this.crawlerDailyDir.getAbsolutePath());
 
                         ChromeOptions options = new ChromeOptions();
                         options.setExperimentalOption("prefs", chromePrefs);
-                        WebDriver driver = new ChromeDriver(options);
+                        WebDriver driver;
+                        try {
+                            driver = new ChromeDriver(options);
+                        } catch (Exception e) {
+                            log.debug(e.getClass().getName() + "が発生。");
+                            log.debug(e.getMessage());
+                            if (e instanceof SessionNotCreatedException
+                                && e.getMessage().contains("This version of ChromeDriver only supports Chrome version")) {
+                                throw new RuntimeException(
+                                "WebDriverを更新してください。"
+                                    + driverFile.getAbsolutePath()
+                                    + " [https://chromedriver.chromium.org/]からダウロードしてください。", e);
+                            } else {
+                                throw new RuntimeException(e);
+                            }
+                        }
                         driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT,
                             TimeUnit.SECONDS); // 暗黙的な待機時間を設定
 
@@ -119,19 +135,19 @@ public abstract class JournalCrawler implements Serializable {
     private File summary;
 
     protected void setMaster(JournalCsv master) {
-        masters.put("MAIN", master);
+        this.masters.put("MAIN", master);
     }
 
     protected void setMaster(String key, JournalCsv master) {
-        masters.put(key, master);
+        this.masters.put(key, master);
     }
 
     public JournalCsv getMaster() {
-        return masters.get("MAIN");
+        return this.masters.get("MAIN");
     }
 
     public JournalCsv getMaster(String key) {
-        return masters.get(key);
+        return this.masters.get(key);
     }
 
     protected void setSummary(File summary) {
@@ -139,7 +155,7 @@ public abstract class JournalCrawler implements Serializable {
     }
 
     public File getSummary() {
-        return summary;
+        return this.summary;
     }
 
     protected abstract void downloadCore();
@@ -182,7 +198,7 @@ public abstract class JournalCrawler implements Serializable {
     }
 
     protected void sleep(int i) {
-        cmd.sleep(i);
+        this.cmd.sleep(i);
         //        try {
         //            Thread.sleep(i);
         //        } catch (InterruptedException e) {
@@ -231,24 +247,24 @@ public abstract class JournalCrawler implements Serializable {
     public final String getText() {
         StringBuilderLn sb = new StringBuilderLn();
 
-        for (Map.Entry<String, JournalCsv> master : masters.entrySet()) {
+        for (Map.Entry<String, JournalCsv> master : this.masters.entrySet()) {
             sb.appendLn("-----");
-            sb.appendLn("[" + name + "] (" + master.getKey() + ")");
+            sb.appendLn("[" + this.name + "] (" + master.getKey() + ")");
             sb.appendLn("-----");
             sb.appendLn(new Utf8Text(master.getValue().getFile()).read());
         }
-        if (summary != null) {
+        if (this.summary != null) {
             sb.appendLn("-----");
-            sb.appendLn("[" + name + "] (SUMMARY)");
+            sb.appendLn("[" + this.name + "] (SUMMARY)");
             sb.appendLn("-----");
-            sb.appendLn(new Utf8Text(summary).read());
+            sb.appendLn(new Utf8Text(this.summary).read());
         }
 
         return sb.toString();
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     protected boolean in(String value, String datePattern) {

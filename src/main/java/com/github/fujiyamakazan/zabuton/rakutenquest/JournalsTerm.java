@@ -45,11 +45,11 @@ public class JournalsTerm implements Serializable {
     }
 
     public Boolean in(String value, String pattern) {
-        return inCore(value, pattern, start, next);
+        return inCore(value, pattern, this.start, this.next);
     }
 
     public TermAction createTermAction(String pattern) {
-        TermAction action = new TermAction(pattern, start, next);
+        TermAction action = new TermAction(pattern, this.start, this.next);
         return action;
     }
 
@@ -71,7 +71,7 @@ public class JournalsTerm implements Serializable {
         }
 
         public boolean in(String value) {
-            return inCore(value, pattern, start, next);
+            return inCore(value, this.pattern, this.start, this.next);
         }
 
     }
@@ -83,17 +83,17 @@ public class JournalsTerm implements Serializable {
      */
     public String getName() {
         Calendar c = Calendar.getInstance();
-        c.setTime(start);
+        c.setTime(this.start);
         if (c.get(Calendar.MONTH) == 0 && c.get(Calendar.DAY_OF_MONTH) == 1) {
             return String.valueOf(c.get(Calendar.YEAR));
         }
-        String name = Chronus.formant(start, "yyyyMMdd");
+        String name = Chronus.formant(this.start, "yyyyMMdd");
         return name;
     }
 
     @Override
     public String toString() {
-        return "JournalsTerm [" + start + "=>" + next + "]";
+        return "JournalsTerm [" + this.start + "=>" + this.next + "]";
     }
 
 

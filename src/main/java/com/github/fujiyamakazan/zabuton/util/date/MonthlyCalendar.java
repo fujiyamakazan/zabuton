@@ -33,32 +33,32 @@ public class MonthlyCalendar implements Serializable {
      * @param monthValue 月(1～12)
      */
     public MonthlyCalendar(int year, int monthValue) {
-        firstDate = Calendar.getInstance();
-        firstDate.clear();
-        firstDate.set(year, monthValue - 1, 1);
-        firstDayOfWeek = firstDate.get(Calendar.DAY_OF_WEEK);
+        this.firstDate = Calendar.getInstance();
+        this.firstDate.clear();
+        this.firstDate.set(year, monthValue - 1, 1);
+        this.firstDayOfWeek = this.firstDate.get(Calendar.DAY_OF_WEEK);
 
         //log.debug("この月は" + toYobi(firstDayOfWeek) + "曜日から始まります。");
 
         /* 各曜日がこの月の何番目の値となるかを設定する */
-        dayValues = Generics.newHashMap();
+        this.dayValues = Generics.newHashMap();
         for (int i = 0; i < SIZE; i++) {
-            int dayOfWeek = (((firstDayOfWeek - 1) + i) % SIZE) + 1; // 1～7の数列を割当てる計算式
+            int dayOfWeek = (((this.firstDayOfWeek - 1) + i) % SIZE) + 1; // 1～7の数列を割当てる計算式
             //log.debug("\"" + toYobi(dayOfWeek) + "\"(" + dayOfWeek + ")は月初から" + i + "日後です。");
 
-            dayValues.put(dayOfWeek, i);
+            this.dayValues.put(dayOfWeek, i);
         }
 
         /* 週ごとのカレンダーを作成します。 */
-        weeklyCalendar = Generics.newArrayList();
+        this.weeklyCalendar = Generics.newArrayList();
         Calendar c = Calendar.getInstance();
-        c.setTime(firstDate.getTime());
+        c.setTime(this.firstDate.getTime());
         WeeklyCalendar wc = null;
         while (true) {
 
             if (wc == null) {
                 wc = new WeeklyCalendar();
-                weeklyCalendar.add(wc);
+                this.weeklyCalendar.add(wc);
             }
 
             int dayOfMonth = c.get(Calendar.DAY_OF_MONTH);
@@ -94,10 +94,10 @@ public class MonthlyCalendar implements Serializable {
         int weekValue = ordinalOfDayOfWeek - 1;
 
         /* dayValue: 日の値。月初の曜日を0とした連番 */
-        int dayValue = dayValues.get(dayOfWeek);
+        int dayValue = this.dayValues.get(dayOfWeek);
 
         /* 週の値と日の値から[日付の数値]を求める。*/
-        int value = weekValue * dayValues.size() + dayValue;
+        int value = weekValue * this.dayValues.size() + dayValue;
 
         /* [日付の数値]は0から始まる。カレンダー表記のように1から始まる数列に変更。*/
         int dayOfMonth = value + 1;
@@ -111,7 +111,7 @@ public class MonthlyCalendar implements Serializable {
      * @param ordinalOfWeekOfMonth 週の序数。第1週なら「1」を指定
      */
     private WeeklyCalendar getWeek(int ordinalOfWeekOfMonth) {
-        return weeklyCalendar.get(ordinalOfWeekOfMonth - 1);
+        return this.weeklyCalendar.get(ordinalOfWeekOfMonth - 1);
     }
 
     /**
@@ -129,7 +129,7 @@ public class MonthlyCalendar implements Serializable {
     public String toString() {
 
         StringBuilderLn sb = new StringBuilderLn();
-        for (WeeklyCalendar wc : weeklyCalendar) {
+        for (WeeklyCalendar wc : this.weeklyCalendar) {
             sb.appendLn(wc.toString());
         }
         return sb.toString();
@@ -147,31 +147,31 @@ public class MonthlyCalendar implements Serializable {
          *
          */
         public int getDay(int dayOfWeek) {
-            for (int i = 0; i < dayOfWeeks.size(); i++) {
-                if (dayOfWeeks.get(i).equals(dayOfWeek)) {
-                    return dayOfMonths.get(i);
+            for (int i = 0; i < this.dayOfWeeks.size(); i++) {
+                if (this.dayOfWeeks.get(i).equals(dayOfWeek)) {
+                    return this.dayOfMonths.get(i);
                 }
             }
             return -1;
         }
 
         public void add(int dayOfMonth, int dayOfWeek) {
-            dayOfMonths.add(dayOfMonth);
-            dayOfWeeks.add(dayOfWeek);
+            this.dayOfMonths.add(dayOfMonth);
+            this.dayOfWeeks.add(dayOfWeek);
         }
 
         public int size() {
-            return dayOfMonths.size();
+            return this.dayOfMonths.size();
         }
 
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < dayOfWeeks.size(); i++) {
+            for (int i = 0; i < this.dayOfWeeks.size(); i++) {
                 if (sb.length() > 0) {
                     sb.append(",");
                 }
-                sb.append(dayOfMonths.get(i) + "(" + MonthlyCalendar.toYobi(dayOfWeeks.get(i)) + ")");
+                sb.append(this.dayOfMonths.get(i) + "(" + MonthlyCalendar.toYobi(this.dayOfWeeks.get(i)) + ")");
             }
             return sb.toString();
         }

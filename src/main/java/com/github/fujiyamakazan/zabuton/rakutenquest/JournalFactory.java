@@ -40,14 +40,14 @@ public abstract class JournalFactory implements Serializable {
      */
     public List<Journal> execute(List<Journal> existDatas, List<Journal> templates) {
 
-        crawler.download();
+        this.crawler.download();
 
         //List<Journal> journals = createJournal(templates);
         List<Journal> journals = Generics.newArrayList();
         for (JournalCsv.Row row : selectMaster().getRrows()) {
 
             Journal journal = new Journal();
-            journal.setSource(name);
+            journal.setSource(this.name);
             journal.setRawOnSource(row.getData());
             journal.setRowIndex(String.valueOf(row.getIndex()));
 
@@ -55,7 +55,7 @@ public abstract class JournalFactory implements Serializable {
             String strDate = pickupStringDate(row);
             String pattern = pickupDatePattern(row);
 
-            if (term.in(strDate, pattern) == false) {
+            if (this.term.in(strDate, pattern) == false) {
                 continue;
             }
 
@@ -94,7 +94,7 @@ public abstract class JournalFactory implements Serializable {
     }
 
     protected JournalCsv selectMaster() {
-        return crawler.getMaster();
+        return this.crawler.getMaster();
     }
 
     //protected abstract Date pickupDate(JournalCsv.Row row);
@@ -110,7 +110,7 @@ public abstract class JournalFactory implements Serializable {
     //        return row.get("取引日", new SimpleDateFormat(Chronus.POPULAR_JP));
     //    }
 
-    private void fullupTemplate(List<Journal> templates, List<Journal> journals) {
+    private static void fullupTemplate(List<Journal> templates, List<Journal> journals) {
         for (Journal journal : journals) {
             for (Journal template : templates) {
                 if (journal.getSource().equals(template.getSource()) == false) {

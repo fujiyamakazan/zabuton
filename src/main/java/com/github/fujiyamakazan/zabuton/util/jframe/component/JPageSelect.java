@@ -21,26 +21,26 @@ public class JPageSelect extends JPageComponent<String> implements JPageInputCom
      */
     public JPageSelect(String label, Model<String> model, List<String> ids) {
         super(model);
-        jc = new JComboBox<String>(ids.toArray(new String[ids.size()]));
-        jc.setSelectedItem(model.getObject());
+        this.jc = new JComboBox<String>(ids.toArray(new String[ids.size()]));
+        this.jc.setSelectedItem(model.getObject());
 
         addJFrameComponent(new JLabel(label));
-        addJFrameComponent(jc);
+        addJFrameComponent(this.jc);
 
     }
 
     @Override
     public void updateModel() {
-        model.setObject((String) jc.getSelectedItem());
+        this.model.setObject((String) this.jc.getSelectedItem());
     }
 
     @Override
     public void setTextFromModel() {
         String selected = getModel().getObject();
 
-        for (int i = 0; i < jc.getItemCount(); i++) {
-            if (StringUtils.equals(jc.getItemAt(i), selected)) {
-                jc.setSelectedIndex(i);
+        for (int i = 0; i < this.jc.getItemCount(); i++) {
+            if (StringUtils.equals(this.jc.getItemAt(i), selected)) {
+                this.jc.setSelectedIndex(i);
                 return;
             }
 

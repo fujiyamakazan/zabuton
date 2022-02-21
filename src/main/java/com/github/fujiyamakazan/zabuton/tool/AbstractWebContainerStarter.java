@@ -40,7 +40,7 @@ public abstract class AbstractWebContainerStarter {
     private boolean running = false;
 
     public boolean isRunning() {
-        return running;
+        return this.running;
     }
 
     private int port;
@@ -90,7 +90,7 @@ public abstract class AbstractWebContainerStarter {
             } catch (PortAlreadyException e) {
 
                 /* スキャン続行 */
-                port = port + 1;
+                this.port = this.port + 1;
 
             }
 
@@ -130,7 +130,7 @@ public abstract class AbstractWebContainerStarter {
 
         } catch (Exception e) {
 
-            log.info("port=" + port + "に既存のアプリケーションは起動していません。");
+            log.info("port=" + this.port + "に既存のアプリケーションは起動していません。");
             portNoUsed = true;
 
         } finally {
@@ -140,24 +140,24 @@ public abstract class AbstractWebContainerStarter {
         }
 
         if (portNoUsed == false) {
-            if (StringUtils.equals(classNameOnHtml, appClass.getName())) {
+            if (StringUtils.equals(classNameOnHtml, this.appClass.getName())) {
 
-                log.warn("port=" + port + "に同じアプリケーションが起動しています。");
+                log.warn("port=" + this.port + "に同じアプリケーションが起動しています。");
                 throw new ApplicationAlreadyException();
 
             } else {
 
-                log.info("port=" + port + "に異なるアプリが起動しています。＞スキャン続行");
+                log.info("port=" + this.port + "に異なるアプリが起動しています。＞スキャン続行");
                 throw new PortAlreadyException();
 
             }
         }
 
         /* アプリケーションを特定するためのサーブレット */
-        AppInfoServlet appInfoServlet = new AppInfoServlet(appClass);
+        AppInfoServlet appInfoServlet = new AppInfoServlet(this.appClass);
 
         /* サーバーを起動する */
-        startServer(port, appInfoServlet, APP_INFO, appClass);
+        startServer(this.port, appInfoServlet, APP_INFO, this.appClass);
 
     }
 
@@ -173,15 +173,15 @@ public abstract class AbstractWebContainerStarter {
      */
     public String getUrl() {
 
-        if (StringUtils.isNotEmpty(subParams)) {
-            return getUrlRoot() + subParams;
+        if (StringUtils.isNotEmpty(this.subParams)) {
+            return getUrlRoot() + this.subParams;
         }
 
         return getUrlRoot();
     }
 
     private String getUrlRoot() {
-        return "http://localhost:" + port + "/";
+        return "http://localhost:" + this.port + "/";
     }
 
     protected static final class AppInfoServlet extends HttpServlet {
@@ -192,11 +192,12 @@ public abstract class AbstractWebContainerStarter {
             this.appClass = appClass;
         }
 
+        @SuppressWarnings("resource") // TODO
         @Override
         protected void service(HttpServletRequest req, HttpServletResponse resp)
                 throws ServletException, IOException {
             Writer w = resp.getWriter();
-            w.write(appClass.getName());
+            w.write(this.appClass.getName());
             w.flush();
         }
     }

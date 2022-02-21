@@ -28,7 +28,7 @@ public class JPageMessage extends JPage {
     @Override
     protected void onInitialize() {
         super.onInitialize();
-        addLine(new JPageLabel(message));
+        addLine(new JPageLabel(this.message));
     }
 
 

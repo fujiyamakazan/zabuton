@@ -25,8 +25,8 @@ public class RakutenBankCrawler extends JournalCrawler {
 
     private static final String[] FIELD_NAMES = new String[] { "取引日", "入出金内容", "入出金", "取引後残高" };
 
-    private final JournalCsv master = new JournalCsv(crawlerDir, "master.csv", FIELD_NAMES);
-    private final File summary = new File(crawlerDir, "summary.txt");
+    private final JournalCsv master = new JournalCsv(this.crawlerDir, "master.csv", FIELD_NAMES);
+    private final File summary = new File(this.crawlerDir, "summary.txt");
 
     public static class RakutenBankJournalCsv extends JournalCsv {
 
@@ -42,41 +42,41 @@ public class RakutenBankCrawler extends JournalCrawler {
      */
     public RakutenBankCrawler(File appDir) {
         super("RakutenBank", appDir);
-        setMaster(master);
-        setSummary(summary);
+        setMaster(this.master);
+        setSummary(this.summary);
     }
 
     @Override
     protected void downloadCore() {
 
         String url = "https://fes.rakuten-bank.co.jp/MS/main/RbS?CurrentPageID=START&&COMMAND=LOGIN";
-        cmd.get(url);
-        cmd.assertTitleContains("ようこそ");
+        this.cmd.get(url);
+        this.cmd.assertTitleContains("ようこそ");
 
-        PasswordManager pm = new PasswordManager(crawlerDir);
+        PasswordManager pm = new PasswordManager(this.crawlerDir);
         pm.executeBySightKey("rakuten-bank-01");
 
-        cmd.type(By.name("LOGIN:USER_ID"), pm.getId());
-        cmd.type(By.name("LOGIN:LOGIN_PASSWORD"), pm.getPassword());
-        cmd.clickAndWait(By.partialLinkText("ログイン"));
-        cmd.sleep(500);
+        this.cmd.type(By.name("LOGIN:USER_ID"), pm.getId());
+        this.cmd.type(By.name("LOGIN:LOGIN_PASSWORD"), pm.getPassword());
+        this.cmd.clickAndWait(By.partialLinkText("ログイン"));
+        this.cmd.sleep(500);
 
         // TODO ここで支店番号や合言葉を求められる可能性がある。
 
-        cmd.get(
+        this.cmd.get(
             "https://fes.rakuten-bank.co.jp/MS/main/gns?COMMAND=BALANCE_INQUIRY_START&&CurrentPageID=HEADER_FOOTER_LINK");
 
         String html = "";
-        html += cmd.getPageSource();
-        cmd.clickAndWait(By.partialLinkText("入出金明細"));
-        cmd.sleep(500);
-        html += cmd.getPageSource();
+        html += this.cmd.getPageSource();
+        this.cmd.clickAndWait(By.partialLinkText("入出金明細"));
+        this.cmd.sleep(500);
+        html += this.cmd.getPageSource();
         saveDaily("all.html", html);
 
-        cmd.clickAndWait(By.partialLinkText("ログアウト"));
-        cmd.sleep(500);
-        cmd.sleep(500);
-        cmd.clickAndWait(By.xpath("//img[@alt='はい']"));
+        this.cmd.clickAndWait(By.partialLinkText("ログアウト"));
+        this.cmd.sleep(500);
+        this.cmd.sleep(500);
+        this.cmd.clickAndWait(By.xpath("//img[@alt='はい']"));
 
         downloadCoreWork();
 
@@ -109,19 +109,19 @@ public class RakutenBankCrawler extends JournalCrawler {
             rows.add(CsvUtils.convertString(row));
         }
 
-        final TextMerger textMerger = new TextMerger(master, Chronus.POPULAR_JP);
+        final TextMerger textMerger = new TextMerger(this.master, Chronus.POPULAR_JP);
         textMerger.stock(rows);
         textMerger.flash();
 
         /* HTMLを保存 */
-        new Utf8Text(summary).write(htmlAll);
+        new Utf8Text(this.summary).write(htmlAll);
     }
 
     /**
      * 楽天銀行の残高を返します。
      */
     public String getAssetBank() {
-        String htmlAll = new Utf8Text(summary).read();
+        String htmlAll = new Utf8Text(this.summary).read();
         int html2Index = htmlAll.indexOf("<html", 1);
         String htmlTop = htmlAll.substring(0, html2Index);
         Document docTop = Jsoup.parse(htmlTop);
@@ -133,7 +133,7 @@ public class RakutenBankCrawler extends JournalCrawler {
      * 楽天証券の資産残高を返します。
      */
     public String getAssetSecurities() {
-        String htmlAll = new Utf8Text(summary).read();
+        String htmlAll = new Utf8Text(this.summary).read();
         int html2Index = htmlAll.indexOf("<html", 1);
         String htmlTop = htmlAll.substring(0, html2Index);
         Document docTop = Jsoup.parse(htmlTop);

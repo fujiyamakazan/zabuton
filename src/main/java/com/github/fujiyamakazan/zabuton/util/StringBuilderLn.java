@@ -24,6 +24,6 @@ public class StringBuilderLn implements Serializable {
 
     @Override
     public String toString() {
-        return sb.toString();
+        return this.sb.toString();
     }
 }

@@ -63,7 +63,7 @@ public class Journal implements Serializable {
     }
 
     public String getRowIndex() {
-        return rowIndex;
+        return this.rowIndex;
     }
 
     public void setRowIndex(String rowIndex) {
@@ -71,7 +71,7 @@ public class Journal implements Serializable {
     }
 
     public String getRawOnSource() {
-        return rawOnSource;
+        return this.rawOnSource;
     }
 
     public void setRawOnSource(String rawOnSource) {
@@ -79,7 +79,7 @@ public class Journal implements Serializable {
     }
 
     public int getSummaryOnSource() {
-        return summaryOnSource;
+        return this.summaryOnSource;
     }
 
     public void setSummaryOnSource(int summaryOnSource) {
@@ -87,11 +87,11 @@ public class Journal implements Serializable {
     }
 
     public Date getDate() {
-        return date;
+        return this.date;
     }
 
     public String getDateString() {
-        return df.format(date);
+        return this.df.format(this.date);
     }
 
     public void setDate(Date date) {
@@ -104,14 +104,14 @@ public class Journal implements Serializable {
      */
     public void setDate(String strDate) {
         try {
-            this.date = df.parse(strDate);
+            this.date = this.df.parse(strDate);
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
     }
 
     public String getLeft() {
-        return left;
+        return this.left;
     }
 
     public void setLeft(String left) {
@@ -119,7 +119,7 @@ public class Journal implements Serializable {
     }
 
     public String getRight() {
-        return right;
+        return this.right;
     }
 
     public void setRight(String right) {
@@ -127,7 +127,7 @@ public class Journal implements Serializable {
     }
 
     public String getMemo() {
-        return memo;
+        return this.memo;
     }
 
     public void setMemo(String memo) {
@@ -135,7 +135,7 @@ public class Journal implements Serializable {
     }
 
     public String getMemo2() {
-        return memo2;
+        return this.memo2;
     }
 
     public void setMemo2(String memo2) {
@@ -143,7 +143,7 @@ public class Journal implements Serializable {
     }
 
     public String getSource() {
-        return source;
+        return this.source;
     }
 
     public void setSource(String source) {
@@ -151,7 +151,7 @@ public class Journal implements Serializable {
     }
 
     public String getActivity() {
-        return activity;
+        return this.activity;
     }
 
     public void setActivity(String activity) {
@@ -163,11 +163,11 @@ public class Journal implements Serializable {
     }
 
     public int getAmount() {
-        return amount;
+        return this.amount;
     }
 
     public String getKeywordOnSource() {
-        return keywordOnSource;
+        return this.keywordOnSource;
     }
 
     public void setKeywordOnSource(String keywordOnSource) {
@@ -179,31 +179,31 @@ public class Journal implements Serializable {
      */
     public String getJournalString() {
         String formatedDate = null;
-        if (date != null) {
-            formatedDate = df.format(date);
+        if (this.date != null) {
+            formatedDate = this.df.format(this.date);
         }
 
         return formatedDate + "\t"
-            + toMoney(amount) + "\t"
-            + left + "\t"
-            + right + "\t"
-            + memo + "\t"
-            + memo2 + "\t" // 突合メモ
-            + activity + "\t"
-            + source + "\t"
-            + (rowIndex != null ? (rowIndex) : "");
+            + toMoney(this.amount) + "\t"
+            + this.left + "\t"
+            + this.right + "\t"
+            + this.memo + "\t"
+            + this.memo2 + "\t" // 突合メモ
+            + this.activity + "\t"
+            + this.source + "\t"
+            + (this.rowIndex != null ? (this.rowIndex) : "");
     }
 
-    private String toMoney(int price) {
+    private static String toMoney(int price) {
         return String.format("%,d", price);
     }
 
     @Override
     public String toString() {
         return "SuitoData [date="
-            + (date != null ? new SimpleDateFormat(Chronus.POPULAR_JP).format(date) : "")
-            + ", amount=" + amount + ", left=" + left + ", right=" + right + ", memo="
-            + memo + ", source=" + source + ", activity=" + activity + "]";
+            + (this.date != null ? new SimpleDateFormat(Chronus.POPULAR_JP).format(this.date) : "")
+            + ", amount=" + this.amount + ", left=" + this.left + ", right=" + this.right + ", memo="
+            + this.memo + ", source=" + this.source + ", activity=" + this.activity + "]";
     }
 
 

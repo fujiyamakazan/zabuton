@@ -21,7 +21,7 @@ public class ConcurrentDateFormat implements Serializable {
     }
 
     private DateFormat getDf() {
-        return df;
+        return this.df;
     }
 
     /**
@@ -29,7 +29,7 @@ public class ConcurrentDateFormat implements Serializable {
      *   * @link {@link SimpleDateFormat#parse(String)}
      */
     public Date parse(String source) throws ParseException {
-        synchronized (df) {
+        synchronized (this.df) {
             return getDf().parse(source);
         }
     }
@@ -39,7 +39,7 @@ public class ConcurrentDateFormat implements Serializable {
      * @link {@link SimpleDateFormat#format(Date)}
      */
     public String format(Date date) {
-        synchronized (df) {
+        synchronized (this.df) {
             return getDf().format(date);
         }
     }

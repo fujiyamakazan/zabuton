@@ -29,20 +29,20 @@ public class RakutenCrawler extends JournalCrawler {
     public static final String CREDIT = "CREDIT";
     public static final String POINT = "POINT";
 
-    private final JournalCsv masterCredit = new JournalCsv(crawlerDir, "credit.csv",
+    private final JournalCsv masterCredit = new JournalCsv(this.crawlerDir, "credit.csv",
         new String[] {"利用日","利用店名","利用者","支払方法","支払金額"});
-    private final JournalCsv masterPoint = new JournalCsv(crawlerDir, "point.csv",
+    private final JournalCsv masterPoint = new JournalCsv(this.crawlerDir, "point.csv",
         new String[] {"日付","サービス","内容","区分","ポイント", "備考"});
-    private final File summary = new File(crawlerDir, "summary.txt");
+    private final File summary = new File(this.crawlerDir, "summary.txt");
 
     /**
      * コンストラクタです。
      */
     public RakutenCrawler(File appDir) {
         super("Rakuten", appDir);
-        setMaster(CREDIT, masterCredit);
-        setMaster(POINT, masterPoint);
-        setSummary(summary);
+        setMaster(CREDIT, this.masterCredit);
+        setMaster(POINT, this.masterPoint);
+        setSummary(this.summary);
     }
 
     @Override
@@ -51,19 +51,19 @@ public class RakutenCrawler extends JournalCrawler {
          * ダウンロード処理
          */
         String url = "https://www.rakuten-card.co.jp/e-navi/members/";
-        cmd.get(url);
-        cmd.assertTitleContains("ログイン画面");
+        this.cmd.get(url);
+        this.cmd.assertTitleContains("ログイン画面");
 
-        PasswordManager pm = new PasswordManager(crawlerDir);
+        PasswordManager pm = new PasswordManager(this.crawlerDir);
         pm.executeByUrl(url);
 
-        cmd.type(By.name("u"), pm.getId());
-        cmd.type(By.name("p"), pm.getPassword());
-        cmd.clickAndWait(By.xpath("//input[@value='ログイン']"));
+        this.cmd.type(By.name("u"), pm.getId());
+        this.cmd.type(By.name("p"), pm.getPassword());
+        this.cmd.clickAndWait(By.xpath("//input[@value='ログイン']"));
 
         /* カード選択 */
-        cmd.choiceByText(By.id("cardChangeForm:cardtype"), "楽天カード（MasterCard）");
-        cmd.sleep(2);
+        this.cmd.choiceByText(By.id("cardChangeForm:cardtype"), "楽天カード（MasterCard）");
+        this.cmd.sleep(2);
 
         /* クレジットカード */
         downloadCredit();
@@ -85,21 +85,21 @@ public class RakutenCrawler extends JournalCrawler {
         /*
          * 楽天ポイントを取得するためにトップページを保存する
          */
-        cmd.get("https://www.rakuten-card.co.jp/e-navi/members/index.xhtml");
+        this.cmd.get("https://www.rakuten-card.co.jp/e-navi/members/index.xhtml");
         html += this.cmd.getPageSource();
 
         /*
          * summary情報の取得元として
          * 直近2か月分の明細のHTMLを保存する
          */
-        cmd.get("https://www.rakuten-card.co.jp/e-navi/members/statement/index.xhtml?tabNo=0");
+        this.cmd.get("https://www.rakuten-card.co.jp/e-navi/members/statement/index.xhtml?tabNo=0");
         html += this.cmd.getPageSource();
-        cmd.get("https://www.rakuten-card.co.jp/e-navi/members/statement/index.xhtml?tabNo=1");
+        this.cmd.get("https://www.rakuten-card.co.jp/e-navi/members/statement/index.xhtml?tabNo=1");
         html += this.cmd.getPageSource();
 
         /* HTMLを保存 */
-        saveDaily(summary.getName(), html); // 本日処理があったことを残す
-        new Utf8Text(summary).write(html);
+        saveDaily(this.summary.getName(), html); // 本日処理があったことを残す
+        new Utf8Text(this.summary).write(html);
     }
 
     /**
@@ -107,7 +107,7 @@ public class RakutenCrawler extends JournalCrawler {
      */
     private void downloadCredit() {
 
-        final TextMerger textMerger = new TextMerger(masterCredit,Chronus.POPULAR_JP);
+        final TextMerger textMerger = new TextMerger(this.masterCredit,Chronus.POPULAR_JP);
 
         int roopCounter = -1;
         while (roopCounter < 12) { // 1年分取得
@@ -117,9 +117,9 @@ public class RakutenCrawler extends JournalCrawler {
             deletePreFile();
 
             /* 明細をダウンロード */
-            cmd.get("https://www.rakuten-card.co.jp/e-navi/members/statement/index.xhtml?tabNo=" + roopCounter);
-            cmd.assertTitleContains("ご利用明細");
-            cmd.clickAndWait(By.xpath("//a[contains(@class,'stmt-csv-btn')]")); // ダウンロードボタン
+            this.cmd.get("https://www.rakuten-card.co.jp/e-navi/members/statement/index.xhtml?tabNo=" + roopCounter);
+            this.cmd.assertTitleContains("ご利用明細");
+            this.cmd.clickAndWait(By.xpath("//a[contains(@class,'stmt-csv-btn')]")); // ダウンロードボタン
             new DownloadWait().start(); // ファイルダウンロードを待つ
 
             /* CSVを整形 */
@@ -151,7 +151,7 @@ public class RakutenCrawler extends JournalCrawler {
      */
     private void downloadPoint() {
 
-        final TextMerger textMerger = new TextMerger(masterPoint, Chronus.POPULAR_JP);
+        final TextMerger textMerger = new TextMerger(this.masterPoint, Chronus.POPULAR_JP);
 
         int roopCounter = 0;
         while (roopCounter <= 15) { // 約１年分
@@ -160,7 +160,7 @@ public class RakutenCrawler extends JournalCrawler {
             /* 前のループでダウンロードしたファイルを削除します。*/
             deletePreFile();
 
-            cmd.get("https://point.rakuten.co.jp/history/?page=" + roopCounter + "#point_history");
+            this.cmd.get("https://point.rakuten.co.jp/history/?page=" + roopCounter + "#point_history");
 
             /* HTMLを保存 */
             String html = this.cmd.getPageSource();
@@ -212,7 +212,7 @@ public class RakutenCrawler extends JournalCrawler {
      */
     public String getAssetRakutenCredit() {
 
-        String htmlAll = new Utf8Text(summary).read();
+        String htmlAll = new Utf8Text(this.summary).read();
         int html1Index = 0;
         int html2Index = htmlAll.indexOf("<html", html1Index + 1);
         int html3Index = htmlAll.indexOf("<html", html2Index + 1);
@@ -252,7 +252,7 @@ public class RakutenCrawler extends JournalCrawler {
      * 楽天ポイントの残高を返します。
      */
     public String getAssetRakutenPoint() {
-        String html = new Utf8Text(summary).read();
+        String html = new Utf8Text(this.summary).read();
         Document doc = Jsoup.parse(html);
         String point = doc.select("#rakutenSuperPoints").text();
         String futurePoint = doc.select("#futureGrantedPoint").text();

@@ -22,11 +22,11 @@ public class KeyValue implements Serializable {
     }
 
     public String getKey() {
-        return key;
+        return this.key;
     }
 
     public String getValue() {
-        return value;
+        return this.value;
     }
 
     public void setValue(String value) {
