@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.lang.Generics;
 
 import com.github.fujiyamakazan.zabuton.rakutenquest.JournalCsv.Row;
-import com.github.fujiyamakazan.zabuton.rakutenquest.crawler.JournalCrawler;
 import com.github.fujiyamakazan.zabuton.util.date.Chronus;
 import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
 

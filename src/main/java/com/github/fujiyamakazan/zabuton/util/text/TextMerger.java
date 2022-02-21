@@ -25,49 +25,6 @@ public class TextMerger implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 動作確認をします。
-     */
-    public static void main(String[] args) {
-
-        //        int year = 2021;
-        //        JournalCsv fileMaster = new JournalCsv("C:\\tmp\\textMaster" + year + ".txt");
-        //        List<File> additionlFiles = Generics.newArrayList();
-        //        additionlFiles.add(new File("C:\\tmp\\text追加2.txt")); // 処理は最新の追加テキストから順に行う。
-        //        additionlFiles.add(new File("C:\\tmp\\text追加1.txt"));
-        //
-        //        TextMerger textMerger = new TextMerger(fileMaster, null) {
-        //            private static final long serialVersionUID = 1L;
-        //
-        //            @Override
-        //            protected boolean isAvailableLine(String line) {
-        //                try {
-        //                    return new CSVParser().parseLine(line)[0].equals(String.valueOf(year));
-        //                } catch (IOException e) {
-        //                    throw new RuntimeException(e);
-        //                }
-        //            }
-        //        };
-        //        for (File additionalFile : additionlFiles) { // 遡及回数は一定の上限値を決める。（無限ループの防止。）
-        //
-        //            Utf8Text utf8Text = new Utf8Text(additionalFile);
-        //            String additionalText = utf8Text.read();
-        //
-        //            textMerger.stock(Arrays.asList(additionalText.split("\n")));
-        //            if (textMerger.hasNext() == false) {
-        //                break;
-        //            }
-        //        }
-        //        if (textMerger.isFinish() == false) {
-        //            /* マスターがあるにもかかわらず、最後に処理したテキストにもマスター追加済みレコードと一致するものが無ければ、
-        //             * 遡及回数の不足と考えられる。処理を中断し、警告をする。
-        //             */
-        //            throw new RuntimeException("遡及処理の上限回数が不足しています。");
-        //        }
-        //        textMerger.flash();
-
-    }
-
     private final JournalCsv masterText;
     private final List<String> masterLines = Generics.newArrayList();
     private final List<String> buffer = Generics.newArrayList();
@@ -142,6 +99,9 @@ public class TextMerger implements Serializable {
     public boolean stock(List<String> lines) {
 
         List<String> joins = Generics.newArrayList();
+
+        List<String> masters = standardize(this.masterLines);
+
         for (String additionalLine : lines) {
             additionalLine = additionalLine.trim();
             if (StringUtils.isEmpty(additionalLine)) {
@@ -150,13 +110,14 @@ public class TextMerger implements Serializable {
             if (isSkipLine(additionalLine)) {
                 continue;
             }
-            if (this.masterLines.contains(additionalLine)) {
+            //if (this.masterLines.contains(additionalLine)) {
+            String al = standardize(additionalLine); // 標準化
+            if (masters.contains(al)) {
                 /*  マスターに同一のレコードがあれば、そのレコードは追記しない。 */
                 this.existMaster = true; // 重複する行があったことを記録
 
             } else {
-                String line = additionalLine;
-                joins.add(line);
+                joins.add(additionalLine);
             }
         }
         if (joins.isEmpty()) {
@@ -170,6 +131,24 @@ public class TextMerger implements Serializable {
 
         return this.hasNext;
 
+    }
+
+    /**
+     * 標準化するための実装で上書きすることができます。
+     */
+    protected List<String> standardize(List<String> lines) {
+        List<String> result = Generics.newArrayList();
+        result.addAll(lines);
+        return result;
+    }
+
+    /**
+     * 標準化するための実装で上書きすることができます。
+     */
+    protected String standardize(String line) {
+        List<String> list = Generics.newArrayList();
+        list.add(line);
+        return standardize(list).get(0);
     }
 
     /**

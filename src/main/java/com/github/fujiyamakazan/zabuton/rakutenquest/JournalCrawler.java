@@ -1,4 +1,4 @@
-package com.github.fujiyamakazan.zabuton.rakutenquest.crawler;
+package com.github.fujiyamakazan.zabuton.rakutenquest;
 
 import java.io.File;
 import java.io.Serializable;
@@ -13,7 +13,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
-import com.github.fujiyamakazan.zabuton.rakutenquest.JournalCsv;
 import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
 import com.github.fujiyamakazan.zabuton.util.RetryWorker;
 import com.github.fujiyamakazan.zabuton.util.StringBuilderLn;
@@ -174,7 +173,7 @@ public abstract class JournalCrawler implements Serializable {
         return new Utf8Text(getDownloadFileOne()).read();
     }
 
-    protected final class DownloadWait extends RetryWorker {
+    public final class DownloadWait extends RetryWorker {
         private static final long serialVersionUID = 1L;
 
         @Override
