@@ -192,7 +192,6 @@ public abstract class AbstractWebContainerStarter {
             this.appClass = appClass;
         }
 
-        @SuppressWarnings("resource") // TODO
         @Override
         protected void service(HttpServletRequest req, HttpServletResponse resp)
                 throws ServletException, IOException {

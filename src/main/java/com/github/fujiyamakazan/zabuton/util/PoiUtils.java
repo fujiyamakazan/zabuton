@@ -59,7 +59,6 @@ public class PoiUtils {
     /**
      * 動作確認をします。
      */
-    @SuppressWarnings("resource") // TODO
     public static void main(String[] args) {
 
         File file = new File(EnvUtils.getUserDesktop(), "xxx.xls");

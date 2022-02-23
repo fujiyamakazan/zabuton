@@ -24,7 +24,6 @@ public class HttpConnector {
     /**
      * URLを指定してGETで接続します。
      */
-    @SuppressWarnings("resource") // TODO
     public static String get(String url, String proxyHost, String proxyPort, Charset charset) {
 
         HttpURLConnection connection = null;

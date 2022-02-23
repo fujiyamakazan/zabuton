@@ -107,7 +107,6 @@ public class GameWindow<T extends Serializable> implements Serializable {
                                 this.baseFont = RPage.FONT;
                             }
 
-                            @SuppressWarnings("unqualified-field-access")
                             @Override
                             protected void onAfterShow() {
                                 super.onAfterShow();
