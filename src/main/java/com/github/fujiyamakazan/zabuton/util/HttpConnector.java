@@ -27,7 +27,6 @@ public class HttpConnector {
     public static String get(String url, String proxyHost, String proxyPort, Charset charset) {
 
         HttpURLConnection connection = null;
-        InputStream in = null;
         BufferedReader reader = null;
         String result;
         try {
@@ -41,14 +40,15 @@ public class HttpConnector {
             int code = connection.getResponseCode();
 
             if (code == HttpURLConnection.HTTP_OK) {
-                in = connection.getInputStream();
-                reader = new BufferedReader(new InputStreamReader(in, charset));
-                StringBuilder output = new StringBuilder();
-                String line = null;
-                while ((line = reader.readLine()) != null) {
-                    output.append(line + "\n");
+                try (InputStream in = connection.getInputStream();) {
+                    reader = new BufferedReader(new InputStreamReader(in, charset));
+                    StringBuilder output = new StringBuilder();
+                    String line = null;
+                    while ((line = reader.readLine()) != null) {
+                        output.append(line + "\n");
+                    }
+                    result = output.toString();
                 }
-                result = output.toString();
             } else {
                 throw new RuntimeException("接続失敗：url=" + url + " ResponseCode=" + code);
             }

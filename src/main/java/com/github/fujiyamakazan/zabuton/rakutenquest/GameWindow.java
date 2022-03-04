@@ -52,8 +52,8 @@ public class GameWindow<T extends Serializable> implements Serializable {
 
             @Override
             protected JFrame createFrame() {
-                this.msgWindowFrame = super.createFrame();
-                return this.msgWindowFrame;
+                this.setMsgWindowFrame(super.createFrame());
+                return this.getMsgWindowFrame();
             }
 
             @Override
@@ -112,9 +112,9 @@ public class GameWindow<T extends Serializable> implements Serializable {
                                 super.onAfterShow();
                                 /* メッセージウィンドウ下部に表示します。 */
                                 this.frame.setLocation(
-                                        msgWindowFrame.getLocation().x,
-                                        msgWindowFrame.getLocation().y
-                                                + msgWindowFrame.getSize().height
+                                        getMsgWindowFrame().getLocation().x,
+                                        getMsgWindowFrame().getLocation().y
+                                                + getMsgWindowFrame().getSize().height
                                                 + 20);
 
                                 // TODO 初期一番上を選択し、アンダーラインを入れる。
@@ -137,6 +137,14 @@ public class GameWindow<T extends Serializable> implements Serializable {
                 /* 選択されたものを取得 */
                 GameWindow.this.selected = choice.getSelectedOne();
 
+            }
+
+            public JFrame getMsgWindowFrame() {
+                return this.msgWindowFrame;
+            }
+
+            public void setMsgWindowFrame(JFrame msgWindowFrame) {
+                this.msgWindowFrame = msgWindowFrame;
             }
         };
 

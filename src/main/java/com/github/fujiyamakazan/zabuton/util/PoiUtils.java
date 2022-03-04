@@ -62,23 +62,24 @@ public class PoiUtils {
     public static void main(String[] args) {
 
         File file = new File(EnvUtils.getUserDesktop(), "xxx.xls");
-        Workbook wkbk1;
 
         try {
-            FileInputStream in = new FileInputStream(file);
-            wkbk1 = WorkbookFactory.create(in);
-            Sheet sheet1 = wkbk1.getSheet("Sheet1");
+            try (FileInputStream in = new FileInputStream(file);
+                Workbook wkbk1 = WorkbookFactory.create(in);) {
 
-            for (int i = 1; i < sheet1.getPhysicalNumberOfRows(); i++) {
-                Row row1 = sheet1.getRow(i);
-                Cell cell1 = row1.getCell(1);
+                Sheet sheet1 = wkbk1.getSheet("Sheet1");
 
-                if (cell1.getCellType().equals(CellType.NUMERIC)) {
-                    System.out.println(cell1.getNumericCellValue());
-                } else {
-                    System.out.println(cell1);
+                for (int i = 1; i < sheet1.getPhysicalNumberOfRows(); i++) {
+                    Row row1 = sheet1.getRow(i);
+                    Cell cell1 = row1.getCell(1);
+
+                    if (cell1.getCellType().equals(CellType.NUMERIC)) {
+                        System.out.println(cell1.getNumericCellValue());
+                    } else {
+                        System.out.println(cell1);
+                    }
+
                 }
-
             }
 
         } catch (FileNotFoundException e) {
