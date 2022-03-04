@@ -18,7 +18,7 @@ import com.github.fujiyamakazan.zabuton.util.exec.RuntimeExc;
 import com.github.fujiyamakazan.zabuton.util.file.FileDeleteUtils;
 import com.github.fujiyamakazan.zabuton.util.file.ZipUtils;
 import com.github.fujiyamakazan.zabuton.util.file.ZipUtils.UnzipTask;
-import com.github.fujiyamakazan.zabuton.util.string.SubstringUtils;
+import com.github.fujiyamakazan.zabuton.util.string.StringCutter;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 
 /**
@@ -47,17 +47,17 @@ public class DependencyInspector {
                 continue;
             }
 
-            final String jarName = SubstringUtils.left(jarFileName,
+            final String jarName = StringCutter.left(jarFileName,
                 ".jar"); // ex.) commons-collections4-4.4
 
             //log.debug("■" + jarName);
 
             String artifactIdAndVersion = jarName;
             if (artifactIdAndVersion.endsWith("-SNAPSHOT")) {
-                artifactIdAndVersion = SubstringUtils.left(artifactIdAndVersion, "-SNAPSHOT");
+                artifactIdAndVersion = StringCutter.left(artifactIdAndVersion, "-SNAPSHOT");
             }
-            final String artifactId = SubstringUtils.leftOfLast(artifactIdAndVersion, "-");
-            final String version = SubstringUtils.right(artifactIdAndVersion, "-"); // ex.) 4.4
+            final String artifactId = StringCutter.leftOfLast(artifactIdAndVersion, "-");
+            final String version = StringCutter.right(artifactIdAndVersion, "-"); // ex.) 4.4
 
             //          log.debug("jarName:" + jarName);
             //          log.debug("artifactId:" + artifactId);
@@ -162,7 +162,7 @@ public class DependencyInspector {
                 }
 
                 if (StringUtils.contains(entryName, "/")) {
-                    entryName = SubstringUtils.right(entryName, "/");
+                    entryName = StringCutter.right(entryName, "/");
                 }
                 if (StringUtils.isEmpty(entryName)) {
                     return;

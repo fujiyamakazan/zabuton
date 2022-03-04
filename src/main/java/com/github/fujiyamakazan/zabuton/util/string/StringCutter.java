@@ -4,7 +4,7 @@ package com.github.fujiyamakazan.zabuton.util.string;
  * 部分文字列に関する操作をします。
  * @author fuijyama
  */
-public class SubstringUtils {
+public class StringCutter {
 
     /**
      * startWordとendWordに挟まれた文字列を返します。
@@ -17,7 +17,7 @@ public class SubstringUtils {
         int start = str.indexOf(startWord);
         int end;
         if (endWord != null) {
-            end = str.indexOf(endWord, start);
+            end = str.indexOf(endWord, start + startWord.length());
         } else {
             end = str.length();
         }

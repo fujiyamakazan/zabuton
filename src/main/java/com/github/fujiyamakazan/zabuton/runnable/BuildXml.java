@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
-import com.github.fujiyamakazan.zabuton.util.string.SubstringUtils;
+import com.github.fujiyamakazan.zabuton.util.string.StringCutter;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 
 public class BuildXml implements Serializable {
@@ -32,8 +32,8 @@ public class BuildXml implements Serializable {
         String startTag = "<!-- dependency-start -->";
         String endTag = "<!-- dependency-end -->";
 
-        String head = SubstringUtils.left(text, startTag);
-        final String tail = SubstringUtils.right(text, endTag);
+        String head = StringCutter.left(text, startTag);
+        final String tail = StringCutter.right(text, endTag);
 
         StringBuilder sb = new StringBuilder();
         sb.append(head.trim() + "\n");

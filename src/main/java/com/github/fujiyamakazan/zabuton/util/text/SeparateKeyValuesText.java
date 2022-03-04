@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.lang.Generics;
 
 import com.github.fujiyamakazan.zabuton.util.KeyValue;
-import com.github.fujiyamakazan.zabuton.util.string.SubstringUtils;
+import com.github.fujiyamakazan.zabuton.util.string.StringCutter;
 
 /**
  * セパレーターで分割された「キー」と「値」で構成されるテキストファイルを読み書きします。
@@ -39,12 +39,12 @@ public class SeparateKeyValuesText extends KeyValuesText {
         List<String> lines = this.utf8File.readLines();
         for (String line : lines) {
             if (line.contains(SEPARATOR)) {
-                final String key = SubstringUtils.left(line, SEPARATOR);
+                final String key = StringCutter.left(line, SEPARATOR);
                 final String value;
                 if (StringUtils.endsWith(line, SEPARATOR)) {
                     value = "";
                 } else {
-                    value = SubstringUtils.rightOfFirst(line, SEPARATOR);
+                    value = StringCutter.rightOfFirst(line, SEPARATOR);
                 }
                 results.add(new KeyValue(key, value));
             }
