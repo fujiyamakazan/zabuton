@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.lang.Generics;
 
 /**
- * UTF-8のテキストファイルを読み書きします。
+ * テキストファイルを読み書きします。
  * @author fujiyama
  */
 public abstract class TextFile implements Serializable {

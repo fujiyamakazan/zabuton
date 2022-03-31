@@ -28,6 +28,10 @@ public class RSounds implements Serializable {
         this.enabel = enabel;
     }
 
+    public static void main(String[] args) {
+
+    }
+
     //    @SuppressWarnings({ "unused" })
     //    private void playmidi() {
     //        if (enabel == false) {
