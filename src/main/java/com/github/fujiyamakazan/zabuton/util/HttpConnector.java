@@ -15,7 +15,11 @@ import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -187,12 +191,46 @@ public class HttpConnector {
     }
 
     /**
+     * Java 11で追加された新しいHTTPクライアントで接続します。
+     */
+    private static String byBody(String url) {
+
+        // TODO プロキシ対応
+
+        HttpClient client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).build();
+
+        //        非同期
+        //        BodyHandler<String> responseBodyHandler = HttpResponse.BodyHandlers.ofString();
+        //        CompletableFuture<HttpResponse<String>> future = client.sendAsync(request, responseBodyHandler);
+        //        /* thenAccept・・・戻り値がないLambdaを処理 */
+        //        future.thenAccept(res -> {
+        //            System.out.println(res.body());
+        //        });
+        //        Thread.sleep(3000);
+
+        HttpResponse<String> response;
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        String body = response.body();
+        //System.out.println(body);
+        return body;
+
+    }
+
+    /**
      * 動作確認をします。
      */
-    public static void main(String[] args) {
+    public static void main(String[] args)  {
         //String str = get("https://pgse.seesaa.net/", "xx.xx.xx.xx", "8080", StandardCharsets.UTF_8);
-        String str = post("https://pgse.seesaa.net/", "abc", "xx.xx.xx.xx", "8080", StandardCharsets.UTF_8, "");
-        System.out.println(str);
+        //String str = post("https://pgse.seesaa.net/", "abc", "xx.xx.xx.xx", "8080", StandardCharsets.UTF_8, "");
+        //System.out.println(str);
+
+        String body = byBody("http://yahoo.co.jp");
+        System.out.println(body);
     }
 
 }
