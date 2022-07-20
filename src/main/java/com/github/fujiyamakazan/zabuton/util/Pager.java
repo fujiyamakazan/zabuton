@@ -1,14 +1,31 @@
 package com.github.fujiyamakazan.zabuton.util;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.wicket.util.lang.Generics;
 
 /**
  * ページャー（ページ送りの機能）の計算をするオブジェクトです。
- * 全要素数と 1ページ当たりの要素数を元に、さまざまなIndexを算出します。
+ *
+ * 「全ての要素の数」と「1ページ当たりの要素数」を元に、さまざまなIndexを算出します。
+ *
+ * （事例1）
+ * ----------------------------
+ * 1  2  3 [4] 5  6  ...10
+ * ----------------------------
+ * 現在のページを「4」としたとき、前後に6つのページを表示します。
+ * 範囲の終端には必ず「最初のページ」「最後のページ」を配置ます。
+ * 上の例では、右端が7となるところですが、終端が10なので、差替えています。
+ * 差替えたときは「...」を付与します。
+ *
+ * （事例2）
+ * ----------------------------
+ *  [ 1...  5  6  7 [8] 9  10 ]
+ * ----------------------------
+ * 現在のページを「8」としたとき、
+ * 後には2つしかページがありません。前を4ページとすることで、
+ * 「合計6ページ」を保ちます。
  *
  * @author fujiyama
  */
@@ -16,41 +33,65 @@ public class Pager implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(Pager.class);
 
-    /** 1ページ当たりの要素数です。 */
+    /** 全要素の数です。コンストラクタで指定します。 */
+    private final int sizeOfItem;
+
+    /** 「1ページ当たりの要素数」です。コンストラクタで指定します。 */
     private final int sizeOfPage;
 
-    /** 【現在のページ】のIndexです。 */
-    private final int currentPageIndex;
+
+    /** 「現在のページ」のIndexです。 */
+    private int currentPageIndex;
 
     /** 最初のページのIndexです。（必ずゼロ） */
     private final int firstPageIndex = 0;
 
-    /** 最終ページのIndexです。 */
-    private final int lastPageIndex;
+    /** 最後のページのIndexです。 */
+    private int lastPageIndex;
 
-    /** 【現在のページ】からいくつ左まで対象とするか。*/
-    private final int left;
+    /** 表示対象の最小のページIndexです。（「最初のページ」で上書きされる可能性があります。） */
+    private int minPageIndex;
 
-    /** 【現在のページ】からいくつ右まで対象とするか。*/
-    private final int right;
+    /** 表示対象の最小を「最初のページ」に差替えるかどうかの判定です。 */
+    private boolean replaceHead;
 
-    /**
-     * (オプション)ページャーに格納するオブジェクトです。
-     * このページャーをデータコンテナとして使用するときに値が入ります。
-     */
-    @SuppressWarnings("unused")
-    private List<Object> items;
+    /** 表示対象の最大のページIndexです。（「最後のページ」で上書きされる可能性があります。） */
+    private int maxPageIndex;
+
+    /** 表示対象の最大を「最後のページ」に差替えるかどうかの判定です。 */
+    private boolean replaceTail;
+
+    /** 表示対象とするページのIndexです。 */
+    private List<Integer> indices = Generics.newArrayList();
+
+    /** 表示対象とするページに表示する文字列です。(index=0→「1」) */
+    private List<String> texts = Generics.newArrayList();
 
     /**
      * コンストラクタです。
+     * @param sizeOfItem 全ての要素の数
+     * @param sizeOfPage 「1ページ当たりの要素数」
+     * @param currentItemIndex 「現在の要素」のIndex
      */
     public Pager(int sizeOfItem, int sizeOfPage, int currentItemIndex) {
+        this.sizeOfItem = sizeOfItem;
         this.sizeOfPage = sizeOfPage;
+        calcIndex(sizeOfItem, sizeOfPage, currentItemIndex);
+    }
 
-        /*
-         * 現在のページのIndexを計算します。
-         */
-        this.currentPageIndex = getPageIndex(currentItemIndex);
+    /**
+     * 「現在の要素」のIndexを変更して再計算します。
+     *
+     * @param currentItemIndex 「現在の要素」のIndex
+     */
+    public void moveCurrentPageIndex(int currentItemIndex) {
+        calcIndex(sizeOfItem, sizeOfPage, currentItemIndex);
+    }
+
+    private void calcIndex(int sizeOfItem, int sizeOfPage, int currentItemIndex) {
+
+        /*「現在のページ」のIndexを計算します。 */
+        this.currentPageIndex = getPageIndexByItemIndex(currentItemIndex);
 
         /*
          * 最終のページのIndexを計算します。
@@ -64,141 +105,138 @@ public class Pager implements Serializable {
         /*
          * 対象の範囲を計算します。
          */
-
-        int size = 7; // 7つのページを表示する。
-
-        if (size % 2 == 0) {
-            throw new RuntimeException("sizeは奇数を設定してください。");
+        int size = 6; // 前後に6つのページを表示する。
+        if (size % 2 != 0) {
+            throw new RuntimeException("sizeは偶数を設定してください。");
         }
-
-        size -= 1; // 自身を減算する
 
         int half = size / 2; // 左右均等にする。
-
         int right = half;
-        int left = half;
-
-        if (currentPageIndex - left > firstPageIndex) {
-            left -= 1; // 「最初のページ」が表示される状態なので、左を１つ減らす。
-        }
-        if (currentPageIndex + right < lastPageIndex) {
-            right -= 1; // 「最後のページ」が表示される状態なので、右を１つ減らす。
-        }
         for (int i = 0; i <= half; i++) {
             if (currentPageIndex - i < firstPageIndex) { // 左が不足している分、右に振り替える。
                 right++;
             }
         }
+        int left = half;
         for (int i = 0; i <= half; i++) {
             if (currentPageIndex + i > lastPageIndex) { // 右が不足している分、左に振り替える。
                 left++;
             }
         }
 
-        this.left = left;
-        this.right = right;
-    }
+        /*
+         * 選択可能な最小、最大のページを計算します。
+         */
+        this.minPageIndex = currentPageIndex - left;
+        this.maxPageIndex = currentPageIndex + right;
 
-    public Pager(List<Object> items, int sizeOfPage) {
-        this(items.size(), sizeOfPage, 0);
-        this.items = items;
+        /*
+         * 対象ページのIndexを返します。範囲の終端には必ず「最初のページ」「最後のページ」を配置ます。
+         * 名称も設定します。
+         */
+        indices.clear();
+        texts.clear();
+        for (int i = minPageIndex; i <= maxPageIndex; i++) {
+            if (i >= firstPageIndex && i <= lastPageIndex) {
+                indices.add(i);
+                texts.add(String.valueOf(i + 1)); // 表示するページ番号は index + 1 の値（1～）
+            }
+        }
+
+        /* 先頭を最初のページとする */
+        replaceHead = indices.get(0) != firstPageIndex;
+        if (replaceHead) {
+            indices.set(0, firstPageIndex);
+            texts.set(0, String.valueOf(firstPageIndex + 1) + "...");
+        }
+
+        /* 末尾を最終ページとする */
+        int tailIndex = indices.size() - 1;
+        replaceTail = indices.get(tailIndex) != lastPageIndex;
+        if (replaceTail) {
+            indices.set(tailIndex, lastPageIndex);
+            texts.set(tailIndex, "..." + String.valueOf(lastPageIndex + 1));
+        }
     }
 
     /**
-     * 要素のIndexから、その要素が含まれるページのIndexを返します。
-     */
-    public int getPageIndex(int itemIndex) {
-        return itemIndex / sizeOfPage;
-    }
-
-    /**
-     * 現在表示しているページのIndexです。
+     * 「現在のページ」のIndexを返します。
      */
     public int getCurrentPageIndex() {
         return currentPageIndex;
     }
 
     /**
-     * 現在表示しているページに、指定された要素のIndexが含まれるかを判定します。
+     * 1つ前のページのIndexを返します。
      */
-    public boolean hasCurrentPage(int itemIndex) {
-        return currentPageIndex == getPageIndex(itemIndex);
-    }
-
-    public boolean isActive(Integer pageIndex) {
-        return pageIndex == currentPageIndex;
+    public int getPrePageIndex() {
+        return currentPageIndex - 1;
     }
 
     /**
-     * 最初のページが指定されているときにTrueを返します。
+     * 1つ後のページのIndexを返します。
      */
-    public boolean isFirstPage() {
-        return currentPageIndex == firstPageIndex;
+    public int getNextPageIndex() {
+        return currentPageIndex + 1;
     }
 
     /**
-     * 最後のページが指定されているときにTrueを返します。
+     * 要素のIndexから、その要素が含まれるページのIndexを返します。
      */
-    public boolean isLastPage() {
-        return currentPageIndex == lastPageIndex;
+    public int getPageIndexByItemIndex(int itemIndex) {
+        return itemIndex / sizeOfPage;
     }
 
     /**
-     * あるページに含まれる要素の先頭のIndexを返します。
+     * あるページに含まれる先頭の要素のIndexを返します。
      */
     public int getFirstItemIndex(Integer pageIndex) {
         return pageIndex * sizeOfPage;
     }
 
     /**
-     * ページャーに表示するページのIndexを返します。
-     * ※ 【先頭】と【末尾】以外、【現在のページ】よりも離れたページは返しません。
+     * 表示対象のページIndexを返します。
      */
     public List<Integer> getPageIndices() {
-
-        List<Integer> indices = Generics.newArrayList();
-        for (int index = firstPageIndex; index <= lastPageIndex; index++) {
-            if (index == firstPageIndex || index == lastPageIndex) {
-
-                /* 先頭、末尾は必ず使用します。 */
-                indices.add(index);
-
-            } else {
-                /* 離れているものは除外 */
-                if ((index < currentPageIndex - left || currentPageIndex + right < index) == false) {
-                    indices.add(index);
-                }
-            }
-        }
-
         return indices;
     }
 
+    /**
+     * 表示する文字列を返します。
+     */
     public String getText(int pageIndex) {
-
-        int no = pageIndex + 1; // 表示するページ番号は index + 1 の値（1～）
-        final String strNo;
-
-        if (pageIndex == firstPageIndex && pageIndex < currentPageIndex - (left + 1)) { // 先頭
-            strNo = no + "...";
-        } else if (pageIndex == lastPageIndex
-            && currentPageIndex + (right + 1) < pageIndex) { // 末尾
-            strNo = "..." + no;
-        } else {
-            strNo = String.valueOf(no);
+        for (int i = 0; i < indices.size(); i++) {
+            if (indices.get(i).equals(pageIndex)) {
+                return texts.get(i);
+            }
         }
-        return strNo;
+        throw new RuntimeException(pageIndex + "のテキストが不明");
+    }
+
+    /**
+     * 最初のページが指定されているときにTrueを返します。
+     * この状態とのき、「前へ」ボタンは使用できません。
+     */
+    public boolean isCurrentFirstPage() {
+        return currentPageIndex == firstPageIndex;
+    }
+
+    /**
+     * 最後のページが指定されているときにTrueを返します。
+     * この状態のとき、「次へ」ボタンは使用できません。
+     */
+    public boolean isCurrentLastPage() {
+        return currentPageIndex == lastPageIndex;
     }
 
     @Override
     public String toString() {
-
         StringBuilder sb = new StringBuilder();
         for (Integer pageIndex : getPageIndices()) {
-            if (isActive(pageIndex)) {
+            if (pageIndex == currentPageIndex) {
                 sb.append("[" + getText(pageIndex) + "]");
             } else {
-                sb.append("[" + getText(pageIndex) + " ");
+                sb.append(" " + getText(pageIndex) + " ");
             }
         }
         return "Pager [" + sb.toString() + "]";
@@ -209,26 +247,10 @@ public class Pager implements Serializable {
      */
     public static void main(String[] args) {
 
-        /*
-         * データコンテナとして使う検証
-         */
-        Object[] aiueo = new String[] {
-            "あ", "い", "う", "え", "お",
-            "か", "き", "★", "け", "こ", // ★=7
-            "さ", "し", "す", "せ", "そ",
-            "た", "ち", "つ", "て", "と",
-            "な", "に", "ぬ", "ね", "の",
-            "は", "ひ", "ふ", "へ", "ほ",
-            "ま", "み", "む", "め", "も",
-            "や", "yi", "ゆ", "ye", "よ",
-            "ら", "り", "る", "れ", "ろ",
-            "わ", "ゐ", "wu", "ゑ", "を",
-            "ん",
-        };
-        Pager gojuon = new Pager(Arrays.asList(aiueo), 5);
-        LOGGER.debug(gojuon.toString());
-        LOGGER.debug("" + gojuon.currentPageIndex); // 5ページ区切りのとき 要素index=7 を含むページIndex
-
+        LOGGER.debug("----------------------------------");
+        for (int pageIndex = 0; pageIndex < 10; pageIndex++) {
+            Pager pager = new Pager(20, 2, pageIndex * 2);
+            LOGGER.debug(pageIndex + ">" + pager.toString());
+        }
     }
-
 }
