@@ -1,7 +1,9 @@
 package com.github.fujiyamakazan.zabuton.util;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.wicket.util.lang.Generics;
 
@@ -39,7 +41,6 @@ public class Pager implements Serializable {
     /** 「1ページ当たりの要素数」です。コンストラクタで指定します。 */
     private final int sizeOfPage;
 
-
     /** 「現在のページ」のIndexです。 */
     private int currentPageIndex;
 
@@ -76,19 +77,15 @@ public class Pager implements Serializable {
     public Pager(int sizeOfItem, int sizeOfPage, int currentItemIndex) {
         this.sizeOfItem = sizeOfItem;
         this.sizeOfPage = sizeOfPage;
-        calcIndex(sizeOfItem, sizeOfPage, currentItemIndex);
+        calcIndex(currentItemIndex);
     }
 
     /**
-     * 「現在の要素」のIndexを変更して再計算します。
+     * 「現在の要素」のIndexを指定して計算をします。
      *
      * @param currentItemIndex 「現在の要素」のIndex
      */
-    public void moveCurrentPageIndex(int currentItemIndex) {
-        calcIndex(sizeOfItem, sizeOfPage, currentItemIndex);
-    }
-
-    private void calcIndex(int sizeOfItem, int sizeOfPage, int currentItemIndex) {
+    public void calcIndex(int currentItemIndex) {
 
         /*「現在のページ」のIndexを計算します。 */
         this.currentPageIndex = getPageIndexByItemIndex(currentItemIndex);
@@ -247,10 +244,33 @@ public class Pager implements Serializable {
      */
     public static void main(String[] args) {
 
-        LOGGER.debug("----------------------------------");
-        for (int pageIndex = 0; pageIndex < 10; pageIndex++) {
-            Pager pager = new Pager(20, 2, pageIndex * 2);
-            LOGGER.debug(pageIndex + ">" + pager.toString());
+        LOGGER.debug("40件を10ページ区切りとし、itemIndex=20を現在のページとするページャーを作成する。");
+        Pager me1 = new Pager(40, 10, 20);
+        LOGGER.debug("→：" + me1.toString());
+
+        LOGGER.debug("各ページIndexを表示");
+        LOGGER.debug("→ PageIndices:" + Arrays.asList(me1.getPageIndices()).stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(", ")));
+        LOGGER.debug("→ firstPageIndex：" + me1.firstPageIndex);
+        LOGGER.debug("→ lastPageIndex：" + me1.lastPageIndex);
+
+        LOGGER.debug("itemIndexを指定して、それがどのページ目かを算出する。");
+        LOGGER.debug("→ ItemIndex=0 は PageIndex=0:" +  me1.getPageIndexByItemIndex(0));
+        LOGGER.debug("→ ItemIndex=9 は PageIndex=0:" +  me1.getPageIndexByItemIndex(9));
+        LOGGER.debug("→ ItemIndex=10 は PageIndex=1:" +  me1.getPageIndexByItemIndex(10));
+        LOGGER.debug("→ ItemIndex=21 は PageIndex=2:" +  me1.getPageIndexByItemIndex(10));
+
+        LOGGER.debug("41件を10ページ区切りとし、itemIndex=21を現在のページとするページャーを作成する。");
+        Pager me2 = new Pager(41, 10, 21);
+        LOGGER.debug("→総ページ数が1つ増える：" + me2.toString());
+
+        LOGGER.debug("現在のページを移動する");
+        Pager me3 = new Pager(100, 10, 0);
+        for (int pageIndex = 0; pageIndex <= me3.lastPageIndex; pageIndex++) {
+            int currentItemIndex = me3.getFirstItemIndex(pageIndex);
+            me3.calcIndex(currentItemIndex);
+            LOGGER.debug(pageIndex + ">" + me3.toString());
         }
     }
 }
