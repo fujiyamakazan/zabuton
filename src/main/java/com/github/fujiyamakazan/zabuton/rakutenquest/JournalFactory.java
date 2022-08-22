@@ -2,6 +2,8 @@ package com.github.fujiyamakazan.zabuton.rakutenquest;
 
 import java.io.File;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -54,6 +56,12 @@ public abstract class JournalFactory implements Serializable {
             String strDate = pickupStringDate(row);
             String pattern = pickupDatePattern(row);
 
+            /* "yyyy/"を付与 */
+            if (StringUtils.length(strDate) == 5) {
+                strDate = new SimpleDateFormat("yyyy").format(new Date()) + "/" + strDate;
+                pattern = "yyyy/" + pattern;
+            }
+
             if (this.term.in(strDate, pattern) == false) {
                 continue;
             }
@@ -75,12 +83,14 @@ public abstract class JournalFactory implements Serializable {
         /* 仕訳済みを除外する */
         for (Iterator<Journal> iterator = journals.iterator(); iterator.hasNext();) {
             Journal journal = iterator.next();
-            for (Journal exist : existDatas) {
-                if (StringUtils.equals(exist.getSource(), journal.getSource())
-                    && StringUtils.equals(exist.getRowIndex(), journal.getRowIndex())) {
-                    //log.debug("仕訳済み：" + exist);
-                    iterator.remove();
-                    break;
+            if (existDatas != null) {
+                for (Journal exist : existDatas) {
+                    if (StringUtils.equals(exist.getSource(), journal.getSource())
+                        && StringUtils.equals(exist.getRowIndex(), journal.getRowIndex())) {
+                        //log.debug("仕訳済み：" + exist);
+                        iterator.remove();
+                        break;
+                    }
                 }
             }
         }
@@ -110,6 +120,9 @@ public abstract class JournalFactory implements Serializable {
     //    }
 
     private static void fullupTemplate(List<Journal> templates, List<Journal> journals) {
+        if (templates == null) {
+            return;
+        }
         for (Journal journal : journals) {
             for (Journal template : templates) {
                 if (journal.getSource().equals(template.getSource()) == false) {

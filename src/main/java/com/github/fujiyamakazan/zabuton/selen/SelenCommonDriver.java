@@ -48,6 +48,10 @@ public abstract class SelenCommonDriver implements Serializable {
      * 画面要素を指定してクリックします。
      */
     public void clickAndWait(By by) {
+        WebDriverWait wait = new WebDriverWait(this.originalDriver, 5);
+
+        /* 要素が、ページのDOMに存在して可視となるまで待つ */
+        wait.until(ExpectedConditions.visibilityOfElementLocated(by));
 
         WebElement element = findElement(by);
 
@@ -63,6 +67,10 @@ public abstract class SelenCommonDriver implements Serializable {
 
             @Override
             protected void run() {
+
+                /* クリック可能になるまで待ちます。*/
+                wait.until(ExpectedConditions.elementToBeClickable(by));
+
                 element.click();
             }
 
@@ -76,6 +84,8 @@ public abstract class SelenCommonDriver implements Serializable {
         /* 待機処理。次のHTMLが表示されるのを待ちます。 */
         new WebDriverWait(this.originalDriver, 1)
             .until(ExpectedConditions.visibilityOfElementLocated(By.tagName("body")));
+
+
     }
 
     /**
@@ -247,5 +257,11 @@ public abstract class SelenCommonDriver implements Serializable {
             throw new RuntimeException(e);
         }
     }
+
+    public void back() {
+        this.originalDriver.navigate().back();
+    }
+
+
 
 }

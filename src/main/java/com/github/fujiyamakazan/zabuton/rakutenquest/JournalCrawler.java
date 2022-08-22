@@ -2,8 +2,10 @@ package com.github.fujiyamakazan.zabuton.rakutenquest;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -54,57 +56,7 @@ public abstract class JournalCrawler implements Serializable {
         if (isSkip() == false) {
             try {
 
-                /* 前回の処理結果を削除 */
-                for (File f : this.crawlerDailyDir.listFiles()) {
-                    f.delete();
-                }
-
-                /* WebDriverを作成 */
-                this.cmd = new SelenCommonDriver() {
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    protected WebDriver createDriver() {
-
-                        File driverFile = new File(JournalCrawler.this.appDir, STANDRD_DRIVER_NAME);
-                        if (driverFile.exists() == false) {
-                            throw new RuntimeException("WebDriverが次の場所にありません。"
-                                + driverFile.getAbsolutePath()
-                                + " [https://chromedriver.chromium.org/]からダウロードしてください。");
-                        }
-
-                        System.setProperty("webdriver.chrome.driver", driverFile.getAbsolutePath());
-
-                        /* ダウンロードフォルダ指定 */
-                        HashMap<String, Object> chromePrefs = new HashMap<String, Object>();
-                        chromePrefs.put("profile.default_content_settings.popups", 0);
-                        chromePrefs.put("download.default_directory",
-                            JournalCrawler.this.crawlerDailyDir.getAbsolutePath());
-
-                        ChromeOptions options = new ChromeOptions();
-                        options.setExperimentalOption("prefs", chromePrefs);
-                        WebDriver driver;
-                        try {
-                            driver = new ChromeDriver(options);
-                        } catch (Exception e) {
-                            log.debug(e.getClass().getName() + "が発生。");
-                            log.debug(e.getMessage());
-                            if (e instanceof SessionNotCreatedException
-                                && e.getMessage().contains("This version of ChromeDriver only supports Chrome version")) {
-                                throw new RuntimeException(
-                                "WebDriverを更新してください。"
-                                    + driverFile.getAbsolutePath()
-                                    + " [https://chromedriver.chromium.org/]からダウロードしてください。", e);
-                            } else {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                        driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT,
-                            TimeUnit.SECONDS); // 暗黙的な待機時間を設定
-
-                        return driver;
-                    }
-                };
+                downloadBefore();
 
                 downloadCore();
                 this.cmd.quit();
@@ -115,6 +67,67 @@ public abstract class JournalCrawler implements Serializable {
                 throw new RuntimeException(e);
             }
         }
+        downloadAfter();
+    }
+
+    protected void downloadBefore() {
+        /* 前回の処理結果を削除 */
+        for (File f : this.crawlerDailyDir.listFiles()) {
+            f.delete();
+        }
+
+        /* WebDriverを作成 */
+        this.cmd = new SelenCommonDriver() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected WebDriver createDriver() {
+
+                File driverFile = new File(JournalCrawler.this.appDir, STANDRD_DRIVER_NAME);
+                if (driverFile.exists() == false) {
+                    throw new RuntimeException("WebDriverが次の場所にありません。"
+                        + driverFile.getAbsolutePath()
+                        + " [https://chromedriver.chromium.org/]からダウロードしてください。");
+                }
+
+                System.setProperty("webdriver.chrome.driver", driverFile.getAbsolutePath());
+
+                /* ダウンロードフォルダ指定 */
+                HashMap<String, Object> chromePrefs = new HashMap<String, Object>();
+                chromePrefs.put("profile.default_content_settings.popups", 0);
+                chromePrefs.put("download.default_directory",
+                    JournalCrawler.this.crawlerDailyDir.getAbsolutePath());
+
+                ChromeOptions options = new ChromeOptions();
+                options.setExperimentalOption("prefs", chromePrefs);
+                WebDriver driver;
+                try {
+                    driver = new ChromeDriver(options);
+                } catch (Exception e) {
+                    log.debug(e.getClass().getName() + "が発生。");
+                    log.debug(e.getMessage());
+                    if (e instanceof SessionNotCreatedException
+                        && e.getMessage()
+                            .contains("This version of ChromeDriver only supports Chrome version")) {
+                        throw new RuntimeException(
+                            "WebDriverを更新してください。"
+                                + driverFile.getAbsolutePath()
+                                + " [https://chromedriver.chromium.org/]からダウロードしてください。",
+                            e);
+                    } else {
+                        throw new RuntimeException(e);
+                    }
+                }
+                driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT,
+                    TimeUnit.SECONDS); // 暗黙的な待機時間を設定
+
+                return driver;
+            }
+        };
+    }
+
+    protected void downloadAfter() {
+        /* 拡張ポイントです。 */
     }
 
     private boolean isSkip() {
@@ -198,15 +211,18 @@ public abstract class JournalCrawler implements Serializable {
 
     protected void sleep(int i) {
         this.cmd.sleep(i);
-        //        try {
-        //            Thread.sleep(i);
-        //        } catch (InterruptedException e) {
-        //            throw new RuntimeException(e);
-        //        }
     }
 
     protected void saveDaily(String name, String text) {
         new Utf8Text(new File(this.crawlerDailyDir, name)).write(text);
+    }
+
+    protected List<String> readDialies() {
+        List<String> list = new ArrayList<String>();
+        for (File f : this.crawlerDailyDir.listFiles()) {
+            list.add(new Utf8Text(f).read());
+        }
+        return list;
     }
 
     //    protected final class StandardMerger extends TextMerger {
