@@ -59,6 +59,10 @@ public class Chronus implements Serializable {
         return createDateFormat(pattern).format(date);
     }
 
+    public static String formant(Date date) {
+        return createDateFormat(POPULAR_JP).format(date);
+    }
+
     private static SimpleDateFormat createDateFormat(String pattern) {
         SimpleDateFormat df = new SimpleDateFormat(pattern);
         df.setLenient(false); // 厳密

@@ -18,20 +18,10 @@ import com.opencsv.CSVParser;
 
 public class JournalCsv implements Serializable {
     private static final long serialVersionUID = 1L;
-    @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JournalCsv.class);
 
     private final File file;
     private final String[] fieldNames;
-
-    //    public JournalCsv(File crawlerDir, String name) {
-    //        this(crawlerDir, name, null);
-    //    }
-    //
-    //    public JournalCsv(String path) {
-    //        this.file = new File(path);
-    //        this.fieldNames = null;
-    //    }
 
     public JournalCsv(File crawlerDir, String name, String[] fieldNames) {
         this.file = new File(crawlerDir, name);
@@ -86,8 +76,20 @@ public class JournalCsv implements Serializable {
             this.csv = CsvUtils.splitCsv(line);
         }
 
+        /**
+         * 列名を指定して値を取得します。
+         */
         public String get(String name) {
-            return this.csv[getColumnIndex(name) + 1].trim();
+            Integer index = null;
+            try {
+                index = getColumnIndex(name) + 1;
+                return this.csv[index].trim();
+            } catch (Exception e) {
+                log.debug("name:" + name);
+                log.debug("index:" + index);
+                log.debug("csv:" + CsvUtils.convertString(this.csv));
+                throw new RuntimeException(e);
+            }
         }
 
         /**

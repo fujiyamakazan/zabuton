@@ -96,28 +96,45 @@ public class TextMerger implements Serializable {
      * マスターにある同一のレコード以外をbufferに仮保存する。
      * @return 続きがあればTrueを返す。
      */
-    public boolean stock(List<String> lines) {
+    public boolean stock(List<String> dailyLines) {
 
         List<String> joins = Generics.newArrayList();
+        List<String> masterLines = standardize(this.masterLines);
 
-        List<String> masters = standardize(this.masterLines);
-
-        for (String additionalLine : lines) {
-            additionalLine = additionalLine.trim();
-            if (StringUtils.isEmpty(additionalLine)) {
+        for (String dailyLine : dailyLines) {
+            dailyLine = dailyLine.trim();
+            if (StringUtils.isEmpty(dailyLine)) {
                 continue;
             }
-            if (isSkipLine(additionalLine)) {
+            if (isSkipLine(dailyLine)) {
                 continue;
             }
-            //if (this.masterLines.contains(additionalLine)) {
-            String al = standardize(additionalLine); // 標準化
-            if (masters.contains(al)) {
+
+//            if (dailyLine.contains("2022/05/02") && dailyLine.contains("SUICA MOBILE PAYMENT")) {
+//                System.out.println(dailyLine);
+//
+//                for (String msterLine: masterLines) {
+//                    if (msterLine.contains("2022/05/02") && msterLine.contains("SUICA MOBILE PAYMENT")) {
+//                        System.out.println(msterLine);
+//                    }
+//                }
+//
+//            }
+
+
+
+
+            String al = standardize(dailyLine); // 標準化
+
+
+
+
+            if (masterLines.contains(al)) {
                 /*  マスターに同一のレコードがあれば、そのレコードは追記しない。 */
                 this.existMaster = true; // 重複する行があったことを記録
 
             } else {
-                joins.add(additionalLine);
+                joins.add(dailyLine);
             }
         }
         if (joins.isEmpty()) {
@@ -127,6 +144,7 @@ public class TextMerger implements Serializable {
         } else {
             /* 最新のファイルから処理しているので、後から処理したものを前方に追加する。*/
             this.buffer.addAll(0, joins);
+
         }
 
         return this.hasNext;
