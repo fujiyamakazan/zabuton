@@ -231,7 +231,8 @@ public class Journal implements Serializable {
                 compare = StringUtils.compare(o1.getMemo(), o2.getMemo());
             }
             if (compare == 0) {
-                compare = DateUtils.truncatedCompareTo(o1.getDate(), o2.getDate(), Calendar.DAY_OF_MONTH);
+                //compare = DateUtils.truncatedCompareTo(o1.getDate(), o2.getDate(), Calendar.DAY_OF_MONTH);
+                compare = DateUtils.truncatedCompareTo(o1.getDate(), o2.getDate(), Calendar.HOUR_OF_DAY);
             }
             return compare;
         }

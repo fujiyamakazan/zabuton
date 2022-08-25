@@ -28,7 +28,7 @@ public abstract class JournalCrawler implements Serializable {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JournalCrawler.class);
 
     public static final String STANDRD_DRIVER_NAME = "chromedriver.exe";
-    protected static final int DEFAULT_TIMEOUT = 5;
+
 
     protected SelenCommonDriver cmd;
 
@@ -59,7 +59,7 @@ public abstract class JournalCrawler implements Serializable {
                 downloadBefore();
 
                 downloadCore();
-                this.cmd.quit();
+                this.cmd.quit(false);
 
             } catch (Exception e) {
                 e.printStackTrace(); // 標準出力

@@ -110,24 +110,18 @@ public class TextMerger implements Serializable {
                 continue;
             }
 
-//            if (dailyLine.contains("2022/05/02") && dailyLine.contains("SUICA MOBILE PAYMENT")) {
-//                System.out.println(dailyLine);
-//
-//                for (String msterLine: masterLines) {
-//                    if (msterLine.contains("2022/05/02") && msterLine.contains("SUICA MOBILE PAYMENT")) {
-//                        System.out.println(msterLine);
-//                    }
-//                }
-//
-//            }
-
-
-
+            //            if (dailyLine.contains("2022/05/02") && dailyLine.contains("SUICA MOBILE PAYMENT")) {
+            //                System.out.println(dailyLine);
+            //
+            //                for (String msterLine: masterLines) {
+            //                    if (msterLine.contains("2022/05/02") && msterLine.contains("SUICA MOBILE PAYMENT")) {
+            //                        System.out.println(msterLine);
+            //                    }
+            //                }
+            //
+            //            }
 
             String al = standardize(dailyLine); // 標準化
-
-
-
 
             if (masterLines.contains(al)) {
                 /*  マスターに同一のレコードがあれば、そのレコードは追記しない。 */

@@ -85,7 +85,7 @@ public class Pager implements Serializable {
      * @param currentItemIndex 「現在の要素」のIndex
      */
     public void moveCurrentPageIndex(int currentItemIndex) {
-        calcIndex(sizeOfItem, sizeOfPage, currentItemIndex);
+        calcIndex(this.sizeOfItem, this.sizeOfPage, currentItemIndex);
     }
 
     private void calcIndex(int sizeOfItem, int sizeOfPage, int currentItemIndex) {
@@ -113,13 +113,13 @@ public class Pager implements Serializable {
         int half = size / 2; // 左右均等にする。
         int right = half;
         for (int i = 0; i <= half; i++) {
-            if (currentPageIndex - i < firstPageIndex) { // 左が不足している分、右に振り替える。
+            if (this.currentPageIndex - i < this.firstPageIndex) { // 左が不足している分、右に振り替える。
                 right++;
             }
         }
         int left = half;
         for (int i = 0; i <= half; i++) {
-            if (currentPageIndex + i > lastPageIndex) { // 右が不足している分、左に振り替える。
+            if (this.currentPageIndex + i > this.lastPageIndex) { // 右が不足している分、左に振り替える。
                 left++;
             }
         }
@@ -127,35 +127,35 @@ public class Pager implements Serializable {
         /*
          * 選択可能な最小、最大のページを計算します。
          */
-        this.minPageIndex = currentPageIndex - left;
-        this.maxPageIndex = currentPageIndex + right;
+        this.minPageIndex = this.currentPageIndex - left;
+        this.maxPageIndex = this.currentPageIndex + right;
 
         /*
          * 対象ページのIndexを返します。範囲の終端には必ず「最初のページ」「最後のページ」を配置ます。
          * 名称も設定します。
          */
-        indices.clear();
-        texts.clear();
-        for (int i = minPageIndex; i <= maxPageIndex; i++) {
-            if (i >= firstPageIndex && i <= lastPageIndex) {
-                indices.add(i);
-                texts.add(String.valueOf(i + 1)); // 表示するページ番号は index + 1 の値（1～）
+        this.indices.clear();
+        this.texts.clear();
+        for (int i = this.minPageIndex; i <= this.maxPageIndex; i++) {
+            if (i >= this.firstPageIndex && i <= this.lastPageIndex) {
+                this.indices.add(i);
+                this.texts.add(String.valueOf(i + 1)); // 表示するページ番号は index + 1 の値（1～）
             }
         }
 
         /* 先頭を最初のページとする */
-        replaceHead = indices.get(0) != firstPageIndex;
-        if (replaceHead) {
-            indices.set(0, firstPageIndex);
-            texts.set(0, String.valueOf(firstPageIndex + 1) + "...");
+        this.replaceHead = this.indices.get(0) != this.firstPageIndex;
+        if (this.replaceHead) {
+            this.indices.set(0, this.firstPageIndex);
+            this.texts.set(0, String.valueOf(this.firstPageIndex + 1) + "...");
         }
 
         /* 末尾を最終ページとする */
-        int tailIndex = indices.size() - 1;
-        replaceTail = indices.get(tailIndex) != lastPageIndex;
-        if (replaceTail) {
-            indices.set(tailIndex, lastPageIndex);
-            texts.set(tailIndex, "..." + String.valueOf(lastPageIndex + 1));
+        int tailIndex = this.indices.size() - 1;
+        this.replaceTail = this.indices.get(tailIndex) != this.lastPageIndex;
+        if (this.replaceTail) {
+            this.indices.set(tailIndex, this.lastPageIndex);
+            this.texts.set(tailIndex, "..." + String.valueOf(this.lastPageIndex + 1));
         }
     }
 
@@ -163,51 +163,51 @@ public class Pager implements Serializable {
      * 「現在のページ」のIndexを返します。
      */
     public int getCurrentPageIndex() {
-        return currentPageIndex;
+        return this.currentPageIndex;
     }
 
     /**
      * 1つ前のページのIndexを返します。
      */
     public int getPrePageIndex() {
-        return currentPageIndex - 1;
+        return this.currentPageIndex - 1;
     }
 
     /**
      * 1つ後のページのIndexを返します。
      */
     public int getNextPageIndex() {
-        return currentPageIndex + 1;
+        return this.currentPageIndex + 1;
     }
 
     /**
      * 要素のIndexから、その要素が含まれるページのIndexを返します。
      */
     public int getPageIndexByItemIndex(int itemIndex) {
-        return itemIndex / sizeOfPage;
+        return itemIndex / this.sizeOfPage;
     }
 
     /**
      * あるページに含まれる先頭の要素のIndexを返します。
      */
     public int getFirstItemIndex(Integer pageIndex) {
-        return pageIndex * sizeOfPage;
+        return pageIndex * this.sizeOfPage;
     }
 
     /**
      * 表示対象のページIndexを返します。
      */
     public List<Integer> getPageIndices() {
-        return indices;
+        return this.indices;
     }
 
     /**
      * 表示する文字列を返します。
      */
     public String getText(int pageIndex) {
-        for (int i = 0; i < indices.size(); i++) {
-            if (indices.get(i).equals(pageIndex)) {
-                return texts.get(i);
+        for (int i = 0; i < this.indices.size(); i++) {
+            if (this.indices.get(i).equals(pageIndex)) {
+                return this.texts.get(i);
             }
         }
         throw new RuntimeException(pageIndex + "のテキストが不明");
@@ -218,7 +218,7 @@ public class Pager implements Serializable {
      * この状態とのき、「前へ」ボタンは使用できません。
      */
     public boolean isCurrentFirstPage() {
-        return currentPageIndex == firstPageIndex;
+        return this.currentPageIndex == this.firstPageIndex;
     }
 
     /**
@@ -226,14 +226,14 @@ public class Pager implements Serializable {
      * この状態のとき、「次へ」ボタンは使用できません。
      */
     public boolean isCurrentLastPage() {
-        return currentPageIndex == lastPageIndex;
+        return this.currentPageIndex == this.lastPageIndex;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (Integer pageIndex : getPageIndices()) {
-            if (pageIndex == currentPageIndex) {
+            if (pageIndex == this.currentPageIndex) {
                 sb.append("[" + getText(pageIndex) + "]");
             } else {
                 sb.append(" " + getText(pageIndex) + " ");

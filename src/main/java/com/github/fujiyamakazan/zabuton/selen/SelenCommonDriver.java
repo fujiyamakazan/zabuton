@@ -23,6 +23,8 @@ import com.github.fujiyamakazan.zabuton.util.RetryWorker;
 public abstract class SelenCommonDriver implements Serializable {
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(SelenCommonDriver.class);
 
+    public static final int DEFAULT_TIMEOUT = 5;
+
     private static final By BODY = By.cssSelector("body");
 
     private static final long serialVersionUID = 1L;
@@ -48,7 +50,7 @@ public abstract class SelenCommonDriver implements Serializable {
      * 画面要素を指定してクリックします。
      */
     public void clickAndWait(By by) {
-        WebDriverWait wait = new WebDriverWait(this.originalDriver, 5);
+        WebDriverWait wait = new WebDriverWait(this.originalDriver, DEFAULT_TIMEOUT);
 
         /* 要素が、ページのDOMに存在して可視となるまで待つ */
         wait.until(ExpectedConditions.visibilityOfElementLocated(by));
@@ -82,7 +84,7 @@ public abstract class SelenCommonDriver implements Serializable {
         }.start();
 
         /* 待機処理。次のHTMLが表示されるのを待ちます。 */
-        new WebDriverWait(this.originalDriver, 1)
+        new WebDriverWait(this.originalDriver, DEFAULT_TIMEOUT)
             .until(ExpectedConditions.visibilityOfElementLocated(By.tagName("body")));
 
 
@@ -211,13 +213,20 @@ public abstract class SelenCommonDriver implements Serializable {
         this.originalDriver.switchTo().window(set.toArray(new String[] {})[set.size() - 1]);
     }
 
-    public void quit() {
+    /**
+     * 終了処理をします。
+     */
+    public void quit(boolean deleteTempFile) {
         this.originalDriver.quit();
-        deleteTempFile();
+        if (deleteTempFile) {
+            deleteTempFile();
+        }
     }
 
-    private static void deleteTempFile() {
-        /* Windowsに溜まるゴミファイルの削除 */
+    /**
+     * Windowsに溜まるゴミファイルの削除をします。
+     */
+    public static void deleteTempFile() {
         File dir = EnvUtils.getUserLocalTemp();
         for (File f : dir.listFiles()) {
             if (f.isDirectory() && f.getName().startsWith("scoped_dir")) {
