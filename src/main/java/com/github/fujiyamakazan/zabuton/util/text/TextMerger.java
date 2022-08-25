@@ -9,6 +9,7 @@ import org.apache.wicket.util.lang.Generics;
 
 import com.github.fujiyamakazan.zabuton.rakutenquest.JournalCsv;
 import com.github.fujiyamakazan.zabuton.util.date.Chronus;
+import com.github.fujiyamakazan.zabuton.util.jframe.JFrameUtils;
 import com.opencsv.CSVParser;
 
 /**
@@ -172,7 +173,9 @@ public class TextMerger implements Serializable {
             /* マスターがあるにもかかわらず、最後に処理したテキストにもマスター追加済みレコードと一致するものが無ければ、
              * 遡及回数の不足と考えられる。処理を中断し、警告をする。
              */
-            throw new RuntimeException("遡及処理の上限回数が不足しています。");
+            if (JFrameUtils.showConfirmDialog("遡及処理の上限回数が不足しています。続行しますか？") == false) {
+                throw new RuntimeException("遡及処理の上限回数が不足しています。");
+            }
         }
 
         Utf8Text master = new Utf8Text(this.masterText.getFile());

@@ -3,12 +3,16 @@ package com.github.fujiyamakazan.zabuton.rakutenquest;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.comparator.LastModifiedFileComparator;
+import org.apache.commons.io.comparator.NameFileComparator;
 import org.apache.wicket.util.lang.Generics;
 import org.openqa.selenium.SessionNotCreatedException;
 import org.openqa.selenium.WebDriver;
@@ -29,13 +33,12 @@ public abstract class JournalCrawler implements Serializable {
 
     public static final String STANDRD_DRIVER_NAME = "chromedriver.exe";
 
-
     protected SelenCommonDriver cmd;
 
     private final String name;
     protected final File appDir;
     protected final File crawlerDir;
-    protected final File crawlerDailyDir;
+    private final File crawlerDailyDir;
 
     /**
      * コンストラクタです。
@@ -51,13 +54,23 @@ public abstract class JournalCrawler implements Serializable {
 
     /**
      * 明細をダウンロードします。
+     * 本日ダウンロード分があればスキップします。
      */
-    public void download() {
-        if (isSkip() == false) {
+    public void downloadOnly() {
+
+        /* 本日ダウンロード分があればスキップ */
+        boolean skip = false;
+        File fileToday = getDownloadFileLastOne();
+        if (fileToday != null) {
+            Date date = new Date(fileToday.lastModified());
+            Calendar yesterday = Calendar.getInstance();
+            yesterday.add(Calendar.DAY_OF_MONTH, -1);
+            skip = date.after(yesterday.getTime());
+        }
+
+        if (skip == false) {
             try {
-
                 downloadBefore();
-
                 downloadCore();
                 this.cmd.quit(false);
 
@@ -67,10 +80,23 @@ public abstract class JournalCrawler implements Serializable {
                 throw new RuntimeException(e);
             }
         }
-        downloadAfter();
+        //downloadAfter();
     }
 
-    protected void downloadBefore() {
+    //    private boolean isSkip() {
+    //        /* 本日ダウンロード分があればスキップ */
+    //        boolean skip = false;
+    //        File fileToday = getDownloadFileOne();
+    //        if (fileToday != null) {
+    //            Date date = new Date(fileToday.lastModified());
+    //            Calendar yesterday = Calendar.getInstance();
+    //            yesterday.add(Calendar.DAY_OF_MONTH, -1);
+    //            skip = date.after(yesterday.getTime());
+    //        }
+    //        return skip;
+    //    }
+
+    private void downloadBefore() {
         /* 前回の処理結果を削除 */
         for (File f : this.crawlerDailyDir.listFiles()) {
             f.delete();
@@ -130,19 +156,6 @@ public abstract class JournalCrawler implements Serializable {
         /* 拡張ポイントです。 */
     }
 
-    private boolean isSkip() {
-        /* 本日ダウンロード分があればスキップ */
-        boolean skip = false;
-        File fileToday = getDownloadFileOne();
-        if (fileToday != null) {
-            Date date = new Date(fileToday.lastModified());
-            Calendar yesterday = Calendar.getInstance();
-            yesterday.add(Calendar.DAY_OF_MONTH, -1);
-            skip = date.after(yesterday.getTime());
-        }
-        return skip;
-    }
-
     private Map<String, JournalCsv> masters = Generics.newHashMap();
     private File summary;
 
@@ -172,18 +185,49 @@ public abstract class JournalCrawler implements Serializable {
 
     protected abstract void downloadCore();
 
-    protected File getDownloadFileOne() {
-        if (this.crawlerDailyDir.listFiles().length == 0) {
-            return null;
+    /**
+     * ダウンロードされたファイルを返します。ファイル名順です。
+     */
+    protected List<File> getDownloadFiles() {
+        List<File> list = new ArrayList<File>(Arrays.asList(this.crawlerDailyDir.listFiles()));
+        Collections.sort(list, new NameFileComparator());
+        return list;
+    }
+
+    //    /**
+    //     * ダウンロードされたファイルを１つ返します。
+    //     * @deprecated 複数ダウンロード済みの時、順番が保証されません。「getDownloadFileLastOne」を使用してください。
+    //     */
+    //    @Deprecated
+    //    protected File getDownloadFileOne() {
+    //        if (this.crawlerDailyDir.listFiles().length == 0) {
+    //            return null;
+    //        }
+    //        return this.crawlerDailyDir.listFiles()[0];
+    //    }
+
+    /**
+     * 直近にダウンロードされたファイルを１つ返します。
+     * ダウンロードされていなければnullを返します。
+     */
+    protected File getDownloadFileLastOne() {
+        File lastFile;
+        List<File> list = new ArrayList<File>(Arrays.asList(this.crawlerDailyDir.listFiles()));
+        if (list.isEmpty()) {
+            lastFile = null;
+        } else {
+            Collections.sort(list, new LastModifiedFileComparator());
+            Collections.reverse(list);
+            lastFile = list.get(0);
         }
-        return this.crawlerDailyDir.listFiles()[0];
+        return lastFile;
     }
 
     protected String getDownloadTextAsUtf8() {
         if (this.crawlerDailyDir.listFiles().length == 0) {
             return null;
         }
-        return new Utf8Text(getDownloadFileOne()).read();
+        return new Utf8Text(getDownloadFileLastOne()).read();
     }
 
     public final class DownloadWait extends RetryWorker {
@@ -191,7 +235,7 @@ public abstract class JournalCrawler implements Serializable {
 
         @Override
         protected void run() {
-            File downloadFileOne = getDownloadFileOne();
+            File downloadFileOne = getDownloadFileLastOne();
             if (downloadFileOne == null) {
                 throw new RuntimeException("ダウンロード未完了");
             } else {
@@ -247,11 +291,11 @@ public abstract class JournalCrawler implements Serializable {
      */
     protected void deletePreFile() {
 
-        File f = getDownloadFileOne();
-        if (getDownloadFileOne() != null) {
+        File f = getDownloadFileLastOne();
+        if (getDownloadFileLastOne() != null) {
             f.delete();
         }
-        if (getDownloadFileOne() != null) {
+        if (getDownloadFileLastOne() != null) {
             throw new RuntimeException();
         }
     }

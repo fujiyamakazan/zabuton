@@ -6,7 +6,11 @@ import java.awt.event.WindowListener;
 import java.io.Serializable;
 import java.util.List;
 
+import org.apache.wicket.model.Model;
 import org.apache.wicket.util.lang.Generics;
+
+import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageButton;
+import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageTextField;
 
 public class JPageApplication implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -82,6 +86,25 @@ public class JPageApplication implements Serializable {
                 close();
             }
         };
+    }
+
+    /**
+     * シンプルな入力ダイアログを表示します。
+     * @param title 項目名
+     */
+    public static String ofSimpleInputDialog(String title) {
+        final Model<String> model = Model.of("");
+        JPageApplication.start(new JPage() {
+            private static final long serialVersionUID = 1L;
+            @Override
+            protected void onInitialize() {
+                super.onInitialize();
+                addLine(new JPageTextField("Captcha", model));
+                addLine(new JPageButton("OK", new JPageAction()));
+            }
+        });
+        String inputText = model.getObject();
+        return inputText;
     }
 
 }

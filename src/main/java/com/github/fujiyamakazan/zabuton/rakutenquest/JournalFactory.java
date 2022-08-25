@@ -34,16 +34,21 @@ public abstract class JournalFactory implements Serializable {
 
     protected abstract JournalCrawler createCrawler(File dir);
 
-    //protected abstract List<Journal> createJournal(List<Journal> templates);
+    /**
+     * ダウンロードをします。
+     */
+    public void download(List<Journal> existDatas, List<Journal> templates) {
+        this.crawler.downloadOnly();
+    }
 
     /**
-     * 主処理を実行します。
+     * 仕訳データを作成します。
      */
-    public List<Journal> execute(List<Journal> existDatas, List<Journal> templates) {
+    public List<Journal> createJurnals(List<Journal> existDatas, List<Journal> templates) {
 
-        this.crawler.download();
+        this.crawler.downloadAfter();
 
-        //List<Journal> journals = createJournal(templates);
+
         List<Journal> journals = Generics.newArrayList();
         for (JournalCsv.Row row : selectMaster().getRrows()) {
 
@@ -183,5 +188,7 @@ public abstract class JournalFactory implements Serializable {
     protected boolean isNotEmptyAmount(String str) {
         return isEmptyAmount(str) == false;
     }
+
+
 
 }
