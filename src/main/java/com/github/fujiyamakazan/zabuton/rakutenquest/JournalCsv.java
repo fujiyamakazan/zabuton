@@ -37,15 +37,21 @@ public class JournalCsv implements Serializable {
      */
     public boolean validHeader(String line) {
         if (this.fieldNames == null) {
-            return line.startsWith("\"#\"");
+            //return line.startsWith("\"#\"");
+            throw new RuntimeException("列名が未定義");
         }
 
-        return line.equals(getHeader() + "," + CsvUtils.convertString(this.fieldNames));
+        //return line.equals(getHeader() + "," + CsvUtils.convertString(this.fieldNames));
+        return StringUtils.equals(line, getHeader());
     }
 
-    public static String getHeader() {
-        return "\"#\"";
+    public String getHeader() {
+        return "\"#\"," + CsvUtils.convertString(this.fieldNames);
     }
+
+    //    public static String getHeader() {
+    //        return "\"#\"";
+    //    }
 
     /**
      * 行を取得します。
@@ -130,6 +136,12 @@ public class JournalCsv implements Serializable {
             }
             return false;
         }
+
+        @Override
+        public String toString() {
+            return "Row [line=" + this.line + ", csv=" + Arrays.toString(this.csv) + "]";
+        }
+
     }
 
     public static int getRowIndex(String line) throws IOException {

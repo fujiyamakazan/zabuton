@@ -142,10 +142,18 @@ public class Journal implements Serializable {
         this.memo2 = memo2;
     }
 
+    /**
+     * 「記録元」を取得します。
+     * @return 記録元
+     */
     public String getSource() {
         return this.source;
     }
 
+    /**
+     * 「記録元」を登録します。
+     * @param source 記録元
+     */
     public void setSource(String source) {
         this.source = source;
     }
@@ -173,6 +181,44 @@ public class Journal implements Serializable {
     public void setKeywordOnSource(String keywordOnSource) {
         this.keywordOnSource = keywordOnSource;
     }
+
+    public final class JournalComparator implements Comparator<Journal> {
+        @Override
+        public int compare(Journal o1, Journal o2) {
+            return o1.date.compareTo(o2.date);
+        }
+    }
+
+    public static final class JournalsComparator implements Comparator<Journal> {
+        @Override
+        public int compare(Journal o1, Journal o2) {
+            int compare = 0;
+            if (compare == 0) {
+                compare = StringUtils.compare(o1.getSource(), o2.getSource());
+            }
+            if (compare == 0) {
+                compare = StringUtils.compare(o1.getActivity(), o2.getActivity());
+            }
+            if (compare == 0) {
+                compare = StringUtils.compare(o1.getMemo(), o2.getMemo());
+            }
+            if (compare == 0) {
+                //compare = DateUtils.truncatedCompareTo(o1.getDate(), o2.getDate(), Calendar.DAY_OF_MONTH);
+                compare = DateUtils.truncatedCompareTo(o1.getDate(), o2.getDate(), Calendar.HOUR_OF_DAY);
+            }
+            return compare;
+        }
+    }
+
+    public static final String HEADER = "日付" + "\t"
+        + "金額" + "\t"
+        + "借方" + "\t"
+        + "貸方" + "\t"
+        + "メモ" + "\t"
+        + "メモ2" + "\t"
+        + "活動科目" + "\t"
+        + "記録元" + "\t"
+        + "#";
 
     /**
      * 仕訳用文字列を返します。
@@ -206,35 +252,4 @@ public class Journal implements Serializable {
             + this.memo + ", source=" + this.source + ", activity=" + this.activity + "]";
     }
 
-
-
-
-
-    public final class JournalComparator implements Comparator<Journal> {
-        @Override
-        public int compare(Journal o1, Journal o2) {
-            return o1.date.compareTo(o2.date);
-        }
-    }
-
-    public static final class JournalsComparator implements Comparator<Journal> {
-        @Override
-        public int compare(Journal o1, Journal o2) {
-            int compare = 0;
-            if (compare == 0) {
-                compare = StringUtils.compare(o1.getSource(), o2.getSource());
-            }
-            if (compare == 0) {
-                compare = StringUtils.compare(o1.getActivity(), o2.getActivity());
-            }
-            if (compare == 0) {
-                compare = StringUtils.compare(o1.getMemo(), o2.getMemo());
-            }
-            if (compare == 0) {
-                //compare = DateUtils.truncatedCompareTo(o1.getDate(), o2.getDate(), Calendar.DAY_OF_MONTH);
-                compare = DateUtils.truncatedCompareTo(o1.getDate(), o2.getDate(), Calendar.HOUR_OF_DAY);
-            }
-            return compare;
-        }
-    }
 }

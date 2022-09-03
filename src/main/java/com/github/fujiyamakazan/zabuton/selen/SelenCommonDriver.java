@@ -13,6 +13,7 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -31,6 +32,11 @@ public abstract class SelenCommonDriver implements Serializable {
 
     private final transient WebDriver originalDriver;
 
+    /**
+     * Seleniumの一時ファイルを自動削除する場合はtrueを指定します。
+     */
+    public static boolean deleteTemp = true;
+
     public SelenCommonDriver() {
         this.originalDriver = createDriver();
     }
@@ -43,7 +49,6 @@ public abstract class SelenCommonDriver implements Serializable {
     public void get(String url) {
         this.originalDriver.get(url);
         /* ページの表示を待ちます */
-        //new WebDriverWait(this.originalDriver, 1).until(ExpectedConditions.);
     }
 
     /**
@@ -86,7 +91,6 @@ public abstract class SelenCommonDriver implements Serializable {
         /* 待機処理。次のHTMLが表示されるのを待ちます。 */
         new WebDriverWait(this.originalDriver, DEFAULT_TIMEOUT)
             .until(ExpectedConditions.visibilityOfElementLocated(By.tagName("body")));
-
 
     }
 
@@ -216,9 +220,9 @@ public abstract class SelenCommonDriver implements Serializable {
     /**
      * 終了処理をします。
      */
-    public void quit(boolean deleteTempFile) {
+    public void quit() {
         this.originalDriver.quit();
-        if (deleteTempFile) {
+        if (deleteTemp) {
             deleteTempFile();
         }
     }
@@ -271,6 +275,8 @@ public abstract class SelenCommonDriver implements Serializable {
         this.originalDriver.navigate().back();
     }
 
-
+    public void until(ExpectedCondition<WebElement> condition) {
+        new WebDriverWait(this.originalDriver, DEFAULT_TIMEOUT).until(condition);
+    }
 
 }

@@ -10,14 +10,13 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.lang.Generics;
 
-import com.github.fujiyamakazan.zabuton.rakutenquest.JournalCsv.Row;
 import com.github.fujiyamakazan.zabuton.util.date.Chronus;
 import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
 
 public abstract class JournalFactory implements Serializable {
     private static final long serialVersionUID = 1L;
     @SuppressWarnings("unused")
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JournalFactory.class);
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(JournalFactory.class);
 
     protected final JournalCrawler crawler;
     protected final JournalsTerm term;
@@ -25,6 +24,7 @@ public abstract class JournalFactory implements Serializable {
 
     /**
      * コンストラクタです。
+     * クローラーの作成をします。
      */
     public JournalFactory(String name, JournalsTerm term, File dir) {
         this.name = name;
@@ -35,10 +35,10 @@ public abstract class JournalFactory implements Serializable {
     protected abstract JournalCrawler createCrawler(File dir);
 
     /**
-     * ダウンロードをします。
+     * クローラーを使って明細の元となるデータをダウンロードをします。
      */
-    public void download(List<Journal> existDatas, List<Journal> templates) {
-        this.crawler.downloadOnly();
+    public void download() {
+        this.crawler.download();
     }
 
     /**
@@ -46,8 +46,7 @@ public abstract class JournalFactory implements Serializable {
      */
     public List<Journal> createJurnals(List<Journal> existDatas, List<Journal> templates) {
 
-        this.crawler.downloadAfter();
-
+        this.crawler.prepareForCreateJurnals();
 
         List<Journal> journals = Generics.newArrayList();
         for (JournalCsv.Row row : selectMaster().getRrows()) {
@@ -71,7 +70,7 @@ public abstract class JournalFactory implements Serializable {
                 continue;
             }
 
-            common(row);
+            //common(row);
 
             journal.setDate(Chronus.parse(strDate, pattern));
             journal.setKeywordOnSource(pickupKeywordOnsource(row));
@@ -103,27 +102,6 @@ public abstract class JournalFactory implements Serializable {
         return journals;
     }
 
-    protected void common(Row row) {
-        /* 拡張ポイント */
-    }
-
-    protected JournalCsv selectMaster() {
-        return this.crawler.getMaster();
-    }
-
-    //protected abstract Date pickupDate(JournalCsv.Row row);
-    protected abstract String pickupStringDate(JournalCsv.Row row);
-
-    protected abstract String pickupDatePattern(JournalCsv.Row row);
-
-    protected abstract String pickupKeywordOnsource(JournalCsv.Row row);
-
-    protected abstract String pickupMemo(JournalCsv.Row row);
-
-    protected abstract String pickupAmount(JournalCsv.Row row);
-    //        return row.get("取引日", new SimpleDateFormat(Chronus.POPULAR_JP));
-    //    }
-
     private static void fullupTemplate(List<Journal> templates, List<Journal> journals) {
         if (templates == null) {
             return;
@@ -133,28 +111,23 @@ public abstract class JournalFactory implements Serializable {
                 if (journal.getSource().equals(template.getSource()) == false) {
                     continue;
                 }
-                String k = journal.getKeywordOnSource();
-                String tk = template.getKeywordOnSource();
-                if (tk == null) {
-                    tk = "";
+                String source = journal.getKeywordOnSource();
+                String templateSource = template.getKeywordOnSource();
+                if (templateSource == null) {
+                    templateSource = "";
                 }
 
-                //                if (k.contains("楽天キャッシュ・チャージ")
-                //                    && tk.contains("楽天キャッシュ・チャージ")) {
-                //                    System.out.println();
-                //                }
-
                 final boolean hit;
-                if (tk.equals("*")) {
+                if (templateSource.equals("*")) {
                     hit = true;
-                } else if (tk.startsWith("*") && tk.endsWith("*")) {
-                    hit = k.contains(tk.substring(1, tk.length() - 1));
-                } else if (tk.startsWith("*")) {
-                    hit = k.endsWith(tk.substring(1));
-                } else if (tk.endsWith("*")) {
-                    hit = k.startsWith(tk.substring(0, tk.length() - 1));
+                } else if (templateSource.startsWith("*") && templateSource.endsWith("*")) {
+                    hit = source.contains(templateSource.substring(1, templateSource.length() - 1));
+                } else if (templateSource.startsWith("*")) {
+                    hit = source.endsWith(templateSource.substring(1));
+                } else if (templateSource.endsWith("*")) {
+                    hit = source.startsWith(templateSource.substring(0, templateSource.length() - 1));
                 } else {
-                    hit = k.equals(tk);
+                    hit = source.equals(templateSource);
                 }
 
                 if (hit) {
@@ -174,6 +147,22 @@ public abstract class JournalFactory implements Serializable {
         }
     }
 
+    protected JournalCsv selectMaster() {
+        return this.crawler.getMaster();
+    }
+
+    protected abstract String pickupStringDate(JournalCsv.Row row);
+
+    protected abstract String pickupDatePattern(JournalCsv.Row row);
+
+    protected abstract String pickupKeywordOnsource(JournalCsv.Row row);
+
+    protected abstract String pickupMemo(JournalCsv.Row row);
+
+    protected abstract String pickupAmount(JournalCsv.Row row);
+
+
+
     public final String getName() {
         return this.name;
     }
@@ -188,7 +177,5 @@ public abstract class JournalFactory implements Serializable {
     protected boolean isNotEmptyAmount(String str) {
         return isEmptyAmount(str) == false;
     }
-
-
 
 }

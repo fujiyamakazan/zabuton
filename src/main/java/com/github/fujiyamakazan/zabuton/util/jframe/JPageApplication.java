@@ -5,6 +5,8 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.lang.Generics;
@@ -16,6 +18,7 @@ public class JPageApplication implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final Object lock = new Object();
+    private boolean closed = false;
 
     private final List<JPage> pages = Generics.newArrayList();
 
@@ -32,13 +35,16 @@ public class JPageApplication implements Serializable {
         bind(page);
         page.show();
 
-        synchronized (this.lock) {
-            try {
-                this.lock.wait();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+        if (this.closed == false) {
+            synchronized (this.lock) {
+                try {
+                    this.lock.wait();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
+
     }
 
     /**
@@ -54,6 +60,8 @@ public class JPageApplication implements Serializable {
         synchronized (this.lock) {
             this.lock.notifyAll();
         }
+
+        this.closed = true;
     }
 
     /**
@@ -91,20 +99,51 @@ public class JPageApplication implements Serializable {
     /**
      * シンプルな入力ダイアログを表示します。
      * @param title 項目名
+     * @param timeSec タイムアウト[秒]
      */
-    public static String ofSimpleInputDialog(String title) {
+    public static String ofSimpleInputDialog(String title, int timeSec) {
         final Model<String> model = Model.of("");
+
         JPageApplication.start(new JPage() {
             private static final long serialVersionUID = 1L;
+
+            private JPageButton okButton = null;
+
             @Override
             protected void onInitialize() {
                 super.onInitialize();
-                addLine(new JPageTextField("Captcha", model));
-                addLine(new JPageButton("OK", new JPageAction()));
+                addLine(new JPageTextField(title, model));
+                addLine(this.okButton = new JPageButton("OK", new JPageAction()));
             }
+
+            @Override
+            protected void onAfterShow() {
+                super.onAfterShow();
+
+                // タイムアウト
+                new Timer().schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        getOkButton().doClick();
+                    }
+                }, timeSec * 1000);
+
+            }
+
+            public JPageButton getOkButton() {
+                return this.okButton;
+            }
+
+
         });
+
         String inputText = model.getObject();
         return inputText;
+    }
+
+    public static void main(String[] args) {
+        String str = JPageApplication.ofSimpleInputDialog("test", 3);
+        System.out.println(str);
     }
 
 }

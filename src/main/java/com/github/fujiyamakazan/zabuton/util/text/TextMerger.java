@@ -26,7 +26,7 @@ public class TextMerger implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private final JournalCsv masterText;
+    private final JournalCsv masterCsv;
     private final List<String> masterLines = Generics.newArrayList();
     private final List<String> buffer = Generics.newArrayList();
 
@@ -45,16 +45,16 @@ public class TextMerger implements Serializable {
      * コンストラクタです。マスターテキストを登録します。
      */
     //public TextMerger(JournalCsv masterText, String availableKeyWord) {
-    public TextMerger(JournalCsv masterText, String datePattern) {
-        this.masterText = masterText;
+    public TextMerger(JournalCsv masterCsv, String datePattern) {
+        this.masterCsv = masterCsv;
         this.datePattern = datePattern;
         boolean first = true;
 
-        for (String line : new Utf8Text(masterText.getFile()).readLines()) {
+        for (String line : new Utf8Text(masterCsv.getFile()).readLines()) {
             line = line.trim();
 
             if (first) {
-                if (masterText.validHeader(line) == false) {
+                if (masterCsv.validHeader(line) == false) {
                     throw new RuntimeException("見出し行を持たない不正なマスターです。" + line);
                 }
                 first = false;
@@ -110,17 +110,6 @@ public class TextMerger implements Serializable {
             if (isSkipLine(dailyLine)) {
                 continue;
             }
-
-            //            if (dailyLine.contains("2022/05/02") && dailyLine.contains("SUICA MOBILE PAYMENT")) {
-            //                System.out.println(dailyLine);
-            //
-            //                for (String msterLine: masterLines) {
-            //                    if (msterLine.contains("2022/05/02") && msterLine.contains("SUICA MOBILE PAYMENT")) {
-            //                        System.out.println(msterLine);
-            //                    }
-            //                }
-            //
-            //            }
 
             String al = standardize(dailyLine); // 標準化
 
@@ -178,8 +167,8 @@ public class TextMerger implements Serializable {
             }
         }
 
-        Utf8Text master = new Utf8Text(this.masterText.getFile());
-        if (this.masterText.getFile().exists()) {
+        Utf8Text master = new Utf8Text(this.masterCsv.getFile());
+        if (this.masterCsv.getFile().exists()) {
             if (master.read().endsWith("\n") == false) {
                 this.buffer.add(0, "\n");
             }
@@ -196,10 +185,10 @@ public class TextMerger implements Serializable {
         this.buffer.addAll(tmp);
 
         /* マスターテキストに、追加テキストのレコードを追記する。ただし、マスターが無ければ新規作成する。 */
-        if (this.masterText.getFile().exists()) {
+        if (this.masterCsv.getFile().exists()) {
             master.writeLines(this.buffer, true);
         } else {
-            this.buffer.add(0, JournalCsv.getHeader()); // 見出し行
+            this.buffer.add(0, this.masterCsv.getHeader()); // 見出し行
             master.writeLines(this.buffer);
         }
 
