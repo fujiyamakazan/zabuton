@@ -1,4 +1,4 @@
-package com.github.fujiyamakazan.zabuton.rakutenquest;
+package com.github.fujiyamakazan.zabuton.app.rakutenquest;
 
 import java.io.Serializable;
 import java.util.Calendar;

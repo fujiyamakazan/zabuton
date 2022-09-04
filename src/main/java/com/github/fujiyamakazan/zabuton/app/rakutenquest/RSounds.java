@@ -1,4 +1,4 @@
-package com.github.fujiyamakazan.zabuton.rakutenquest;
+package com.github.fujiyamakazan.zabuton.app.rakutenquest;
 
 import java.applet.Applet;
 import java.applet.AudioClip;

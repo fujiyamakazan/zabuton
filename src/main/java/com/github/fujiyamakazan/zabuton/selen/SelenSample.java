@@ -1,5 +1,6 @@
 package com.github.fujiyamakazan.zabuton.selen;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
@@ -26,14 +27,23 @@ public class SelenSample implements Serializable {
             @Override
             protected WebDriver createDriver() {
 
-                final String filePath = "C:\\tmp\\msedgedriver.exe";
-                System.setProperty("webdriver.edge.driver", filePath);
+                System.setProperty("webdriver.edge.driver", getDriverFile().getAbsolutePath());
 
                 WebDriver driver = new EdgeDriver();
 
                 driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS); // 暗黙的な待機時間を設定
 
                 return driver;
+            }
+
+            @Override
+            protected File getDownloadDir() {
+                return new File("C:\\tmp\\");
+            }
+
+            @Override
+            protected File getDriverFile() {
+                return new File("C:\\tmp\\msedgedriver.exe");
             }
 
         };

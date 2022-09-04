@@ -1,3 +1,4 @@
+package com.github.fujiyamakazan.zabuton.app.rakutenquest;
 //package com.github.fujiyamakazan.zabuton.rakutenquest;
 //
 //import java.io.File;

@@ -1,4 +1,4 @@
-package com.github.fujiyamakazan.zabuton.rakutenquest;
+package com.github.fujiyamakazan.zabuton.app.rakutenquest;
 
 import java.io.File;
 import java.io.Serializable;
@@ -6,19 +6,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.io.comparator.NameFileComparator;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
-import org.openqa.selenium.SessionNotCreatedException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 
 import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
 import com.github.fujiyamakazan.zabuton.util.RetryWorker;
@@ -29,6 +23,7 @@ import com.ibm.icu.util.Calendar;
 
 public abstract class JournalCrawler implements Serializable {
     private static final long serialVersionUID = 1L;
+    @SuppressWarnings("unused")
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(JournalCrawler.class);
 
     /**
@@ -77,8 +72,6 @@ public abstract class JournalCrawler implements Serializable {
     }
 
     protected abstract String[] getCulmuns();
-
-
 
     public JournalCsv getMaster() {
         //return this.getMaster("MAIN");
@@ -134,47 +127,15 @@ public abstract class JournalCrawler implements Serializable {
                 private static final long serialVersionUID = 1L;
 
                 @Override
-                protected WebDriver createDriver() {
-
-                    if (JournalCrawler.this.driver.exists() == false) {
-                        throw new RuntimeException("WebDriverが次の場所にありません。"
-                            + JournalCrawler.this.driver.getAbsolutePath()
-                            + " [https://chromedriver.chromium.org/]からダウロードしてください。");
-                    }
-
-                    System.setProperty("webdriver.chrome.driver", JournalCrawler.this.driver.getAbsolutePath());
-
-                    /* ダウンロードフォルダ指定 */
-                    HashMap<String, Object> chromePrefs = new HashMap<String, Object>();
-                    chromePrefs.put("profile.default_content_settings.popups", 0);
-                    chromePrefs.put("download.default_directory",
-                        JournalCrawler.this.crawlerDailyDir.getAbsolutePath());
-
-                    ChromeOptions options = new ChromeOptions();
-                    options.setExperimentalOption("prefs", chromePrefs);
-                    WebDriver driver;
-                    try {
-                        driver = new ChromeDriver(options);
-                    } catch (Exception e) {
-                        LOGGER.debug(e.getClass().getName() + "が発生。");
-                        LOGGER.debug(e.getMessage());
-                        if (e instanceof SessionNotCreatedException
-                            && e.getMessage()
-                                .contains("This version of ChromeDriver only supports Chrome version")) {
-                            throw new RuntimeException(
-                                "WebDriverを更新してください。"
-                                    + JournalCrawler.this.driver.getAbsolutePath()
-                                    + " [https://chromedriver.chromium.org/]からダウロードしてください。",
-                                e);
-                        } else {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                    driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT,
-                        TimeUnit.SECONDS); // 暗黙的な待機時間を設定
-
-                    return driver;
+                protected File getDriverFile() {
+                    return JournalCrawler.this.driver;
                 }
+
+                @Override
+                protected File getDownloadDir() {
+                    return JournalCrawler.this.crawlerDailyDir;
+                }
+
             };
 
             downloadCore(cmd);
@@ -220,6 +181,13 @@ public abstract class JournalCrawler implements Serializable {
     }
 
     /**
+     * ダウンロードされたファイルの数を返します。
+     */
+    protected int getDownloadFileSize() {
+        return getDownloadFiles().size();
+    }
+
+    /**
      * 直近にダウンロードされたファイルを１つ返します。
      * ダウンロードされていなければnullを返します。
      */
@@ -240,28 +208,53 @@ public abstract class JournalCrawler implements Serializable {
         return new File(this.crawlerDailyDir, name);
     }
 
-    protected String getDownloadTextAsUtf8() {
-        if (this.crawlerDailyDir.listFiles().length == 0) {
-            return null;
+    protected String getDownloadTextAsUtf8LastOne() {
+        File file = getDownloadFileLastOne();
+        if (file != null) {
+            return new Utf8Text(file).read();
         }
-        return new Utf8Text(getDownloadFileLastOne()).read();
+        return null;
+    }
+
+    protected String getDownloadTextAsUtf8(String name) {
+        //        if (this.crawlerDailyDir.listFiles().length == 0) {
+        //            return null;
+        //        }
+        //        return new Utf8Text(getDownloadFileLastOne()).read();
+        File file = getDownloadFile(name);
+        if (file != null) {
+            return new Utf8Text(file).read();
+        }
+        return null;
+    }
+
+    protected void downloadFile(DownloadFileWorker downloadFileWorker) {
+        int iniSize = getDownloadFileSize();
+        downloadFileWorker.action();
+        waitForDownload(iniSize); // ダウンロードが終わるのを待ちます。
+    }
+
+    protected abstract class DownloadFileWorker {
+        protected abstract void action();
     }
 
     /**
      * ダウンロードが終わるのを待ちます。
      */
-    protected void waitForDownload() {
+    private void waitForDownload(int iniSize) {
         new RetryWorker() {
             private static final long serialVersionUID = 1L;
 
             @Override
             protected void run() {
-                File downloadFileOne = getDownloadFileLastOne();
-                if (downloadFileOne == null) {
+                //File downloadFileOne = getDownloadFileLastOne();
+                int count = getDownloadFileSize();
+                //if (downloadFileOne == null) {
+                if (count <= iniSize) {
                     throw new RuntimeException("ダウンロード未完了");
                 } else {
-                    String name = downloadFileOne.getName();
-                    LOGGER.debug("[" + name + "]");
+                    //String name = downloadFileOne.getName();
+                    String name = getDownloadFileLastOne().getName();
                     if (name.endsWith(".tmp") || name.endsWith(".crdownload")) {
                         throw new RuntimeException("ダウンロード実行中");
                     }

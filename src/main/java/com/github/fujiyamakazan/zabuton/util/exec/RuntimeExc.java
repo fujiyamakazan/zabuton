@@ -71,11 +71,16 @@ public class RuntimeExc implements Serializable {
         return execute(new String[] { "cmd", "/c", arg2 });
     }
 
+    public void exec(String... params) {
+        exec(true, params);
+    }
+
     /**
      * コマンドを実行します。
+     * @param sync 同期しない場合はfalse
      * @param params コマンド
      */
-    public void exec(String... params) {
+    public void exec(boolean sync, String... params) {
         String enc = System.getProperty("os.name").toLowerCase().startsWith("windows")
             ? "MS932"
             : "UTF-8";
@@ -86,6 +91,10 @@ public class RuntimeExc implements Serializable {
             process = runtime.exec(params);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+
+        if (sync == false) {
+            return;
         }
 
         try (InputStream in = process.getInputStream();

@@ -3,6 +3,7 @@ package com.github.fujiyamakazan.zabuton.selen;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -10,8 +11,11 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.SessionNotCreatedException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -41,14 +45,60 @@ public abstract class SelenCommonDriver implements Serializable {
         this.originalDriver = createDriver();
     }
 
-    protected abstract WebDriver createDriver();
+    protected WebDriver createDriver() {
+
+        final File driverFile = getDriverFile();
+        final File dir = getDownloadDir();
+
+        if (driverFile.exists() == false) {
+            throw new RuntimeException("WebDriverが次の場所にありません。"
+                + driverFile.getAbsolutePath()
+                + " [https://chromedriver.chromium.org/]からダウロードしてください。");
+        }
+
+        System.setProperty("webdriver.chrome.driver", driverFile.getAbsolutePath());
+
+        /* ダウンロードフォルダ指定 */
+        HashMap<String, Object> chromePrefs = new HashMap<String, Object>();
+        chromePrefs.put("profile.default_content_settings.popups", 0);
+        chromePrefs.put("download.default_directory",
+            dir.getAbsolutePath());
+
+        ChromeOptions options = new ChromeOptions();
+        options.setExperimentalOption("prefs", chromePrefs);
+        WebDriver driver;
+        try {
+            driver = new ChromeDriver(options);
+        } catch (Exception e) {
+            LOGGER.debug(e.getClass().getName() + "が発生。");
+            LOGGER.debug(e.getMessage());
+            if (e instanceof SessionNotCreatedException
+                && e.getMessage()
+                    .contains("This version of ChromeDriver only supports Chrome version")) {
+                throw new RuntimeException(
+                    "WebDriverを更新してください。"
+                        + driverFile.getAbsolutePath()
+                        + " [https://chromedriver.chromium.org/]からダウロードしてください。",
+                    e);
+            } else {
+                throw new RuntimeException(e);
+            }
+        }
+        driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT,
+            TimeUnit.SECONDS); // 暗黙的な待機時間を設定
+
+        return driver;
+    }
+
+    protected abstract File getDownloadDir();
+
+    protected abstract File getDriverFile();
 
     /**
      * URLを指定して表示します。
      */
     public void get(String url) {
         this.originalDriver.get(url);
-        /* ページの表示を待ちます */
     }
 
     /**
@@ -277,6 +327,10 @@ public abstract class SelenCommonDriver implements Serializable {
 
     public void until(ExpectedCondition<WebElement> condition) {
         new WebDriverWait(this.originalDriver, DEFAULT_TIMEOUT).until(condition);
+    }
+
+    public WebDriver getDriver() {
+        return this.originalDriver;
     }
 
 }
