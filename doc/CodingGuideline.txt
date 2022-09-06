@@ -1,0 +1,22 @@
+---------------
+CodingGuideline
+---------------
+
+[HTML]
+
+<!DOCTYPE HTML>
+<html xmlns:wicket>
+<head>
+<meta charset="UTF-8" />
+</head>
+
+[Java]
+
+mainメソッド
+・動作確認を目的とする場合は、末尾に実装する。
+・実装サンプルを目的とする場合は、先頭に実装する。
+・継続的なテストはmainメソッドではなくUnitテストに実装する。
+・呼出しメソッドとして利用しない。
+
+
+
