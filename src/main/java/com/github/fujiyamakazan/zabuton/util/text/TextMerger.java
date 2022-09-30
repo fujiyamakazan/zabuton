@@ -37,6 +37,8 @@ public class TextMerger implements Serializable {
     //private final TermAction termAction;
     private final String datePattern;
 
+    private final String title;
+
     public boolean hasNext() {
         return this.hasNext;
     }
@@ -45,7 +47,8 @@ public class TextMerger implements Serializable {
      * コンストラクタです。マスターテキストを登録します。
      */
     //public TextMerger(JournalCsv masterText, String availableKeyWord) {
-    public TextMerger(JournalCsv masterCsv, String datePattern) {
+    public TextMerger(String title, JournalCsv masterCsv, String datePattern) {
+        this.title = title;
         this.masterCsv = masterCsv;
         this.datePattern = datePattern;
         boolean first = true;
@@ -162,8 +165,8 @@ public class TextMerger implements Serializable {
             /* マスターがあるにもかかわらず、最後に処理したテキストにもマスター追加済みレコードと一致するものが無ければ、
              * 遡及回数の不足と考えられる。処理を中断し、警告をする。
              */
-            if (JFrameUtils.showConfirmDialog("遡及処理の上限回数が不足しています。続行しますか？") == false) {
-                throw new RuntimeException("遡及処理の上限回数が不足しています。");
+            if (JFrameUtils.showConfirmDialog("[" + title + "]遡及処理の上限回数が不足しています。続行しますか？") == false) {
+                throw new RuntimeException("[" + title + "]遡及処理の上限回数が不足しています。");
             }
         }
 
