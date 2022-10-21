@@ -10,10 +10,12 @@ package com.github.fujiyamakazan.zabuton.util.jframe;
 public class JPageButtonAction extends JPageAction {
     private static final long serialVersionUID = 1L;
 
+    @Override
     public void run() {
         /* 子クラスで実装 */
     }
 
+    @Override
     public boolean isFinal() {
         return false;
     }

@@ -116,7 +116,7 @@ public abstract class TextFile implements Serializable {
     }
 
     /**
-     * 文字セット「UTF-8」を指定してテキストを保存します。
+     * 文字セットを指定してテキストを保存します。
      * @param data テキスト
      */
     public void write(String data) {
@@ -130,10 +130,17 @@ public abstract class TextFile implements Serializable {
      */
     public void write(String data, boolean append) {
         try {
-            FileUtils.write(this.file, data, getCharset(), append);
+            FileUtils.write(this.file, data, getWriteCharset(), append);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * 保存するときの文字セットを指定します。取得するときと変更するときにはオーバーライドします。
+     */
+    protected Charset getWriteCharset() {
+        return getCharset();
     }
 
     /**
@@ -150,12 +157,11 @@ public abstract class TextFile implements Serializable {
      */
     public void writeLines(List<String> lines, boolean append) {
         try {
-            FileUtils.writeLines(this.file, getCharset().toString(), lines, append);
+            FileUtils.writeLines(this.file, getWriteCharset().toString(), lines, append);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
 
     /**
      * 最終行を返します。
@@ -168,8 +174,4 @@ public abstract class TextFile implements Serializable {
         }
         return text;
     }
-
-
-
-
 }

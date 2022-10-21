@@ -16,7 +16,6 @@ import com.github.fujiyamakazan.zabuton.util.jframe.component.JPageTextField;
 
 public class SelenBrowser implements Serializable {
 
-
     private static final long serialVersionUID = 1L;
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SelenBrowser.class);
@@ -29,6 +28,9 @@ public class SelenBrowser implements Serializable {
         new SelenBrowser().execute();
     }
 
+    /**
+     * コンストラクタです。
+     */
     public SelenBrowser() {
         this.cmd = new SelenCommonDriver() {
 
@@ -52,14 +54,12 @@ public class SelenBrowser implements Serializable {
         JPageApplication.start(new JPage() {
             private static final long serialVersionUID = 1L;
 
-            private JPageButton okButton = null;
-
             @Override
             protected void onInitialize() {
                 super.onInitialize();
 
                 addLine(new JPageTextField("URL", modelUrl));
-                addLine(this.okButton = new JPageButton("Start", new StartAction()));
+                addLine(new JPageButton("Start", new StartAction()));
                 addLine(new JPageButton("END", new EndAction()));
             }
 
@@ -87,21 +87,21 @@ public class SelenBrowser implements Serializable {
             WebDriver driver = cmd.getDriver();
             driver.get(modelUrl.getObject());
             //cmd.clickAndWait(locator);
-//            cmd.originalDriver.findElement(locator).click();
-//
-//            while (true) {
-//
-//                //By locator = By.cssSelector("form *[type='submit']");
-//
-//                WebElement e = cmd.originalDriver.findElement(link);
-//                System.out.println("isEnabled:" + e.isEnabled());
-//                System.out.println("displayes:" + e.isDisplayed());
-//
-//
-//                Thread.sleep(100);
-//
-//                cmd.originalDriver.findElement(link).click();
-//            }
+            //            cmd.originalDriver.findElement(locator).click();
+            //
+            //            while (true) {
+            //
+            //                //By locator = By.cssSelector("form *[type='submit']");
+            //
+            //                WebElement e = cmd.originalDriver.findElement(link);
+            //                System.out.println("isEnabled:" + e.isEnabled());
+            //                System.out.println("displayes:" + e.isDisplayed());
+            //
+            //
+            //                Thread.sleep(100);
+            //
+            //                cmd.originalDriver.findElement(link).click();
+            //            }
 
         }
 

@@ -24,4 +24,8 @@ public class MoneyUtils implements Serializable {
         text = text.replaceAll(" ", "");
         return Integer.parseInt(text);
     }
+
+    public static String toString(String text) {
+        return String.valueOf(toInt(text));
+    }
 }

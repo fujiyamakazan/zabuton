@@ -73,7 +73,6 @@ public class JournalsTerm implements Serializable {
         public boolean in(String value) {
             return inCore(value, this.pattern, this.start, this.next);
         }
-
     }
 
     /**
@@ -96,26 +95,21 @@ public class JournalsTerm implements Serializable {
         return "JournalsTerm [" + this.start + "=>" + this.next + "]";
     }
 
-
     private static Boolean inCore(String value, String pattern, Date start, Date next) {
-
-        //log.debug("inCore:" + value + " pattern:" + pattern);
         boolean result;
         Date date;
         try {
             date = Chronus.parse(value, pattern);
             if (date.before(start)) {
-                result =  false;
+                result = false;
             } else if (date.equals(next) || date.after(next)) {
-                result =  false;
+                result = false;
             } else {
                 result = true;
             }
         } catch (Exception e) {
             result = false;
         }
-
-        //log.debug(">>" + result);
         return result;
     }
 
@@ -136,6 +130,15 @@ public class JournalsTerm implements Serializable {
         log.debug(term1.in("2022/01/01", Chronus.POPULAR_JP).toString());
         log.debug(term1.in("2022/01/02", Chronus.POPULAR_JP).toString());
 
+    }
+
+    /**
+     * 処理年を返します。
+     */
+    public String getYyyy() {
+        Calendar c = Calendar.getInstance();
+        c.setTime(this.start);
+        return String.valueOf(c.get(Calendar.YEAR));
     }
 
 }

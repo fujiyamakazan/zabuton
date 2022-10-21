@@ -69,4 +69,8 @@ public class Chronus implements Serializable {
         return df;
     }
 
+    public static String getNowYyyy() {
+        return new SimpleDateFormat("yyyy").format(new Date());
+    }
+
 }

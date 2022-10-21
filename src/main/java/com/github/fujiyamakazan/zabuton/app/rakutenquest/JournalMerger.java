@@ -1,4 +1,4 @@
-package com.github.fujiyamakazan.zabuton.util.text;
+package com.github.fujiyamakazan.zabuton.app.rakutenquest;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -7,9 +7,9 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.lang.Generics;
 
-import com.github.fujiyamakazan.zabuton.app.rakutenquest.JournalCsv;
 import com.github.fujiyamakazan.zabuton.util.date.Chronus;
 import com.github.fujiyamakazan.zabuton.util.jframe.JFrameUtils;
+import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 import com.opencsv.CSVParser;
 
 /**
@@ -22,22 +22,25 @@ import com.opencsv.CSVParser;
  * ・マスターがあるにもかかわらず、最後に処理したテキストにもマスター追加済みレコードと一致するものが無ければ、
  * 遡及回数の不足と考えられる。処理を中断し、警告をする。
  */
-public class TextMerger implements Serializable {
+public class JournalMerger implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private final JournalCsv masterCsv;
     private final List<String> masterLines = Generics.newArrayList();
+
+    /** 標準化されたマスターです。 */
+    private final List<String> standardMasterLines;
+
     private final List<String> buffer = Generics.newArrayList();
 
     private boolean hasNext = true;
     private boolean existMaster = false;
     private int maxRowIndex = 0;
 
-    //private final TermAction termAction;
     private final String datePattern;
 
-    private final String title;
+    private final String name;
 
     public boolean hasNext() {
         return this.hasNext;
@@ -46,9 +49,8 @@ public class TextMerger implements Serializable {
     /**
      * コンストラクタです。マスターテキストを登録します。
      */
-    //public TextMerger(JournalCsv masterText, String availableKeyWord) {
-    public TextMerger(String title, JournalCsv masterCsv, String datePattern) {
-        this.title = title;
+    public JournalMerger(String name, JournalCsv masterCsv, String datePattern) {
+        this.name = name;
         this.masterCsv = masterCsv;
         this.datePattern = datePattern;
         boolean first = true;
@@ -86,6 +88,7 @@ public class TextMerger implements Serializable {
             this.masterLines.add(line);
 
         }
+        this.standardMasterLines = standardize(this.masterLines);
     }
 
     /** マスターがあるにもかかわらず、
@@ -103,7 +106,6 @@ public class TextMerger implements Serializable {
     public boolean stock(List<String> dailyLines) {
 
         List<String> joins = Generics.newArrayList();
-        List<String> masterLines = standardize(this.masterLines);
 
         for (String dailyLine : dailyLines) {
             dailyLine = dailyLine.trim();
@@ -116,7 +118,7 @@ public class TextMerger implements Serializable {
 
             String al = standardize(dailyLine); // 標準化
 
-            if (masterLines.contains(al)) {
+            if (standardMasterLines.contains(al) ||  contains(masterCsv, dailyLine)) {
                 /*  マスターに同一のレコードがあれば、そのレコードは追記しない。 */
                 this.existMaster = true; // 重複する行があったことを記録
 
@@ -124,7 +126,7 @@ public class TextMerger implements Serializable {
                 joins.add(dailyLine);
             }
         }
-        if (joins.isEmpty()) {
+        if (joins.isEmpty() && dailyLines.isEmpty() == false) {
             /* テキスト内の全てのレコードがマスターに存在すれば、それ以上遡及しない。*/
             this.hasNext = false;
 
@@ -138,12 +140,17 @@ public class TextMerger implements Serializable {
 
     }
 
+
+
     /**
      * 標準化するための実装で上書きすることができます。
      */
-    protected List<String> standardize(List<String> lines) {
+    private List<String> standardize(List<String> lines) {
         List<String> result = Generics.newArrayList();
-        result.addAll(lines);
+        //        result.addAll(lines);
+        for (String line : lines) {
+            result.add(standardize(line));
+        }
         return result;
     }
 
@@ -151,9 +158,14 @@ public class TextMerger implements Serializable {
      * 標準化するための実装で上書きすることができます。
      */
     protected String standardize(String line) {
-        List<String> list = Generics.newArrayList();
-        list.add(line);
-        return standardize(list).get(0);
+        //        List<String> list = Generics.newArrayList();
+        //        list.add(line);
+        //        return standardize(list).get(0);
+        return line;
+    }
+
+    protected boolean contains(JournalCsv masterCsv, String dailyLine) {
+        return false;
     }
 
     /**
@@ -165,8 +177,8 @@ public class TextMerger implements Serializable {
             /* マスターがあるにもかかわらず、最後に処理したテキストにもマスター追加済みレコードと一致するものが無ければ、
              * 遡及回数の不足と考えられる。処理を中断し、警告をする。
              */
-            if (JFrameUtils.showConfirmDialog("[" + title + "]遡及処理の上限回数が不足しています。続行しますか？") == false) {
-                throw new RuntimeException("[" + title + "]遡及処理の上限回数が不足しています。");
+            if (JFrameUtils.showConfirmDialog("[" + name + "]遡及処理の上限回数が不足しています。続行しますか？") == false) {
+                throw new RuntimeException("[" + name + "]遡及処理の上限回数が不足しています。");
             }
         }
 
@@ -224,6 +236,10 @@ public class TextMerger implements Serializable {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public List<String> getStandardMasterLines() {
+        return this.standardMasterLines;
     }
 
 }
