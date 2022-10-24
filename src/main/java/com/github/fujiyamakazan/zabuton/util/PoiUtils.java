@@ -4,12 +4,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PushbackInputStream;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.FileMagic;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.CellValue;
@@ -19,52 +22,56 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class PoiUtils {
-
-    /* jarファイル考慮 */
-//    FileInputStream inst = null;
-//    PushbackInputStream inp = null;
-//    try {
-//
-//        int MAX_PATTERN_LENGTH = 44;
-//        inst = new FileInputStream(file);
-//        inp = new PushbackInputStream(inst, MAX_PATTERN_LENGTH);
-//        byte[] data = new byte[MAX_PATTERN_LENGTH];
-//        inp.read(data, 0, MAX_PATTERN_LENGTH);
-//        inp.unread(data);
-//        FileMagic fm = FileMagic.valueOf(data);
-//
-//        Workbook book;
-//        if (FileMagic.OOXML == fm) {
-//            book = new XSSFWorkbook(inp);
-//        } else if (FileMagic.OLE2 == fm) {
-//            book = new HSSFWorkbook(inp);
-//        } else {
-//            book = WorkbookFactory.create(inp);
-//        }
-//
-//        Sheet sheet = book.getSheet("フィールド");
 
     public static class PoiBook implements Serializable {
         private static final long serialVersionUID = 1L;
 
-        private FileInputStream in;
+        private FileInputStream fis;
+        private PushbackInputStream pis = null;
 
         /**
          * Workbookを返します。
          */
         public Workbook getBook(File file) {
-            Workbook book;
-            this.in = null;
+
             try {
-                this.in = new FileInputStream(file);
-                book = WorkbookFactory.create(this.in);
+                int LENGTH = 44;
+                fis = new FileInputStream(file);
+                pis = new PushbackInputStream(fis, LENGTH);
+                byte[] data = new byte[LENGTH];
+                pis.read(data, 0, LENGTH);
+                pis.unread(data);
+                FileMagic fm = FileMagic.valueOf(data);
+
+                Workbook book;
+                if (FileMagic.OOXML == fm) {
+                    book = new XSSFWorkbook(pis);
+                } else if (FileMagic.OLE2 == fm) {
+                    book = new HSSFWorkbook(pis);
+                } else {
+                    book = WorkbookFactory.create(pis);
+                }
+                return book;
 
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            return book;
+
+            // Jar化したときに失敗したことがある。
+            //            Workbook book;
+            //            this.fis = null;
+            //            try {
+            //                this.fis = new FileInputStream(file);
+            //                book = WorkbookFactory.create(this.fis);
+            //
+            //            } catch (Exception e) {
+            //                throw new RuntimeException(e);
+            //            }
+            //            return book;
+
         }
 
         /**
@@ -72,7 +79,8 @@ public class PoiUtils {
          */
         public void close() {
             try {
-                this.in.close();
+                this.fis.close();
+                this.fis.close();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -89,7 +97,7 @@ public class PoiUtils {
 
         try {
             try (FileInputStream in = new FileInputStream(file);
-                Workbook wkbk1 = WorkbookFactory.create(in);) {
+                    Workbook wkbk1 = WorkbookFactory.create(in);) {
 
                 Sheet sheet1 = wkbk1.getSheet("Sheet1");
 
@@ -189,8 +197,8 @@ public class PoiUtils {
      */
     public static boolean equalsStringValue(Cell cell, String startKey) {
         return cell != null
-            && cell.getCellType().equals(CellType.STRING)
-            && cell.getStringCellValue().equals(startKey);
+                && cell.getCellType().equals(CellType.STRING)
+                && cell.getStringCellValue().equals(startKey);
     }
 
     /**
