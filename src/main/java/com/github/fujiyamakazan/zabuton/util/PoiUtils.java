@@ -22,6 +22,30 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 public class PoiUtils {
 
+    /* jarファイル考慮 */
+//    FileInputStream inst = null;
+//    PushbackInputStream inp = null;
+//    try {
+//
+//        int MAX_PATTERN_LENGTH = 44;
+//        inst = new FileInputStream(file);
+//        inp = new PushbackInputStream(inst, MAX_PATTERN_LENGTH);
+//        byte[] data = new byte[MAX_PATTERN_LENGTH];
+//        inp.read(data, 0, MAX_PATTERN_LENGTH);
+//        inp.unread(data);
+//        FileMagic fm = FileMagic.valueOf(data);
+//
+//        Workbook book;
+//        if (FileMagic.OOXML == fm) {
+//            book = new XSSFWorkbook(inp);
+//        } else if (FileMagic.OLE2 == fm) {
+//            book = new HSSFWorkbook(inp);
+//        } else {
+//            book = WorkbookFactory.create(inp);
+//        }
+//
+//        Sheet sheet = book.getSheet("フィールド");
+
     public static class PoiBook implements Serializable {
         private static final long serialVersionUID = 1L;
 
