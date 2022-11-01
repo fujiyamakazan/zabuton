@@ -40,45 +40,33 @@ public abstract class JournalFactory implements Serializable {
 
     /** 記録元名です。 */
     private final String sourceName;
-
     private final JournalsTerm term;
     private final List<String> assetNames = Generics.newArrayList();
-
     private final File crawlerDir;
-    /** Dailyフォルダです。*/
-    private final File crawlerDailyDir;
+    private final File cache;
     private final File driver;
 
     /**
      * コンストラクタです。
      * @param sourceName 記録元名
      */
-    public JournalFactory(String sourceName, String[] assetNames, JournalsTerm term, File dir) {
+    public JournalFactory(String sourceName, String[] assetNames, JournalsTerm term, File appDir) {
         this.sourceName = sourceName;
         this.term = term;
         this.assetNames.addAll(Arrays.asList(assetNames));
-
-        //this.crawler = new JournalCrawler(dir, this);
-        //extracted();
-
-        this.driver = new File(dir, "chromedriver.exe");
-        this.crawlerDir = new File(dir, getCrawlerName());
+        this.driver = new File(appDir, "chromedriver.exe");
+        this.crawlerDir = new File(appDir, getCrawlerName());
         this.crawlerDir.mkdirs();
-        this.crawlerDailyDir = new File(this.crawlerDir, "daily");
-        this.crawlerDailyDir.mkdirs();
-
-        //String[] cols = journalFactory.getCulmuns();
+        this.cache = new File(this.crawlerDir, "cache");
+        this.cache.mkdirs();
 
         String[] cols = getHeaders();
-
         if (cols != null) {
             this.master = new JournalCsv(this.crawlerDir, getMasterName(), cols);
         } else {
             this.master = null;
         }
-
-        this.pm = new PasswordManager(crawlerDir);
-
+        this.pm = new PasswordManager(appDir);
         onInitialize();
     }
 
@@ -104,67 +92,10 @@ public abstract class JournalFactory implements Serializable {
     public List<Journal> createJurnals(List<Journal> existDatas, List<Journal> templates) {
 
         /* マスターを更新します。 */
-        doUpdateMaster();
+        File file = doChoiceFileForUpdateMaster();
+        doUpdateMaster(file);
 
-        List<Journal> journals = Generics.newArrayList();
-        for (JournalCsv.Row row : master.getRrows()) {
-
-            Journal journal = new Journal();
-            journal.setSource(this.sourceName);
-            journal.setRawOnSource(row.getData());
-            journal.setRowIndex(String.valueOf(row.getIndex()));
-
-            String strDate = pickupDate(row);
-            String pattern = getDateFormat();
-            /* "yyyy/"を付与 */
-            if (StringUtils.length(strDate) == 5) {
-                strDate = new SimpleDateFormat("yyyy").format(new Date()) + "/" + strDate;
-                pattern = "yyyy/" + pattern;
-            }
-
-            Boolean in = this.term.in(strDate, pattern);
-            Date date;
-            if (in == false) {
-                //continue;
-                date = null;
-            } else {
-                date = Chronus.parse(strDate, pattern);
-            }
-            //common(row);
-            //Date date = Chronus.parse(strDate, pattern);
-
-            if (date == null) {
-                continue;
-            }
-            journal.setDate(date);
-            journal.setKeywordOnSource(pickupKeywordOnsource(row));
-            journal.setMemo(pickupMemo(row));
-            journal.setAmount(MoneyUtils.toInt(pickupAmount(row)));
-
-            journals.add(journal);
-
-        }
-
-        /* テンプレート適用 */
-        fullupTemplate(templates, journals);
-
-        /* 仕訳済みを除外する */
-        for (Iterator<Journal> iterator = journals.iterator(); iterator.hasNext();) {
-            Journal journal = iterator.next();
-            if (existDatas != null) {
-                for (Journal exist : existDatas) {
-                    String sourceOfExixt = exist.getSource();
-                    String sourceOfJournal = journal.getSource();
-                    //System.out.println(sourceOfExixt + "⇔" + sourceOfJournal);
-                    if (StringUtils.equals(sourceOfExixt, sourceOfJournal)
-                        && StringUtils.equals(exist.getRowIndex(), journal.getRowIndex())) {
-                        iterator.remove();
-                        break;
-                    }
-                }
-            }
-        }
-
+        List<Journal> journals = doCreateJournal(existDatas, templates);
         return journals;
     }
 
@@ -235,7 +166,7 @@ public abstract class JournalFactory implements Serializable {
 
         try {
             /* 前回の処理結果を削除 */
-            for (File f : crawlerDailyDir.listFiles()) {
+            for (File f : cache.listFiles()) {
                 f.delete();
             }
 
@@ -251,7 +182,7 @@ public abstract class JournalFactory implements Serializable {
 
                 @Override
                 protected File getDownloadDir() {
-                    return crawlerDailyDir;
+                    return cache;
                 }
 
             };
@@ -261,8 +192,15 @@ public abstract class JournalFactory implements Serializable {
             cmd.quit();
 
         } catch (Exception e) {
+
+            /* 完了しなかった処理結果を削除 */
+            for (File f : cache.listFiles()) {
+                f.delete();
+            }
+
             e.printStackTrace(); // 標準出力
-            JFrameUtils.showErrorDialog("エラーが発生しました。終了します。詳細なエラー情報を標準出力しました。");
+            JFrameUtils.showErrorDialog("[" + getClass().getSimpleName() + "]"
+                + "エラーが発生しました。終了します。詳細なエラー情報を標準出力しました。");
             throw new RuntimeException(e);
         }
     }
@@ -294,8 +232,8 @@ public abstract class JournalFactory implements Serializable {
      * 既定の処理：
      * ・ダウンロードした１つのファイルから「createCsvRow」でデータを取得します。
      */
-    protected void doUpdateMaster() {
-        File file = getDownloadFileLastOne();
+    protected void doUpdateMaster(File file) {
+        //File file = doChoiceFileForUpdateMaster();
         Element body = getHtmlBody(file);
         List<String> rows = createCsvRow(body);
         final JournalMerger textMerger = new JournalMerger(
@@ -305,6 +243,70 @@ public abstract class JournalFactory implements Serializable {
             getDateFormat());
         textMerger.stock(rows);
         textMerger.flash();
+    }
+
+    protected File doChoiceFileForUpdateMaster() {
+        File file = getDownloadFileLastOne();
+        return file;
+    }
+
+    private List<Journal> doCreateJournal(List<Journal> existDatas, List<Journal> templates) {
+        List<Journal> journals = Generics.newArrayList();
+        for (JournalCsv.Row row : master.getRrows()) {
+
+            Journal journal = new Journal();
+            journal.setSource(this.sourceName);
+            journal.setRawOnSource(row.getData());
+            journal.setRowIndex(String.valueOf(row.getIndex()));
+
+            String strDate = pickupDate(row);
+            String pattern = getDateFormat();
+            /* "yyyy/"を付与 */
+            if (StringUtils.length(strDate) == 5) {
+                strDate = new SimpleDateFormat("yyyy").format(new Date()) + "/" + strDate;
+                pattern = "yyyy/" + pattern;
+            }
+
+            Boolean in = this.term.in(strDate, pattern);
+            Date date;
+            if (in == false) {
+                date = null;
+            } else {
+                date = Chronus.parse(strDate, pattern);
+            }
+
+            if (date == null) {
+                continue;
+            }
+            journal.setDate(date);
+            journal.setKeywordOnSource(pickupKeywordOnsource(row));
+            journal.setMemo(pickupMemo(row));
+            journal.setAmount(MoneyUtils.toInt(pickupAmount(row)));
+
+            journals.add(journal);
+
+        }
+
+        /* テンプレート適用 */
+        fullupTemplate(templates, journals);
+
+        /* 仕訳済みを除外する */
+        for (Iterator<Journal> iterator = journals.iterator(); iterator.hasNext();) {
+            Journal journal = iterator.next();
+            if (existDatas != null) {
+                for (Journal exist : existDatas) {
+                    String sourceOfExixt = exist.getSource();
+                    String sourceOfJournal = journal.getSource();
+                    //System.out.println(sourceOfExixt + "⇔" + sourceOfJournal);
+                    if (StringUtils.equals(sourceOfExixt, sourceOfJournal)
+                        && StringUtils.equals(exist.getRowIndex(), journal.getRowIndex())) {
+                        iterator.remove();
+                        break;
+                    }
+                }
+            }
+        }
+        return journals;
     }
 
     /**
@@ -319,7 +321,11 @@ public abstract class JournalFactory implements Serializable {
                 return getReadCharset();
             }
         };
-        return Jsoup.parse(textObj.read()).getElementsByTag("body").first();
+        String read = textObj.read();
+        if (StringUtils.isEmpty(read)) {
+            return null;
+        }
+        return Jsoup.parse(read).getElementsByTag("body").first();
     }
 
     /**
@@ -330,9 +336,6 @@ public abstract class JournalFactory implements Serializable {
     protected List<String> createCsvRow(Element body) {
         List<String> rows = Generics.newArrayList();
         for (Element tr : getTrElement(body)) {
-            //            if (isIgnoreTr(tr)) {
-            //                continue;
-            //            }
             List<String> row = Generics.newArrayList();
             for (Element td : tr.select("td")) {
                 row.add(td.text());
@@ -356,7 +359,7 @@ public abstract class JournalFactory implements Serializable {
      * @param text 内容
      */
     protected final void saveDaily(String name, String text) {
-        File file = new File(crawlerDailyDir, name);
+        File file = new File(cache, name);
         TextFile textObj = new TextFile(file) {
             private static final long serialVersionUID = 1L;
 
@@ -460,8 +463,8 @@ public abstract class JournalFactory implements Serializable {
         }
     }
 
-    protected static Journal createTemplate(String source, String activity, String left, String right, String memo,
-        String key) {
+    protected static Journal createTemplate(
+        String source, String activity, String left, String right, String memo, String key) {
         Journal data = new Journal();
         data.setSource(source);
         data.setLeft(left);
@@ -483,14 +486,14 @@ public abstract class JournalFactory implements Serializable {
      * 名前を指定して、ダウンロードされたファイルを返します。
      */
     protected final File getDownloadFile(String name) {
-        return new File(crawlerDailyDir, name);
+        return new File(cache, name);
     }
 
     /**
      * ダウンロードされたファイルを返します。ファイル名順です。
      */
     protected final List<File> getDownloadFiles() {
-        List<File> list = new ArrayList<File>(Arrays.asList(crawlerDailyDir.listFiles()));
+        List<File> list = new ArrayList<File>(Arrays.asList(cache.listFiles()));
         Collections.sort(list, new NameFileComparator());
         return list;
     }
@@ -499,7 +502,7 @@ public abstract class JournalFactory implements Serializable {
      * ダウンロードされたファイルを返します。更新日付の新しい順です。
      */
     protected final List<File> getDownloadFilesNew() {
-        List<File> list = new ArrayList<File>(Arrays.asList(crawlerDailyDir.listFiles()));
+        List<File> list = new ArrayList<File>(Arrays.asList(cache.listFiles()));
         Collections.sort(list, new LastModifiedFileComparator());
         Collections.reverse(list);
         return list;
@@ -511,7 +514,7 @@ public abstract class JournalFactory implements Serializable {
      */
     protected final File getDownloadFileLastOne() {
         File lastFile;
-        List<File> list = new ArrayList<File>(Arrays.asList(crawlerDailyDir.listFiles()));
+        List<File> list = new ArrayList<File>(Arrays.asList(cache.listFiles()));
         if (list.isEmpty()) {
             lastFile = null;
         } else {

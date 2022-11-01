@@ -1,0 +1,1 @@
+use=1,hour=0,token=UljC3WWKG3kirZtc61bwy2SyQhaaeOycuXq5Kcj3YLX,msg=稼働しています。,start=1,

@@ -46,7 +46,7 @@ public class ALine implements Serializable {
     private File aliveLog = new File("a-line.log.txt");
 
     public static void main(String[] args) {
-        new ALine().run(new String[] { "" });
+        new ALine().run(new String[] { "test" });
     }
 
     public class SettingItems implements Serializable {

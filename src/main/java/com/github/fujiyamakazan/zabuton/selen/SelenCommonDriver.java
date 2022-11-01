@@ -158,16 +158,23 @@ public abstract class SelenCommonDriver implements Serializable {
         clickAndWait(by);
     }
 
+    /**
+     * 入力コンポーネントに対してタイピングをします。すでに何か入力されていればクリアします。
+     */
     public void type(By by, String value) {
         typeCore(by, value);
     }
 
+    /**
+     * 入力コンポーネントに対してタイピングをします。すでに何か入力されていればクリアします。
+     */
     public void type(By by, Keys key) {
         typeCore(by, key.toString());
     }
 
     private void typeCore(By by, String value) {
         WebElement element = findElement(by);
+
         element.clear(); // いったんクリア
         element.sendKeys(value);
 
@@ -180,11 +187,20 @@ public abstract class SelenCommonDriver implements Serializable {
     }
 
     /**
-     * キーダウンをします。
+     * downキーをシミュレートします。
      */
     public void down(int i) {
         for (int j = 0; j < i; j++) {
             findElement(BODY).sendKeys(Keys.DOWN);
+        }
+    }
+
+    /**
+     * カーソルキーの右をシミュレートします。
+     */
+    public void right(int i) {
+        for (int j = 0; j < i; j++) {
+            findElement(BODY).sendKeys(Keys.ARROW_RIGHT);
         }
     }
 
@@ -333,5 +349,7 @@ public abstract class SelenCommonDriver implements Serializable {
     public WebDriver getDriver() {
         return this.originalDriver;
     }
+
+
 
 }
