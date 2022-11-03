@@ -3,6 +3,7 @@ package com.github.fujiyamakazan.zabuton.util.date;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -71,6 +72,16 @@ public class Chronus implements Serializable {
 
     public static String getNowYyyy() {
         return new SimpleDateFormat("yyyy").format(new Date());
+    }
+
+    /**
+     * 月を加算した日付を返します。
+     */
+    public static Date addMonth(Date date, int amount) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.MONTH, amount);
+        return c.getTime();
     }
 
 }

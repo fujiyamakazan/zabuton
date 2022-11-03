@@ -92,8 +92,9 @@ public abstract class JournalFactory implements Serializable {
     public List<Journal> createJurnals(List<Journal> existDatas, List<Journal> templates) {
 
         /* マスターを更新します。 */
-        File file = doChoiceFileForUpdateMaster();
-        doUpdateMaster(file);
+        //File file = doChoiceFileForUpdateMaster();
+        //doUpdateMaster(file);
+        doUpdateMaster();
 
         List<Journal> journals = doCreateJournal(existDatas, templates);
         return journals;
@@ -104,6 +105,9 @@ public abstract class JournalFactory implements Serializable {
      */
     public String getSummary(Map<String, Integer> existAssets) {
         String nowAsset = getAssetText();
+        if (StringUtils.isEmpty(nowAsset)) {
+            return "";
+        }
         for (String assetName : this.assetNames) {
             String existAsset = String.valueOf(existAssets.get(assetName));
             if (nowAsset.contains(existAsset) == false) {
@@ -149,19 +153,10 @@ public abstract class JournalFactory implements Serializable {
 
     /**
      * 明細の元となる情報をダウンロードします。
-     * 本日ダウンロード分があればスキップします。
      */
     private void doDownloadOnce() {
-        File fileToday = getDownloadFileLastOne();
-
-        if (fileToday != null) {
-            Date date = new Date(fileToday.lastModified());
-            Calendar yesterday = Calendar.getInstance();
-            yesterday.add(Calendar.DAY_OF_MONTH, -1);
-            if (date.after(yesterday.getTime())) {
-                /* 本日ダウンロード分があれば中断 */
-                return;
-            }
+        if (isSkipDownload()) {
+            return;
         }
 
         try {
@@ -205,6 +200,22 @@ public abstract class JournalFactory implements Serializable {
         }
     }
 
+    /**
+     * 本日分のダウンロードファイルがあれば、ダウンロード処理を中断するように判定します。
+     */
+    protected boolean isSkipDownload() {
+        File fileToday = getDownloadFileLastOne();
+        boolean isSkip = false;
+        if (fileToday != null) {
+            /* 本日ダウンロード分があれば中断 */
+            Date date = new Date(fileToday.lastModified());
+            Calendar yesterday = Calendar.getInstance();
+            yesterday.add(Calendar.DAY_OF_MONTH, -1);
+            isSkip = date.after(yesterday.getTime());
+        }
+        return isSkip;
+    }
+
     //    /**
     //     * 明細の元となる情報をダウンロードします。
     //     *
@@ -232,8 +243,10 @@ public abstract class JournalFactory implements Serializable {
      * 既定の処理：
      * ・ダウンロードした１つのファイルから「createCsvRow」でデータを取得します。
      */
-    protected void doUpdateMaster(File file) {
-        //File file = doChoiceFileForUpdateMaster();
+    protected void doUpdateMaster() {
+        //File file = getDownloadFileLastOne();
+        File file = doChoiceFileForUpdateMaster();
+
         Element body = getHtmlBody(file);
         List<String> rows = createCsvRow(body);
         final JournalMerger textMerger = new JournalMerger(
@@ -492,7 +505,7 @@ public abstract class JournalFactory implements Serializable {
     /**
      * ダウンロードされたファイルを返します。ファイル名順です。
      */
-    protected final List<File> getDownloadFiles() {
+    public final List<File> getDownloadFiles() { // TODO 一時的にpublic
         List<File> list = new ArrayList<File>(Arrays.asList(cache.listFiles()));
         Collections.sort(list, new NameFileComparator());
         return list;
@@ -631,5 +644,12 @@ public abstract class JournalFactory implements Serializable {
         }
         return MoneyUtils.toInt(str) <= 0;
     }
+
+    protected final JournalMerger createTextManager() {
+        return new JournalMerger(
+            getClass().getSimpleName(),
+            this.master,
+            getDateFormat());
+    };
 
 }

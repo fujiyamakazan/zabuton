@@ -38,11 +38,11 @@ public class PoiUtils {
         public Workbook getBook(File file) {
 
             try {
-                int LENGTH = 44;
+                final int length = 44;
                 fis = new FileInputStream(file);
-                pis = new PushbackInputStream(fis, LENGTH);
-                byte[] data = new byte[LENGTH];
-                pis.read(data, 0, LENGTH);
+                pis = new PushbackInputStream(fis, length);
+                byte[] data = new byte[length];
+                pis.read(data, 0, length);
                 pis.unread(data);
                 FileMagic fm = FileMagic.valueOf(data);
 
@@ -97,7 +97,7 @@ public class PoiUtils {
 
         try {
             try (FileInputStream in = new FileInputStream(file);
-                    Workbook wkbk1 = WorkbookFactory.create(in);) {
+                Workbook wkbk1 = WorkbookFactory.create(in);) {
 
                 Sheet sheet1 = wkbk1.getSheet("Sheet1");
 
@@ -197,8 +197,8 @@ public class PoiUtils {
      */
     public static boolean equalsStringValue(Cell cell, String startKey) {
         return cell != null
-                && cell.getCellType().equals(CellType.STRING)
-                && cell.getStringCellValue().equals(startKey);
+            && cell.getCellType().equals(CellType.STRING)
+            && cell.getStringCellValue().equals(startKey);
     }
 
     /**

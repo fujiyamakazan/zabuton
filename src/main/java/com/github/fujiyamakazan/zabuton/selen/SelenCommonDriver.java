@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.SessionNotCreatedException;
@@ -105,6 +106,14 @@ public abstract class SelenCommonDriver implements Serializable {
      * 画面要素を指定してクリックします。
      */
     public void clickAndWait(By by) {
+        clickAndWait(by, false);
+
+    }
+
+    /**
+     * 画面要素を指定してクリックします。
+     */
+    public void clickAndWait(By by, boolean withAlert) {
         WebDriverWait wait = new WebDriverWait(this.originalDriver, DEFAULT_TIMEOUT);
 
         /* 要素が、ページのDOMに存在して可視となるまで待つ */
@@ -138,10 +147,14 @@ public abstract class SelenCommonDriver implements Serializable {
 
         }.start();
 
+        if (withAlert) {
+            Alert alert = wait.until(ExpectedConditions.alertIsPresent());
+            alert.accept();
+        }
+
         /* 待機処理。次のHTMLが表示されるのを待ちます。 */
         new WebDriverWait(this.originalDriver, DEFAULT_TIMEOUT)
             .until(ExpectedConditions.visibilityOfElementLocated(By.tagName("body")));
-
     }
 
     /**
@@ -208,12 +221,31 @@ public abstract class SelenCommonDriver implements Serializable {
      * セレクトボックスを選択します。
      */
     public void choiceByText(By by, String value) {
+        WebElement element = getSelectElement(by);
+        new Select(element).selectByVisibleText(value);
+    }
+
+    /**
+     * セレクトボックスを選択します。
+     */
+    public void choiceByIndex(By by, int index) {
+        WebElement element = getSelectElement(by);
+        new Select(element).selectByIndex(index);
+    }
+
+    private WebElement getSelectElement(By by) {
         WebElement element = findElement(by);
         if (element.getTagName().equals("select") == false) {
             throw new RuntimeException("セレクトボックスではありません。" + by.toString());
         }
-        new Select(element).selectByVisibleText(value);
+        return element;
     }
+
+    public String getText(By by) {
+        WebElement element = findElement(by);
+        return element.getText();
+    }
+
 
     /**
      * テキストが含まれるかを検査します。
@@ -233,6 +265,7 @@ public abstract class SelenCommonDriver implements Serializable {
         }
 
     }
+
 
     public boolean isPresent(By by) {
         return findElements(by).isEmpty() == false;
@@ -328,11 +361,11 @@ public abstract class SelenCommonDriver implements Serializable {
 
     /**
      * 中断処理を入れます。
-     * @param i ミリ秒
+     * @param ms ミリ秒
      */
-    public void sleep(int i) {
+    public void sleep(int ms) {
         try {
-            Thread.sleep(i);
+            Thread.sleep(ms);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -349,6 +382,8 @@ public abstract class SelenCommonDriver implements Serializable {
     public WebDriver getDriver() {
         return this.originalDriver;
     }
+
+
 
 
 
