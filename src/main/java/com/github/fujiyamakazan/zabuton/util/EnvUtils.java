@@ -45,5 +45,9 @@ public class EnvUtils {
         return new File(getUserProfile(), "AppData\\Roaming\\" + appId);
     }
 
+    public static File getAppData() {
+        return getAppData("Zabuton");
+    }
+
 
 }
