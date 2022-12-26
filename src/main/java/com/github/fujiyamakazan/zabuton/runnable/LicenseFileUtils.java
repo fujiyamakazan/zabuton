@@ -22,7 +22,9 @@ public class LicenseFileUtils {
 
         String text = file.read();
         if (text.contains("http://www.apache.org/licenses/LICENSE-2.0.txt")
-            || text.contains("https://www.apache.org/licenses/LICENSE-2.0.txt")) {
+            || text.contains("https://www.apache.org/licenses/LICENSE-2.0.txt")
+            || text.contains("http://www.apache.org/licenses/LICENSE-2.0")
+            || text.contains("https://www.apache.org/licenses/LICENSE-2.0")) {
             return true;
         }
 
