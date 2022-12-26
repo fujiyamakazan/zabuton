@@ -11,23 +11,21 @@ import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
  */
 public class LicenseFileUtils {
 
-    /**
-     * 判定処理をします。
-     */
-    public static boolean isNoteFileName(String fileName) {
-        return StringUtils.startsWithIgnoreCase(fileName, "NOTICE")
-            || StringUtils.startsWithIgnoreCase(fileName, "README")
-            || StringUtils.startsWithIgnoreCase(fileName, "READ_ME");
-    }
-
     public static boolean isLicenseFilename(String fileName) {
         return StringUtils.startsWithIgnoreCase(fileName, "LICENSE");
     }
 
     /**
-     * 判定処理をします。
+     * licenseの判定をします。
      */
     public static boolean isApache2(Utf8Text file) {
+
+        String text = file.read();
+        if (text.contains("http://www.apache.org/licenses/LICENSE-2.0.txt")
+            || text.contains("https://www.apache.org/licenses/LICENSE-2.0.txt")) {
+            return true;
+        }
+
         boolean nextVerCheck = false;
         for (String line : file.readLines()) {
             line = line.trim();
@@ -46,7 +44,7 @@ public class LicenseFileUtils {
     }
 
     /**
-     * 判定処理をします。
+     * licenseの判定をします。
      */
     public static boolean isEpl1(Utf8Text file) {
         for (String line : file.readLines()) {
@@ -58,7 +56,7 @@ public class LicenseFileUtils {
     }
 
     /**
-     * 判定処理をします。
+     * licenseの判定をします。
      */
     public static boolean isCddl1(Utf8Text file) {
         for (String line : file.readLines()) {
@@ -67,5 +65,19 @@ public class LicenseFileUtils {
             }
         }
         return false;
+    }
+
+    /**
+     * licenseの判定をします。
+     */
+    public static boolean isMit(Utf8Text file) {
+        return file.read().contains("The MIT License");
+    }
+
+    /**
+     * licenseの判定をします。
+     */
+    public static boolean isBsd3(Utf8Text file) {
+        return file.read().contains("BSD-3-Clause");
     }
 }

@@ -12,45 +12,64 @@ import java.util.zip.ZipInputStream;
 
 public class ZipUtils {
 
-    /**
-     * Zipファイルを展開し、エントリーごとに処理します。
-     * @param zip 展開するZIPファイル
-     * @param unzipTask エントリーごとの処理
-     */
-    public static void unzip(File zip, UnzipTask unzipTask) {
+    public abstract static class UnzipTask implements Serializable {
 
-        // FIXME https://www.jpcert.or.jp/java-rules/ids04-j.html
-        try (
-            FileInputStream fis = new FileInputStream(zip);
-            BufferedInputStream bis = new BufferedInputStream(fis);
-            //ZipInputStream zis = new ZipInputStream(bis, Charset.forName("MS932"));) {
-            ZipInputStream zis = new ZipInputStream(bis);) {
-            ZipEntry zipentry;
-            while ((zipentry = zis.getNextEntry()) != null) {
+        private static final long serialVersionUID = 1L;
 
-                File tmp = File.createTempFile(ZipUtils.class.getName(), "");
+        private File zip;
 
-                try (FileOutputStream fos = new FileOutputStream(tmp);
-                    BufferedOutputStream bos = new BufferedOutputStream(fos);) {
-                    byte[] data = new byte[1024];
-                    int count = 0;
-                    while ((count = zis.read(data)) != -1) {
-                        bos.write(data, 0, count);
+        public UnzipTask(File zip) {
+            this.zip = zip;
+        }
+
+        /**
+         * Zipファイルを展開し、エントリーごとに処理します。
+         */
+        public void start() {
+            // FIXME https://www.jpcert.or.jp/java-rules/ids04-j.html
+            try (
+                FileInputStream fis = new FileInputStream(zip);
+                BufferedInputStream bis = new BufferedInputStream(fis);
+                //ZipInputStream zis = new ZipInputStream(bis, Charset.forName("MS932"));) {
+                ZipInputStream zis = new ZipInputStream(bis);) {
+                ZipEntry zipentry;
+                while ((zipentry = zis.getNextEntry()) != null) {
+                    if (accept(zipentry) == false) {
+                        continue;
                     }
+
+                    File tmp = File.createTempFile(ZipUtils.class.getName(), "");
+
+                    try (FileOutputStream fos = new FileOutputStream(tmp);
+                        BufferedOutputStream bos = new BufferedOutputStream(fos);) {
+                        byte[] data = new byte[1024];
+                        int count = 0;
+                        while ((count = zis.read(data)) != -1) {
+                            bos.write(data, 0, count);
+                        }
+                    }
+
+                    runByEntry(zipentry.getName(), tmp);
+
+                    tmp.delete();
                 }
 
-                unzipTask.run(zipentry.getName(), tmp);
-
-                tmp.delete();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
-    }
 
-    public interface UnzipTask extends Serializable {
-        public void run(String entryName, File unZipFile) throws IOException;
+        /**
+         * 処理対象かどうかを判定します。
+         */
+        protected boolean accept(ZipEntry zipentry) {
+            return true;
+        }
+
+        /**
+         * Zipファイルに含まれるエントリーに対して処理する実装をします。
+         */
+        protected abstract void runByEntry(String name, File file);
 
     }
 
