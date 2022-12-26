@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -30,7 +31,6 @@ import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
 import com.github.fujiyamakazan.zabuton.util.text.TextFile;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
-import com.ibm.icu.util.Calendar;
 
 public abstract class JournalFactory implements Serializable {
     private static final long serialVersionUID = 1L;

@@ -11,12 +11,14 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.lang.Generics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.exec.RuntimeExc;
 import com.github.fujiyamakazan.zabuton.util.file.FileDeleteUtils;
 import com.github.fujiyamakazan.zabuton.util.file.ZipUtils.UnzipTask;
@@ -100,115 +102,143 @@ public class DependencyInspector {
             }
 
             if (searchlicense || debug) {
-                boolean hasLicence = false;
-                for (File file : jarInfo.listFiles()) {
-                    String fileName = file.getName();
-                    if (LicenseFileUtils.isLicenseFilename(fileName)) {
-                        hasLicence = true;
+                if (hasLicenseFile(jarInfo) == false) {
+                    LOGGER.debug("■" + jarInfo.getName() + "(m2から取得)");
+                    /*
+                     * 特殊ケース
+                     * checker-compat-qual
+                     *  https://checkerframework.org/manual/#license
+                     *   https://raw.githubusercontent.com/typetools/checker-framework/master/LICENSE.txt
+                     *  https://mvnrepository.com/artifact/org.checkerframework/checker-compat-qual
+                     *   GPL/MIT
+                     *
+                     * javax.inject
+                     *  https://mvnrepository.com/artifact/javax.inject/javax.inject
+                     *   Apache2.0
+                     */
+                    // TODO
+                    /*
+                     * jarファイル名から.m2を探索して jarファイル名.pomを引き当てる。
+                     * その中に <licenses> で書かれたライセンス記述を引き当てる。
+                     */
+
+                    File m2 = new File(EnvUtils.getUserProfile(), ".m2");
+                    //LOGGER.debug(m2.getAbsolutePath());
+
+                    for (File pom : FileUtils.listFiles(m2, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)) {
+                        if (pom.getName().endsWith(".pom") == false) {
+                            continue;
+                        }
+                        if (pom.getName().equals(jar.getName().replaceAll(".jar", ".pom"))) {
+                            LOGGER.debug(pom.getAbsolutePath());
+                            File f = new File(jarInfo, "LICENSE_IN_MAVEN");
+                            try {
+                                String text = new Utf8Text(pom).read();
+                                String licenses = StringCutter.between(text, "<licenses>", "</licenses>");
+                                if (StringUtils.isNotEmpty(licenses)) {
+                                    FileUtils.write(f, licenses, StandardCharsets.UTF_8);
+                                }
+
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                            break;
+                        }
                     }
                 }
-                if (hasLicence == false) {
-                    LOGGER.debug("■" + jarInfo.getName());
-                    if (jar.getName().startsWith("cglib") || true) {
+                if (hasLicenseFile(jarInfo) == false) {
+                    LOGGER.debug("■" + jarInfo.getName() + "(実態から取得)");
 
-                        new UnzipTask(jar) {
-                            private static final long serialVersionUID = 1L;
+                    new UnzipTask(jar) {
+                        private static final long serialVersionUID = 1L;
 
-                            boolean exist = false;
+                        boolean exist = false;
 
-                            @Override
-                            protected boolean accept(ZipEntry zipentry) {
-                                /*
-                                 * 処理対象をルート直下か、META-INFフォルダ配下に限定する。
-                                 */
-                                return zipentry.getName().contains("/") == false
-                                    || zipentry.getName().contains("META-INF/");
+                        @Override
+                        protected boolean accept(ZipEntry zipentry) {
+                            /*
+                             * 処理対象をルート直下か、META-INFフォルダ配下に限定する。
+                             */
+                            return zipentry.getName().contains("/") == false
+                                || zipentry.getName().contains("META-INF/");
+                        }
+
+                        @Override
+                        protected void runByEntry(String name, File file) {
+
+                            if (exist) {
+                                return;
                             }
 
-                            @Override
-                            protected void runByEntry(String name, File file) {
+                            String fileName = name;
+                            if (StringUtils.contains(name, "/")) {
+                                fileName = name.substring(name.indexOf('/') + 1);
+                            }
 
-                                if (exist) {
-                                    return;
-                                }
+                            /*
+                             * 「LICENSE」テキストが存在するケース
+                             */
+                            if (LicenseFileUtils.isLicenseFilename(fileName)) {
+                                final String text = new Utf8Text(file).read();
+                                save(text, fileName);
+                                return;
+                            }
 
-                                String fileName = name;
-                                if (StringUtils.contains(name, "/")) {
-                                    fileName = name.substring(name.indexOf('/') + 1);
-                                }
-
-
-                                /*
-                                 * 「LICENSE」テキストが存在するケース
-                                 */
-                                if (LicenseFileUtils.isLicenseFilename(fileName)) {
-                                    final String text = new Utf8Text(file).read();
-                                    save(text, fileName);
-                                    return;
-                                }
-
-                                /*
-                                 * pom.xmlに書き込まれているケース
-                                 */
-                                if (StringUtils.endsWith(name, "pom.xml")) {
-                                    final String text = new Utf8Text(file).read();
-                                    String comment = StringCutter.between(text, "<!--", ">");
-                                    if (comment != null) {
-                                        /*
-                                         * コメントとして書き込まれているケース
-                                         * 例）animal-sniffer-annotations
-                                         */
-                                        comment = comment.trim();
-                                        if (comment.startsWith("The MIT License")) {
-                                            save(comment, "LICENSE_IN_POM");
-                                            return;
-                                        }
-                                    }
-                                    String laicenses = StringCutter.between(text, "<licenses>", "</licenses>");
-                                    if (laicenses != null) {
-                                        /*
-                                         * licensesタグで書き込まれているケース
-                                         * 例）curvesapi
-                                         */
-                                        save(laicenses, "LICENSE_IN_POM_LICENSES");
+                            /*
+                             * pom.xmlに書き込まれているケース
+                             */
+                            if (StringUtils.endsWith(name, "pom.xml")) {
+                                final String text = new Utf8Text(file).read();
+                                String comment = StringCutter.between(text, "<!--", ">");
+                                if (comment != null) {
+                                    /*
+                                     * コメントとして書き込まれているケース
+                                     * 例）animal-sniffer-annotations
+                                     */
+                                    comment = comment.trim();
+                                    if (comment.startsWith("The MIT License")) {
+                                        save(comment, "LICENSE_IN_POM");
                                         return;
                                     }
-
                                 }
-                                /*
-                                 * MANIFEST.MFに宣言されているケース
-                                 * 例）asm
-                                 */
-                                if (StringUtils.endsWith(name, "MANIFEST.MF")) {
-                                    for (String line : new Utf8Text(file).readLines()) {
-                                        if (line.startsWith("Bundle-License")) {
-                                            save(line, "LICENSE_IN_MANIFEST");
-                                            return;
-                                        }
+                                String licenses = StringCutter.between(text, "<licenses>", "</licenses>");
+                                if (licenses != null) {
+                                    /*
+                                     * licensesタグで書き込まれているケース
+                                     * 例）curvesapi
+                                     */
+                                    save(licenses, "LICENSE_IN_POM_LICENSES");
+                                    return;
+                                }
+
+                            }
+                            /*
+                             * MANIFEST.MFに宣言されているケース
+                             * 例）asm
+                             */
+                            if (StringUtils.endsWith(name, "MANIFEST.MF")) {
+                                for (String line : new Utf8Text(file).readLines()) {
+                                    if (line.startsWith("Bundle-License")) {
+                                        save(line, "LICENSE_IN_MANIFEST");
+                                        return;
                                     }
                                 }
-
-                                /*
-                                 * TODO 特殊ケース
-                                 * checker-compat-qual
-                                 *  https://checkerframework.org/manual/#license
-                                 *   https://raw.githubusercontent.com/typetools/checker-framework/master/LICENSE.txt
-                                 */
                             }
+                        }
 
-                            private void save(String line, String fileName) {
-                                File f = new File(jarInfo, fileName);
-                                try {
-                                    FileUtils.write(f, line, StandardCharsets.UTF_8);
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                                exist = true;
+                        private void save(String line, String fileName) {
+                            File f = new File(jarInfo, fileName);
+                            try {
+                                FileUtils.write(f, line, StandardCharsets.UTF_8);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
                             }
+                            exist = true;
+                        }
 
-                        }.start();
-                    }
+                    }.start();
                 }
+
             }
         }
 
@@ -250,7 +280,8 @@ public class DependencyInspector {
                     if (StringUtils.isNotEmpty(license)) {
                         license = "(" + license + ")";
                     }
-                    html.append("<dd><a href='" + href + "' target='license' >" + fileName + "</a>" + license + "</dd>");
+                    html.append(
+                        "<dd><a href='" + href + "' target='license' >" + fileName + "</a>" + license + "</dd>");
                 }
             }
 
@@ -264,6 +295,17 @@ public class DependencyInspector {
         String strHtml = html.toString();
         //System.out.println(strHtml);
         new Utf8Text(indexHtml).write(strHtml);
+    }
+
+    protected static boolean hasLicenseFile(final File jarInfo) {
+        boolean hasLicence = false;
+        for (File file : jarInfo.listFiles()) {
+            String fileName = file.getName();
+            if (LicenseFileUtils.isLicenseFilename(fileName)) {
+                hasLicence = true;
+            }
+        }
+        return hasLicence;
     }
 
     //    /**
@@ -377,6 +419,5 @@ public class DependencyInspector {
             dirDependencyInfo,
             licenseListTitle,
             null, null);
-
     }
 }
