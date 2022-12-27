@@ -11,10 +11,6 @@ import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
  */
 public class LicenseFileUtils {
 
-    public static boolean isLicenseFilename(String fileName) {
-        return StringUtils.startsWithIgnoreCase(fileName, "LICENSE");
-    }
-
     /**
      * licenseの判定をします。
      */
