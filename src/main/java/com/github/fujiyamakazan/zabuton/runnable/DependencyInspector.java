@@ -34,7 +34,6 @@ import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 public class DependencyInspector {
     private static final Logger LOGGER = LoggerFactory.getLogger(DependencyInspector.class);
 
-    private static final String FILENAME_COPYRIGHT = "COPYRIGHT";
     private static final String FILENAME_LICENSE = "LICENSE";
     private static final String FILENAME_NOTICE = "NOTICE";
     private static final String FILENAME_README = "README";
@@ -45,6 +44,7 @@ public class DependencyInspector {
      * ・バージョン情報の取得
      * ・依存するJREのモジュールの情報を取得
      *
+     * また、情報を集約したindex.htmlを作成します。
      */
     public static void scanJar(
         List<File> jars,
@@ -63,8 +63,6 @@ public class DependencyInspector {
             }
 
             final String jarName = StringCutter.left(jarFileName, ".jar"); // ex.) commons-collections4-4.4
-
-            //log.debug("■" + jarName);
 
             String artifactIdAndVersion = jarName;
             if (artifactIdAndVersion.endsWith("-SNAPSHOT")) {
@@ -109,105 +107,13 @@ public class DependencyInspector {
         }
 
         /* index.htmlを作成する */
-        final File indexHtml = new File(dirOut, "index.html");
-        StringBuilder html = new StringBuilder();
-        html.append("<html><head><meta charset=\"UTF-8\" /></head><body>");
-        html.append("<h1>" + licenseListTitle + "</h1>");
-        html.append("<ul>\n");
-        for (File jarInfo : jarInfos) {
-            html.append("<li>");
-            html.append("<dl>");
-
-            /* 名称 */
-            {
-                String pomText = "";
-                for (File file : jarInfo.listFiles()) {
-                    if (file.getName().endsWith(".pom")) {
-                        pomText = new Utf8Text(file).read();
-                        break;
-                    }
-                }
-                Document doc = Jsoup.parse(pomText);
-                String name = doc.select("project>name").text();
-//                String url = doc.select("project>url").html();
-//                String str = "";
-//                str += doc.select("project>name").html();
-//                str += "(";
-//                if (StringUtils.isNotEmpty(url)) {
-//                    str += String.format("<a href='%s' target='_blank'>", url);
-//                }
-//                str += doc.select("project>groupId").html() + " " + doc.select("project>artifactId").html();
-//                if (StringUtils.isNotEmpty(url)) {
-//                    str += "</a>";
-//                }
-//                str += ")";
-                if (StringUtils.isEmpty(name)) {
-                    name = jarInfo.getName();
-                }
-
-                html.append("<dt>" + name + "</dt>");
-            }
-
-
-            for (File file : jarInfo.listFiles()) {
-                String fileName = file.getName();
-                String href = jarInfo.getName() + "/" + fileName;
-
-                if (isLicenseFilename(fileName)) {
-
-                    // TODO デュアル のチェックの確実性が低い
-
-                    Utf8Text f = new Utf8Text(file);
-                    String license;
-                    if (LicenseFileUtils.isApache2(f) && LicenseFileUtils.isEpl1(f)) {
-                        license = "Apache License Version 2.0 と Eclipse Public License v1.0 のデュアルライセンス";
-
-                    } else if (LicenseFileUtils.isApache2(f)) {
-                        license = "Apache License Version 2.0";
-
-                    } else if (LicenseFileUtils.isCddl1(f)) {
-                        license = "CDDL Version 1.0";
-
-                    } else if (LicenseFileUtils.isMit(f)) {
-                        license = "MIT License";
-
-                    } else if (LicenseFileUtils.isBsd3(f)) {
-                        license = "3 clause BSD license";
-
-                    } else {
-                        license = "";
-                    }
-
-                    if (StringUtils.isNotEmpty(license)) {
-                        license = "(" + license + ")";
-                    }
-                    html.append(
-                        "<dd><a href='" + href + "' target='license' >" + fileName + "</a>" + license + "</dd>");
-
-                } else if (isNotice(fileName)) {
-                    html.append(
-                        "<dd><a href='" + href + "' target='notice' >" + fileName + "</a></dd>");
-
-                } else if (isCopyright(fileName)) {
-                    Utf8Text f = new Utf8Text(file);
-                    html.append("<dd>" + f.read() + "</dd>");
-                }
-            }
-
-            html.append("</dt>");
-            html.append("</dl>");
-            html.append("</li>\n");
-        }
-        html.append("</ul>");
-        html.append("</body></html>");
-
-        String strHtml = html.toString();
-        //System.out.println(strHtml);
-        LOGGER.debug(indexHtml.getAbsolutePath() + " 出力");
-        new Utf8Text(indexHtml).write(strHtml);
+        createIndexHtml(dirOut, licenseListTitle, jarInfos);
     }
 
-    protected static void getInfoFiles(File jar, final File jarInfo) {
+    /**
+     * jarに関連する情報を収集します。
+     */
+    private static void getInfoFiles(File jar, final File jarInfo) {
 
         LOGGER.debug("■" + jarInfo.getName() + "の情報収集");
 
@@ -227,10 +133,6 @@ public class DependencyInspector {
 
             @Override
             protected void runByEntry(String name, File file) {
-
-//                if (exist) {
-//                    return;
-//                }
 
                 if (StringUtils.contains(name, "/")) {
                     name = name.substring(name.indexOf('/') + 1);
@@ -259,20 +161,15 @@ public class DependencyInspector {
 
                 /* MANIFEST.MF */
                 if (StringUtils.equals(name, "MANIFEST.MF")) {
-                    for (String line : new Utf8Text(file).readLines()) {
-                        final String text = new Utf8Text(file).read();
-                        save(text, name, jarInfo);
-                        return;
-                    }
+                    final String text = new Utf8Text(file).read();
+                    save(text, name, jarInfo);
                 }
             }
         }.start();
 
         /*
          * jarファイル名から.m2を探索して jarファイル名.pomを引き当てる。
-         * その中に <licenses> で書かれたライセンス記述を引き当てる。
          */
-
         File m2 = new File(EnvUtils.getUserProfile(), ".m2");
 
         for (File pom : FileUtils.listFiles(m2, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)) {
@@ -284,191 +181,223 @@ public class DependencyInspector {
                 save(text, pom.getName(), jarInfo);
             }
         }
+    }
+
+    /**
+     * index.htmlを作成します。
+     * @param title H1タグの出力するタイトルです。
+     */
+    private static void createIndexHtml(File dir, String title, List<File> jarInfos) {
+        final File indexHtml = new File(dir, "index.html");
+
+        StringBuilder html = new StringBuilder();
+        html.append("<html><head><meta charset=\"UTF-8\" /></head><body>");
+        html.append("<h1>" + title + "</h1>");
+        html.append("<ul>\n");
+        for (File jarInfo : jarInfos) {
+            html.append("<li>");
+            html.append("<dl>");
+
+            String pomText = "";
+            File pomFile = null;
+            for (File f : jarInfo.listFiles()) {
+                if (f.getName().endsWith(".pom")) {
+                    pomText = new Utf8Text(f).read();
+                    pomFile = f;
+                    break;
+                }
+            }
+            Document pomDoc = Jsoup.parse(pomText);
+
+            /* 名称 */
+            String infoName = jarInfo.getName();
+            {
+                String name = pomDoc.select("project>name").text();
+                if (StringUtils.contains(name, "${")) {
+                    name = ""; // 変数が使用されていれば無効
+                }
+                if (StringUtils.isEmpty(name)) {
+                    name = infoName;
+                }
+
+                html.append("<dt>" + name + "</dt>");
+            }
+
+            /* jarファイル名(pom.xmlへのリンク) */
+            {
+                String hrefPom = infoName + "/" + pomFile.getName();
+                String jarName = pomFile.getName().replaceAll(".pom", ".jar");
+                html.append(String.format("<dd>%s(<a href='%s' target='pom'>pom</a>)</dd>", jarName, hrefPom));
+            }
+
+            /* プロジェクトサイトへのリンク */
+            {
+                String url = pomDoc.select("project>url").html();
+
+                // TODO 既存のファイルから解析できず。Googleで検索した結果を利用。
+                if (StringUtils.equals(infoName, "zabuton")) {
+                    url = "https://github.com/fujiyamakazan/zabuton";
+                }
+                if (StringUtils.equals(infoName, "kinchaku")) {
+                    url = "https://github.com/fujiyamakazan/kinchaku";
+                }
+                if (StringUtils.equals(infoName, "animal-sniffer-annotations")) {
+                    url = "https://www.mojohaus.org/animal-sniffer/animal-sniffer-annotations/";
+                }
+                if (StringUtils.equals(infoName, "byte-buddy")) {
+                    url = "http://bytebuddy.net";
+                }
+                if (StringUtils.startsWith(infoName, "wicket-")) {
+                    url = "https://wicket.apache.org";
+                }
+                if (StringUtils.startsWith(infoName, "wicketstuff-")) {
+                    url = "http://wicketstuff.org";
+                }
+                if (StringUtils.startsWith(infoName, "guava-")) {
+                    url = "https://github.com/google/guava";
+                }
+                if (StringUtils.startsWith(infoName, "kuromoji-")) {
+                    url = "https://www.atilika.com/ja/kuromoji/";
+                }
+                if (StringUtils.startsWith(infoName, "logback-")) {
+                    url = "https://logback.qos.ch";
+                }
+                if (StringUtils.startsWith(infoName, "log4j-")) {
+                    url = "https://logging.apache.org/log4j/";
+                }
+                if (StringUtils.startsWith(infoName, "slf4j-")) {
+                    url = "https://www.slf4j.org/";
+                }
+                if (StringUtils.equals(infoName, "okhttp")) {
+                    url = "https://square.github.io/okhttp/";
+                }
+                if (StringUtils.equals(infoName, "okio")) {
+                    url = "https://square.github.io/okio/";
+                }
+                if (StringUtils.equals(infoName, "error_prone_annotations")) {
+                    url = "http://errorprone.info/";
+                }
+                if (StringUtils.equals(infoName, "cglib")) {
+                    url = "https://github.com/cglib";
+                }
 
 
-//        if (hasLicenseFile(jarInfo) == false) {
-//            LOGGER.debug("■" + jarInfo.getName() + "(実体からライセンス取得)");
-//
-//            new UnzipTask(jar) {
-//                private static final long serialVersionUID = 1L;
-//
-//                boolean exist = false;
-//
-//                @Override
-//                protected boolean accept(ZipEntry zipentry) {
-//                    /*
-//                     * 処理対象をルート直下か、META-INFフォルダ配下に限定する。
-//                     */
-//                    return zipentry.getName().contains("/") == false
-//                        || zipentry.getName().contains("META-INF/");
-//                }
-//
-//                @Override
-//                protected void runByEntry(String name, File file) {
-//
-//                    if (exist) {
-//                        return;
-//                    }
-//
-//                    String fileName = name;
-//                    if (StringUtils.contains(name, "/")) {
-//                        fileName = name.substring(name.indexOf('/') + 1);
-//                    }
-//
-//                    /*
-//                     * 「LICENSE」テキストが存在するケース
-//                     */
-//                    if (LicenseFileUtils.isLicenseFilename(fileName)) {
-//                        final String text = new Utf8Text(file).read();
-//                        save(text, fileName, jarInfo);
-//                        exist = true;
-//                        return;
-//                    }
-//
-//                    /*
-//                     * MANIFEST.MFに宣言されているケース
-//                     * 例）asm
-//                     */
-//                    if (StringUtils.endsWith(name, "MANIFEST.MF")) {
-//                        for (String line : new Utf8Text(file).readLines()) {
-//                            if (line.startsWith("Bundle-License")) {
-//                                save(line, "LICENSE_IN_MANIFEST", jarInfo);
-//                                exist = true;
-//                                return;
-//                            }
-//                        }
-//                    }
-//                }
-//            }.start();
-//        }
-//
-//        if (hasLicenseFile(jarInfo) == false) {
-//            LOGGER.debug("■" + jarInfo.getName() + "(m2からライセンス情報取得)");
-//            /*
-//             * jarファイル名から.m2を探索して jarファイル名.pomを引き当てる。
-//             * その中に <licenses> で書かれたライセンス記述を引き当てる。
-//             */
-//            File m2 = new File(EnvUtils.getUserProfile(), ".m2");
-//
-//            for (File pom : FileUtils.listFiles(m2, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)) {
-//                if (pom.getName().endsWith(".pom") == false) {
-//                    continue;
-//                }
-//                if (pom.getName().equals(jar.getName().replaceAll(".jar", ".pom"))) {
-//                    LOGGER.debug(pom.getAbsolutePath());
-//
-//                    try {
-//                        String text = new Utf8Text(pom).read();
-//                        String licenses = StringCutter.between(text, "<licenses>", "</licenses>");
-//                        if (StringUtils.isNotEmpty(licenses)) {
-//                            /*
-//                             * licensesタグで書き込まれているケース
-//                             * 例）curvesapi
-//                             */
-//                            File f = new File(jarInfo, "LICENSE_IN_MAVEN_LICENSES");
-//                            FileUtils.write(f, licenses, StandardCharsets.UTF_8);
-//
-//                        } else {
-//                            String comment = StringCutter.between(text, "<!--", ">");
-//                            if (comment != null) {
-//                                // TODO 判定方法があいまい
-//                                comment = comment.trim();
-//                                if (comment.startsWith("The MIT License")
-//                                    || comment.startsWith(
-//                                        "Licensed to the Apache Software Foundation (ASF) under one or more")) {
-//                                    /*
-//                                     * コメントとして書き込まれているケース
-//                                     * 例）animal-sniffer-annotations
-//                                     */
-//                                    save(comment, "LICENSE_IN_MAVEN_COMMENT", jarInfo);
-//                                }
-//                            }
-//                        }
-//
-//                    } catch (IOException e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                    break;
-//                }
-//            }
-//        }
-//
-//        if (hasNoticeFile(jarInfo) == false) {
-//            LOGGER.debug("■" + jarInfo.getName() + "(実体からNotice関連ファイルを取得)");
-//
-//            new UnzipTask(jar) {
-//                private static final long serialVersionUID = 1L;
-//
-//                boolean exist = false;
-//
-//                @Override
-//                protected boolean accept(ZipEntry zipentry) {
-//                    /*
-//                     * 処理対象をルート直下か、META-INFフォルダ配下に限定する。
-//                     */
-//                    return zipentry.getName().contains("/") == false
-//                        || zipentry.getName().contains("META-INF/");
-//                }
-//
-//                @Override
-//                protected void runByEntry(String name, File file) {
-//                    if (exist) {
-//                        return;
-//                    }
-//                    String fileName = name;
-//                    if (StringUtils.contains(name, "/")) {
-//                        fileName = name.substring(name.indexOf('/') + 1);
-//                    }
-//
-//                    /*
-//                     * 「LICENSE」テキストが存在するケース
-//                     */
-//                    if (isNotice(fileName)) {
-//                        final String text = new Utf8Text(file).read();
-//                        save(text, fileName, jarInfo);
-//                        exist = true;
-//                        return;
-//                    }
-//                }
-//            }.start();
-//        }
-//
-//        if (hasCopyright(jarInfo) == false) {
-//            LOGGER.debug("■" + jarInfo.getName() + "m2からコピーライトを取得)");
-//
-//            /*
-//             * jarファイル名から.m2を探索して jarファイル名.pomを引き当てる。
-//             * その中に <licenses> で書かれたライセンス記述を引き当てる。
-//             */
-//            File m2 = new File(EnvUtils.getUserProfile(), ".m2");
-//
-//            for (File pom : FileUtils.listFiles(m2, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)) {
-//                if (pom.getName().endsWith(".pom") == false) {
-//                    continue;
-//                }
-//                if (pom.getName().equals(jar.getName().replaceAll(".jar", ".pom"))) {
-//                    LOGGER.debug(pom.getAbsolutePath());
-//
-//                    String xml = new Utf8Text(pom).read();
-//                    Document doc = Jsoup.parse(xml);
-//                    String url = doc.select("project>url").html();
-//                    String str = "";
-//                    str += doc.select("project>name").html();
-//                    str += "(";
-//                    if (StringUtils.isNotEmpty(url)) {
-//                        str += String.format("<a href='%s' target='_blank'>", url);
-//                    }
-//                    str += doc.select("project>groupId").html() + " " + doc.select("project>artifactId").html();
-//                    if (StringUtils.isNotEmpty(url)) {
-//                        str += "</a>";
-//                    }
-//                    str += ")";
-//                    save(str, "COPYRIGHT", jarInfo);
-//
-//                    break;
-//                }
-//            }
-//        }
+                if (StringUtils.isEmpty(url)) {
+                    LOGGER.error(infoName + "のURLが特定できません。");
+                } else {
+                    html.append(String.format("<dd><a href='%s' target='project'>%s</a></dd>", url, url));
+                }
+            }
+
+            /* ライセンス判定 */
+            File licenseFile = null;
+            for (File file : jarInfo.listFiles()) {
+                if (isLicenseFilename(file.getName())) {
+                    if (licenseFile != null) {
+                        throw new RuntimeException("ライセンスファイルが複数あります。");
+                    }
+                    licenseFile = file;
+                }
+            }
+
+            String licenseText = "";
+            if (licenseFile != null) {
+                licenseText = new Utf8Text(licenseFile).read();
+
+            } else {
+
+                /* pom.xmlの <licenses> タグに入力されているライセンス記述を取得 */
+                String tag = StringCutter.between(pomText, "<licenses>", "</licenses>");
+                if (StringUtils.isNotEmpty(tag)) {
+                    licenseText = tag;
+                }
+
+                if (StringUtils.isEmpty(licenseText)) {
+                    /* pom.xmlのコメントとして書き込まれているライセンス記述を取得 */
+                    String comment = StringCutter.between(pomText, "<!--", ">");
+                    if (StringUtils.containsIgnoreCase(comment, "license")) {
+                        licenseText = comment;
+                    }
+                }
+
+                // TODO 既存のファイルから解析できず。別途調査した結果を利用。
+                if (StringUtils.equals(infoName, "zabuton") || StringUtils.equals(infoName, "kinchaku")) {
+                    licenseText = "https://www.apache.org/licenses/LICENSE-2.0.html";
+                }
+                if (StringUtils.equals(infoName, "byte-buddy")) {
+                    licenseText = "https://www.apache.org/licenses/LICENSE-2.0.html";
+                }
+                if (StringUtils.equals(infoName, "wicketstuff-annotation")) {
+                    licenseText = "http://www.apache.org/licenses/LICENSE-2.0.txt";
+                }
+                if (StringUtils.startsWith(infoName, "kuromoji-")) {
+                    licenseText = "http://www.apache.org/licenses/LICENSE-2.0.txt";
+                }
+                if (StringUtils.startsWith(infoName, "logback-")) {
+                    licenseText = "http://www.eclipse.org/legal/epl-v10.html, http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html ";
+                }
+                if (StringUtils.startsWith(infoName, "guava-")) {
+                    licenseText = "http://www.apache.org/licenses/LICENSE-2.0.txt";
+                }
+                if (StringUtils.equals(infoName, "slf4j-api")) {
+                    licenseText = "http://www.opensource.org/licenses/mit-license.php";
+                }
+                if (StringUtils.equals(infoName, "okhttp")
+                    || StringUtils.equals(infoName, "okio")) {
+                    licenseText = "http://www.apache.org/licenses/LICENSE-2.0.txt";
+                }
+
+
+            }
+
+            /* ライセンスタイプの取得 */
+            String licenseType = LicenseFileUtils.getType(licenseText);
+
+            if (StringUtils.isEmpty(licenseType)) {
+                LOGGER.error(infoName + "のライセンス区分が特定できません。");
+            } else {
+                licenseType = "(" + licenseType + ")";
+            }
+
+            if (licenseFile != null) {
+                /* ファイルがあればリンクで表示 */
+                String href = infoName + "/" + licenseFile.getName();
+
+                html.append("<dd><a href='" + href + "' target='license' >" + licenseFile.getName() + "</a>"
+                    + licenseType + "</dd>");
+
+            } else {
+                if (StringUtils.isNotEmpty(licenseText)) {
+                    /* テキストしかなければ折りたたんで表示 */
+                    html.append("<dd>"
+                        + "<details><summary>ライセンス記述" + licenseType + "</summary>"
+                        + licenseText
+                        + "</details>"
+                        + "</dd>");
+                }
+            }
+
+            /*
+             * NOTICEテキスト、READMEテキストがあれば表示
+             */
+            for (File file : jarInfo.listFiles()) {
+                if (isNotice(file.getName()) == false && isReadMe(file.getName()) == false) {
+                    continue;
+                }
+                String href = infoName + "/" + file.getName();
+                html.append("<dd><a href='" + href + "' target='license' >" + file.getName() + "</a></dd>");
+            }
+
+            html.append("</dl>");
+            html.append("</li>\n");
+        }
+        html.append("</ul>");
+        html.append("</body></html>");
+
+        String strHtml = html.toString();
+        //System.out.println(strHtml);
+        LOGGER.debug(indexHtml.getAbsolutePath() + " 出力");
+        new Utf8Text(indexHtml).write(strHtml);
     }
 
     private static void save(String text, String fileName, File jarInfo) {
@@ -478,39 +407,6 @@ public class DependencyInspector {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private static boolean hasLicenseFile(final File jarInfo) {
-        boolean hasLicence = false;
-        for (File file : jarInfo.listFiles()) {
-            String fileName = file.getName();
-            if (isLicenseFilename(fileName)) {
-                hasLicence = true;
-            }
-        }
-        return hasLicence;
-    }
-
-    private static boolean hasNoticeFile(final File jarInfo) {
-        boolean has = false;
-        for (File file : jarInfo.listFiles()) {
-            String fileName = file.getName();
-            if (isNotice(fileName)) {
-                has = true;
-            }
-        }
-        return has;
-    }
-
-    private static boolean hasCopyright(final File jarInfo) {
-        boolean has = false;
-        for (File file : jarInfo.listFiles()) {
-            String fileName = file.getName();
-            if (isCopyright(fileName)) {
-                has = true;
-            }
-        }
-        return has;
     }
 
     private static boolean isNotice(String fileName) {
@@ -525,56 +421,6 @@ public class DependencyInspector {
     private static boolean isLicenseFilename(String fileName) {
         return StringUtils.startsWithIgnoreCase(fileName, FILENAME_LICENSE);
     }
-
-
-    private static boolean isCopyright(String fileName) {
-        return StringUtils.startsWithIgnoreCase(fileName, FILENAME_COPYRIGHT);
-    }
-
-    //    /**
-    //     * ライセンス関連ファイルを取得します。
-    //     */
-    //    private static void scanTextInJar(File jar, final String jarName, final File jarInfo) {
-    //        ZipUtils.unzip(jar, new UnzipTask() {
-    //            private static final long serialVersionUID = 1L;
-    //
-    //            @Override
-    //            public void run(String entryName, File unZipFile) throws IOException {
-    //
-    //                if (StringUtils.startsWith(entryName, "META-INF/") == false) {
-    //                    return;
-    //                }
-    //
-    //                if (StringUtils.contains(entryName, "/")) {
-    //                    entryName = StringCutter.right(entryName, "/");
-    //                }
-    //                if (StringUtils.isEmpty(entryName)) {
-    //                    return;
-    //                }
-    //                if (StringUtils.equals(entryName, "MANIFEST.MF")
-    //                    || StringUtils.equals(entryName, "DEPENDENCIES")
-    //                    || StringUtils.equals(entryName, "INDEX.LIST")
-    //                    || StringUtils.endsWith(entryName, ".class")
-    //                    || StringUtils.endsWith(entryName, ".xml")
-    //                    || StringUtils.endsWith(entryName, ".properties")
-    //                    || StringUtils.endsWith(entryName, ".xsd")
-    //                    || StringUtils.endsWith(entryName, ".json")) {
-    //                    return;
-    //                }
-    //
-    //                if (LicenseFileUtils.isLicenseFilename(entryName)
-    //                    || LicenseFileUtils.isNoteFileName(entryName)) {
-    //
-    //                    /* 保存 */
-    //                    File f = new File(jarInfo, entryName);
-    //                    FileUtils.copyFile(unZipFile, f);
-    //
-    //                } else {
-    //                    log.warn("skip " + entryName + " in " + jarName);
-    //                }
-    //            }
-    //        });
-    //    }
 
     /**
      * jdeps.exeを実行します。
