@@ -12,12 +12,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 import com.github.fujiyamakazan.zabuton.util.text.XmlText;
 
 public class RunnableJarBuilder {
 
-    private static final Logger log = LoggerFactory.getLogger(RunnableJarBuilder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RunnableJarBuilder.class);
 
     /** ライブラリが使用するJREのモジュールを記録するファイルの名前。 */
     private static final String JDEPS_TXT = "jdeps.txt";
@@ -26,10 +27,10 @@ public class RunnableJarBuilder {
     private File javaHome;
 
     protected void execute() {
-        log.info("Create JVM...");
+        LOGGER.info("Create JVM...");
 
         String javaHomeStr = System.getenv("JAVA_HOME");
-        log.debug("javaHome:" + javaHomeStr);
+        LOGGER.debug("javaHome:" + javaHomeStr);
 
         if (StringUtils.isEmpty(javaHomeStr)) {
             throw new RuntimeException("環境変数「JAVA_HOME」が登録されていません。");
@@ -39,33 +40,32 @@ public class RunnableJarBuilder {
 
         XmlText projectXml = new XmlText(new File(".project"));
         this.projectName = projectXml.getTextOne("/projectDescription/name");
-        log.debug("projectName:" + this.projectName);
+        LOGGER.debug("projectName:" + this.projectName);
 
         File dirTarget = new File("target");
         //File jar = new File(dirTarget, projectName + ".jar");
 
         /*
-         * ライブラリをスキャンして情報を取得する
+         * ライブラリをスキャンして情報を取得します。
          */
         File dirDependency = new File(dirTarget, "dependency");
         File dirDependencyInfo = new File(dirTarget, "dependency-info");
 
-        List<File> dependencies = Arrays.asList(dirDependency.listFiles());
-        String licenseListTitle = this.projectName + "が使用するライブラリ";
-        DependencyInspector.scanJar(
-            dependencies, dirDependencyInfo,
-            licenseListTitle, JDEPS_TXT, this.javaHome);// TODO メソッドの場所が不自然
+        final List<File> dependencies = Arrays.asList(dirDependency.listFiles());
+        final List<File> dependencyInfos = DependencyInspector.scanJar(
+            dependencies,
+            dirDependencyInfo,
+            JDEPS_TXT,
+            this.javaHome);
 
-        /*
-         * JREを生成する
-         */
-        final String nameJimage = "jimage"; // customランタイムのフォルダ名
+        /* JREを作ります。 */
+        final String nameJimage = "jimage"; // カスタムランタイムのフォルダ名
         final File dirJimage = new File(dirTarget, nameJimage);
         /* 必須モジュールの一覧を作成する */
         List<String> mods = new ArrayList<String>();
         for (File jeps : FileUtils.listFiles(dirDependencyInfo,
-                FileFilterUtils.nameFileFilter(JDEPS_TXT), // ファイル名のフィルタ
-                TrueFileFilter.INSTANCE) // ディレクトリ名は限定しない
+            FileFilterUtils.nameFileFilter(JDEPS_TXT), // ファイル名のフィルタ
+            TrueFileFilter.INSTANCE) // ディレクトリ名は限定しない
         ) {
             /* jdeps.txt */
             Utf8Text f = new Utf8Text(jeps);
@@ -76,29 +76,61 @@ public class RunnableJarBuilder {
             }
         }
         mods.add("java.security.jgss"); // TODO 検知できないため強制的に追加
-        log.debug("mods:" + mods);
-
-        /* JREを作成する */
+        LOGGER.debug("mods:" + mods);
         JreMaker.createJre(this.javaHome, dirJimage, mods);
 
         /*
-         * Jarを起動するためのスクリプトを作成する
+         * Jarを起動するためのスクリプトを作ります。
          */
-        RunnableJarBuilder.createInvokeJarScripts(dirTarget, this.projectName, nameJimage);
+        createInvokeJarScripts(dirTarget, this.projectName, nameJimage);
+
+        /*
+         * NOTICEファイルを作成します。
+         */
+        String title = this.projectName + "が使用するライブラリ";
+        final File fileNotice = new File(dirTarget, "NOTICE.html");
+        NoticeMaker.make(fileNotice, title, dependencyInfos);
 
     }
 
     /**
+     * TODO インライン化を検討する
+     *
      * 実行可能Jarを起動するためのスクリプトを生成します。
      * @param dirResult 生成場所のディレクトリ
      * @param appName アプリケーション名
      * @param nameJimage JVMのファイル名
      */
-    public static void createInvokeJarScripts(File dirResult, String appName, String nameJimage) {
+    private static void createInvokeJarScripts(File dirResult, String appName, String nameJimage) {
         String bat = ".\\" + nameJimage + "\\bin\\java -jar " + appName + ".jar\n";
         String vbs = "Set ws = CreateObject(\"Wscript.Shell\")\n ws.run \"cmd /c main.bat\", vbhide\n";
         new Utf8Text(new File(dirResult, "main.bat")).write(bat);
         new Utf8Text(new File(dirResult, "main.vbs")).write(vbs);
+    }
+
+    /**
+     * 動作確認をします。
+     */
+    public static void main(String[] args) {
+
+        File dirTarget = EnvUtils.getUserDesktop();
+        File dirDependency = new File(dirTarget, "dependency");
+        File dirDependencyInfo = new File(dirTarget, "dependency-info");
+        List<File> dependencies = Arrays.asList(dirDependency.listFiles());
+
+        /* ライブラリをスキャンして情報を取得します。 */
+        List<File> dependencyInfos = DependencyInspector.scanJar(
+            dependencies,
+            dirDependencyInfo,
+            null, null);
+
+        /*
+         * NOTICEファイルを作成します。
+         */
+        String title = "test" + "が使用するライブラリ";
+        final File fileNotice = new File(dirTarget, "NOTICE.html");
+        NoticeMaker.make(fileNotice, title, dependencyInfos);
+
     }
 
 }
