@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.ThrowableToString;
 import com.github.fujiyamakazan.zabuton.util.date.Chronus;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
@@ -42,8 +43,8 @@ public class ALine implements Serializable {
     private SimpleDateFormat dfYyyyMMdd = new SimpleDateFormat(Chronus.POPULAR_JP);
     private SimpleDateFormat dfYyyyMMddHHmmss = new SimpleDateFormat(this.dfYyyyMMdd.toPattern() + " HH:mm:ss");
 
-    private File setting = new File("a-line.setting.txt");
-    private File aliveLog = new File("a-line.log.txt");
+    private File setting = new File(EnvUtils.getAppData(), "a-line.setting.txt");
+    private File aliveLog = new File(EnvUtils.getAppData(),"a-line.log.txt");
 
     public static void main(String[] args) {
         new ALine().run(new String[] { "test" });

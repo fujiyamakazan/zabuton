@@ -31,6 +31,9 @@ import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 public class DependencyInspector {
     private static final Logger LOGGER = LoggerFactory.getLogger(DependencyInspector.class);
 
+    /** ライブラリが使用するJREのモジュールを記録するファイルの名前。 */
+    public static final String JDEPS_TXT = "jdeps.txt";
+
     private static final String FILENAME_LICENSE = "LICENSE";
     private static final String FILENAME_NOTICE = "NOTICE";
     private static final String FILENAME_README = "README";
@@ -44,7 +47,6 @@ public class DependencyInspector {
     public static List<File> scanJar(
         List<File> jars,
         File dirOut,
-        String jdepsTxt,
         File jdk) {
 
         List<File> jarInfos = Generics.newArrayList();
@@ -89,7 +91,7 @@ public class DependencyInspector {
                 /* 依存するJREのモジュールを検査する */
                 if (jdk != null) {
                     Set<String> modules = invokeJdeps(jdk, jar);
-                    Utf8Text jreModulesFile = new Utf8Text(new File(jarInfo, jdepsTxt));
+                    Utf8Text jreModulesFile = new Utf8Text(new File(jarInfo, JDEPS_TXT));
                     jreModulesFile.writeLines(new ArrayList<String>(modules));
                 }
 

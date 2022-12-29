@@ -1,11 +1,14 @@
 package com.github.fujiyamakazan.zabuton.runnable;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,17 +23,33 @@ import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
  *
  * @author fujiyama
  */
-public class JreMaker {
-
-    private static final Logger log = LoggerFactory.getLogger(JreMaker.class);
+public class JreMaker implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZabutonBuilder.class);
 
     /**
      * 配布用に最小限のJREを作成します。
      *
      * @param out 作成先
-     * @param mods モジュール（カンマ区切り）
      */
-    public static void createJre(File jdk, File out, Collection<String> mods) {
+    public static void make(File jdk, File out, File dirDependencyInfo) {
+
+        /* 必須モジュールの一覧を作成する */
+        List<String> mods = new ArrayList<String>();
+        for (File jeps : FileUtils.listFiles(dirDependencyInfo,
+            FileFilterUtils.nameFileFilter(DependencyInspector.JDEPS_TXT), // ファイル名のフィルタ
+            TrueFileFilter.INSTANCE) // ディレクトリ名は限定しない
+        ) {
+            /* jdeps.txt */
+            Utf8Text f = new Utf8Text(jeps);
+            for (String line : f.readLines()) {
+                if (mods.contains(line) == false) {
+                    mods.add(line);
+                }
+            }
+        }
+        mods.add("java.security.jgss"); // TODO 検知できないため強制的に追加
+        LOGGER.debug("mods:" + mods);
 
         List<String> listMods = new ArrayList<String>(mods);
         Collections.sort(listMods);
@@ -58,10 +77,10 @@ public class JreMaker {
                 "--add-modules", strMods,
                 "--output", out.getAbsolutePath());
 
-            log.debug(runtimeExcJLink.getOutText());
+            LOGGER.debug(runtimeExcJLink.getOutText());
             String errText = runtimeExcJLink.getErrText();
             if (StringUtils.isNotEmpty(errText)) {
-                log.warn(errText);
+                LOGGER.warn(errText);
             }
             if (runtimeExcJLink.isSuccess() == false) {
                 throw new RuntimeException(errText);
