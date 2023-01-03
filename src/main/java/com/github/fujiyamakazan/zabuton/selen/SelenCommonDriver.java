@@ -3,14 +3,18 @@ package com.github.fujiyamakazan.zabuton.selen;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Cookie;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.SessionNotCreatedException;
 import org.openqa.selenium.WebDriver;
@@ -24,10 +28,16 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.github.fujiyamakazan.zabuton.util.EnvUtils;
+import com.github.fujiyamakazan.zabuton.util.HttpConnector;
 import com.github.fujiyamakazan.zabuton.util.RetryWorker;
+import com.github.fujiyamakazan.zabuton.util.exec.RuntimeExc;
+import com.github.fujiyamakazan.zabuton.util.file.ZipUtils;
 
 public abstract class SelenCommonDriver implements Serializable {
+
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(SelenCommonDriver.class);
+
+    private static final String CHROMEDRIVER_EXE = "chromedriver.exe";
 
     public static final int DEFAULT_TIMEOUT = 5;
 
@@ -42,19 +52,25 @@ public abstract class SelenCommonDriver implements Serializable {
      */
     public static boolean deleteTemp = true;
 
+    /**
+     * コンストラクタです。Webドライバを生成ます。
+     */
     public SelenCommonDriver() {
-        this.originalDriver = createDriver();
-    }
+        //this.originalDriver = createDriver();
 
-    protected WebDriver createDriver() {
-
-        final File driverFile = getDriverFile();
+        final File driverFile = new File(getDriverDir(), CHROMEDRIVER_EXE);
         final File dir = getDownloadDir();
 
         if (driverFile.exists() == false) {
-            throw new RuntimeException("WebDriverが次の場所にありません。"
-                + driverFile.getAbsolutePath()
-                + " [https://chromedriver.chromium.org/]からダウロードしてください。");
+
+            /* ドライバをダウンロードします。 */
+            downloadChoromeDriver(driverFile);
+
+            if (driverFile.exists() == false) {
+                throw new RuntimeException("WebDriverが次の場所にありません。ダウンロードに失敗しました。"
+                    + driverFile.getAbsolutePath()
+                    + " [https://chromedriver.chromium.org/]からダウロードしてください。");
+            }
         }
 
         System.setProperty("webdriver.chrome.driver", driverFile.getAbsolutePath());
@@ -70,30 +86,130 @@ public abstract class SelenCommonDriver implements Serializable {
         WebDriver driver;
         try {
             driver = new ChromeDriver(options);
+
         } catch (Exception e) {
             LOGGER.debug(e.getClass().getName() + "が発生。");
             LOGGER.debug(e.getMessage());
             if (e instanceof SessionNotCreatedException
                 && e.getMessage()
                     .contains("This version of ChromeDriver only supports Chrome version")) {
+
+                /* バージョン違い */
+                //                throw new RuntimeException(
+                //                    "WebDriverを更新してください。"
+                //                        + driverFile.getAbsolutePath()
+                //                        + " [https://chromedriver.chromium.org/]からダウロードしてください。",
+                //                    e);
+                /*
+                 * ファイル削除実施
+                 */
+                try {
+                    killDriver();
+                    Thread.sleep(1000);
+                    Files.deleteIfExists(Path.of(driverFile.getAbsolutePath()));
+                } catch (Exception deleteException) {
+                    throw new RuntimeException("削除失敗", deleteException);
+                }
                 throw new RuntimeException(
-                    "WebDriverを更新してください。"
-                        + driverFile.getAbsolutePath()
-                        + " [https://chromedriver.chromium.org/]からダウロードしてください。",
-                    e);
+                    "WebDriverのバージョンが不正のため差k叙しました。再度実行すると、新しいファイルをダウンロードします。", e);
+
             } else {
                 throw new RuntimeException(e);
             }
         }
-        driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT,
-            TimeUnit.SECONDS); // 暗黙的な待機時間を設定
+        //
 
-        return driver;
+        onInitialize(driver);
+
+        this.originalDriver = driver;
     }
 
+    /**
+     * 拡張ポイントです。
+     * 作成されたドライバに設定を追加します。
+     */
+    protected void onInitialize(WebDriver driver) {
+        /* 暗黙的な待機時間を設定します。 */
+        driver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+    }
+
+    //    public static void main(String[] args) {
+    //        //downloadChoromeDriver(new File(EnvUtils.getAppData("chabudai"), CHROMEDRIVER_EXE));
+    //        SelenCommonDriver driver = new SelenCommonDriver() {
+    //
+    //            private static final long serialVersionUID = 1L;
+    //
+    //            @Override
+    //            protected File getDriverDir() {
+    //                return EnvUtils.getAppData("chabudai");
+    //            }
+    //
+    //            @Override
+    //            protected File getDownloadDir() {
+    //                return new File(EnvUtils.getAppData("chabudai"), "download");
+    //            }
+    //
+    //        };
+    //        driver.get("http://google.co.jp");
+    //
+    //    }
+
+    private static void downloadChoromeDriver(File downloadFile) {
+        /* ダウンロード */
+        String html = HttpConnector.byBody("https://chromedriver.chromium.org/downloads");
+        int count = 0;
+        for (String line : html.split("\n")) {
+            if (StringUtils.startsWith(line, "If you are using Chrome version ")) {
+                if (count == 0) { // 1行目は飛ばす（現行バージョンではない可能性が高い。）
+                    count++;
+                    continue;
+                }
+                String keyword = "ChromeDriver ";
+                String ver = line.substring(line.lastIndexOf(keyword) + keyword.length());
+                String url = String.format("https://chromedriver.storage.googleapis.com/%s/chromedriver_win32.zip",
+                    ver);
+                File zip = new File(downloadFile.getAbsolutePath() + ".zip");
+                HttpConnector.download(url, zip);
+                LOGGER.debug(url);
+                new ZipUtils.UnzipTask(zip) {
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    protected void runByEntry(String name, File file) {
+                        try {
+                            FileUtils.copyFile(file, new File(downloadFile.getParentFile(), name));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }.start();
+                break;
+            }
+        }
+    }
+
+    /**
+     * ドライバのファイルを返すように実装します。
+     * 例えばクロームの場合は「chromedriver.exe」です。
+     */
+    protected abstract File getDriverDir();
+
+    /**
+     * ダウンロードを指示したときに保存するディレクトリを返すように実装します。
+     */
     protected abstract File getDownloadDir();
 
-    protected abstract File getDriverFile();
+    //    /**
+    //     * Cookieを保存するフォルダを実装します。
+    //     * デフォルトの実装ではダウンロードフォルダの中に作成します。
+    //     */
+    //    protected File getSCookieDir() {
+    //        File file = new File(getDownloadDir(), "cookie");
+    //        if (file.exists() == false) {
+    //            file.mkdirs();
+    //        }
+    //        return file;
+    //    }
 
     /**
      * URLを指定して表示します。
@@ -121,6 +237,15 @@ public abstract class SelenCommonDriver implements Serializable {
 
         WebElement element = findElement(by);
 
+        clickAndWait(element, withAlert);
+    }
+
+    /**
+     * 画面要素を指定してクリックします。
+     */
+    public void clickAndWait(WebElement element, boolean withAlert) {
+        WebDriverWait wait = new WebDriverWait(this.originalDriver, DEFAULT_TIMEOUT);
+
         /* 要素の位置までスクロールします。 */
         new Actions(this.originalDriver).moveToElement(element).perform();
 
@@ -135,7 +260,8 @@ public abstract class SelenCommonDriver implements Serializable {
             protected void run() {
 
                 /* クリック可能になるまで待ちます。*/
-                wait.until(ExpectedConditions.elementToBeClickable(by));
+                //wait.until(ExpectedConditions.elementToBeClickable(by));
+                wait.until(ExpectedConditions.elementToBeClickable(element));
 
                 element.click();
             }
@@ -246,7 +372,6 @@ public abstract class SelenCommonDriver implements Serializable {
         return element.getText();
     }
 
-
     /**
      * テキストが含まれるかを検査します。
      */
@@ -265,7 +390,6 @@ public abstract class SelenCommonDriver implements Serializable {
         }
 
     }
-
 
     public boolean isPresent(By by) {
         return findElements(by).isEmpty() == false;
@@ -346,7 +470,13 @@ public abstract class SelenCommonDriver implements Serializable {
                 f.delete();
             }
         }
+    }
 
+    /**
+     * プロセスを削除します。
+     */
+    public static void killDriver() {
+        RuntimeExc.executeCmd("taskkill /im chromedriver.exe /f");
     }
 
     /**
@@ -383,8 +513,15 @@ public abstract class SelenCommonDriver implements Serializable {
         return this.originalDriver;
     }
 
+    public void addCookie(Cookie cookie) {
+        this.originalDriver.manage().addCookie(cookie);
+    }
 
-
-
-
+    /**
+     * 要素が存在するかを判定します。
+     * TODO 待ち時間の短縮
+     */
+    public boolean presentElemet(By by) {
+        return originalDriver.findElements(by).size() > 0;
+    }
 }

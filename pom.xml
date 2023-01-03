@@ -70,22 +70,10 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- source.jarを作成
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            -->
+            <!-- source.jarを作成 <plugin> <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId> <version>3.0.1</version> <executions>
+                <execution> <id>attach-sources</id> <phase>verify</phase> <goals> <goal>jar</goal>
+                </goals> </execution> </executions> </plugin> -->
         </plugins>
     </build>
     <dependencies>
@@ -189,6 +177,13 @@
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
             <version>5.5.2</version>
+        </dependency>
+
+        <!-- HttpConnector -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.14</version>
         </dependency>
 
     </dependencies>

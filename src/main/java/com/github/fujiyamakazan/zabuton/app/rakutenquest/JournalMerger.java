@@ -118,7 +118,8 @@ public class JournalMerger implements Serializable {
 
             String al = standardize(dailyLine); // 標準化
 
-            if (standardMasterLines.contains(al) ||  contains(masterCsv, dailyLine)) {
+            //if (standardMasterLines.contains(al) ||  contains(masterCsv, dailyLine)) {
+            if (standardMasterLines.contains(al)) {
                 /*  マスターに同一のレコードがあれば、そのレコードは追記しない。 */
                 this.existMaster = true; // 重複する行があったことを記録
 
@@ -140,14 +141,11 @@ public class JournalMerger implements Serializable {
 
     }
 
-
-
     /**
      * 標準化するための実装で上書きすることができます。
      */
     private List<String> standardize(List<String> lines) {
         List<String> result = Generics.newArrayList();
-        //        result.addAll(lines);
         for (String line : lines) {
             result.add(standardize(line));
         }
@@ -164,9 +162,9 @@ public class JournalMerger implements Serializable {
         return line;
     }
 
-    protected boolean contains(JournalCsv masterCsv, String dailyLine) {
-        return false;
-    }
+    //    protected final boolean contains(JournalCsv masterCsv, String dailyLine) {
+    //        return false;
+    //    }
 
     /**
      * 仮保存していたレコードをマスターに保存します。

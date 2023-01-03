@@ -1,12 +1,8 @@
 package com.github.fujiyamakazan.zabuton.util;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -22,6 +18,16 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
 public class HttpConnector {
 
@@ -133,48 +139,67 @@ public class HttpConnector {
         return sb.toString();
     }
 
+    //    /**
+    //     * URLを指定してファイルをダウンロードします。
+    //     */
+    //    public static void download(String url, File toFile, String proxyHost, String proxyPort)
+    //        throws Exception {
+    //
+    //        URL urlObj = new URL(url);
+    //
+    //        DataInputStream dataInStream = null;
+    //        DataOutputStream dataOutStream = null;
+    //
+    //        try {
+    //            HttpURLConnection conn = openConnection(proxyHost, proxyPort, urlObj);
+    //
+    //            conn.setRequestMethod("GET");
+    //            conn.connect();
+    //            int code = conn.getResponseCode();
+    //
+    //            if (code != HttpURLConnection.HTTP_OK) {
+    //                throw new RuntimeException("接続失敗：url=" + url + " ResponseCode=" + code);
+    //            }
+    //            if (toFile != null) {
+    //                dataInStream = new DataInputStream(conn.getInputStream());
+    //                dataOutStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(
+    //                    toFile)));
+    //                byte[] b = new byte[4096]; // TODO 左記の値を検討
+    //                int readByte = 0;
+    //                while (-1 != (readByte = dataInStream.read(b))) {
+    //                    dataOutStream.write(b, 0, readByte);
+    //                }
+    //            }
+    //
+    //        } catch (Exception e) {
+    //            throw e;
+    //
+    //        } finally {
+    //            if (dataInStream != null) {
+    //                dataInStream.close();
+    //            }
+    //            if (dataOutStream != null) {
+    //                dataOutStream.close();
+    //            }
+    //        }
+    //    }
+
     /**
      * URLを指定してファイルをダウンロードします。
      */
-    public static void download(String url, File toFile, String proxyHost, String proxyPort)
-        throws Exception {
-
-        URL urlObj = new URL(url);
-
-        DataInputStream dataInStream = null;
-        DataOutputStream dataOutStream = null;
-
-        try {
-            HttpURLConnection conn = openConnection(proxyHost, proxyPort, urlObj);
-
-            conn.setRequestMethod("GET");
-            conn.connect();
-            int code = conn.getResponseCode();
-
-            if (code != HttpURLConnection.HTTP_OK) {
-                throw new RuntimeException("接続失敗：url=" + url + " ResponseCode=" + code);
+    public static void download(String url, File to) {
+        try (final CloseableHttpClient client = HttpClients.createDefault();
+            final CloseableHttpResponse response = client.execute(new HttpGet(url))) {
+            final int status = response.getStatusLine().getStatusCode();
+            if (status >= 200 && status < 300) {
+                final HttpEntity entity = response.getEntity();
+                Files.write(Paths.get(to.getAbsolutePath()),
+                    entity == null ? new byte[0] : EntityUtils.toByteArray(entity));
+            } else {
+                throw new ClientProtocolException("status: " + status);
             }
-            if (toFile != null) {
-                dataInStream = new DataInputStream(conn.getInputStream());
-                dataOutStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(
-                    toFile)));
-                byte[] b = new byte[4096]; // TODO 左記の値を検討
-                int readByte = 0;
-                while (-1 != (readByte = dataInStream.read(b))) {
-                    dataOutStream.write(b, 0, readByte);
-                }
-            }
-
         } catch (Exception e) {
-            throw e;
-
-        } finally {
-            if (dataInStream != null) {
-                dataInStream.close();
-            }
-            if (dataOutStream != null) {
-                dataOutStream.close();
-            }
+            throw new RuntimeException(e);
         }
     }
 
@@ -193,7 +218,7 @@ public class HttpConnector {
     /**
      * Java 11で追加された新しいHTTPクライアントで接続します。
      */
-    private static String byBody(String url) {
+    public static String byBody(String url) {
 
         // TODO プロキシ対応
 
@@ -216,7 +241,6 @@ public class HttpConnector {
             throw new RuntimeException(e);
         }
         String body = response.body();
-        //System.out.println(body);
         return body;
 
     }
@@ -224,13 +248,14 @@ public class HttpConnector {
     /**
      * 動作確認をします。
      */
-    public static void main(String[] args)  {
+    public static void main(String[] args) {
         //String str = get("https://pgse.seesaa.net/", "xx.xx.xx.xx", "8080", StandardCharsets.UTF_8);
         //String str = post("https://pgse.seesaa.net/", "abc", "xx.xx.xx.xx", "8080", StandardCharsets.UTF_8, "");
         //System.out.println(str);
 
-        String body = byBody("http://yahoo.co.jp");
-        System.out.println(body);
+        //String body = byBody("http://yahoo.co.jp");
+        //System.out.println(body);
+
     }
 
 }

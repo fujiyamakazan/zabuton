@@ -11,7 +11,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 public abstract class ZabuApp extends WebApplication {
 
     @SuppressWarnings("unused")
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ZabuApp.class);
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ZabuApp.class);
 
     public static final String INIT_PARAM_TITLE = ZabuApp.class.getName() + ".PARAM_TITLE";
     public static final String URL_INFOPATH = "zabinfo";

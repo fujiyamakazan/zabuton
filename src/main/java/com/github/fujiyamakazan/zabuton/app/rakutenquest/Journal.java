@@ -4,12 +4,8 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 
 import com.github.fujiyamakazan.zabuton.util.date.Chronus;
 
@@ -189,26 +185,26 @@ public class Journal implements Serializable {
         }
     }
 
-    public static final class JournalsComparator implements Comparator<Journal> {
-        @Override
-        public int compare(Journal o1, Journal o2) {
-            int compare = 0;
-            if (compare == 0) {
-                compare = StringUtils.compare(o1.getSource(), o2.getSource());
-            }
-            if (compare == 0) {
-                compare = StringUtils.compare(o1.getActivity(), o2.getActivity());
-            }
-            if (compare == 0) {
-                compare = StringUtils.compare(o1.getMemo(), o2.getMemo());
-            }
-            if (compare == 0) {
-                //compare = DateUtils.truncatedCompareTo(o1.getDate(), o2.getDate(), Calendar.DAY_OF_MONTH);
-                compare = DateUtils.truncatedCompareTo(o1.getDate(), o2.getDate(), Calendar.HOUR_OF_DAY);
-            }
-            return compare;
-        }
-    }
+    //    public static final class JournalsComparator implements Comparator<Journal> {
+    //        @Override
+    //        public int compare(Journal o1, Journal o2) {
+    //            int compare = 0;
+    //            if (compare == 0) {
+    //                compare = StringUtils.compare(o1.getSource(), o2.getSource());
+    //            }
+    ////            if (compare == 0) {
+    ////                compare = StringUtils.compare(o1.getActivity(), o2.getActivity());
+    ////            }
+    ////            if (compare == 0) {
+    ////                compare = StringUtils.compare(o1.getMemo(), o2.getMemo());
+    ////            }
+    ////            if (compare == 0) {
+    ////                //compare = DateUtils.truncatedCompareTo(o1.getDate(), o2.getDate(), Calendar.DAY_OF_MONTH);
+    ////                compare = DateUtils.truncatedCompareTo(o1.getDate(), o2.getDate(), Calendar.HOUR_OF_DAY);
+    ////            }
+    //            return compare;
+    //        }
+    //    }
 
     public static final String HEADER = "日付" + "\t"
         + "金額" + "\t"

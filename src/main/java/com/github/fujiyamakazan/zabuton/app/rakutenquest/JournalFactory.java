@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -37,14 +36,14 @@ public abstract class JournalFactory implements Serializable {
 
     protected final JournalCsv master;
     protected final PasswordManager pm;
-
+    protected final JournalsTerm term;
     /** 記録元名です。 */
     private final String sourceName;
-    private final JournalsTerm term;
     private final List<String> assetNames = Generics.newArrayList();
     private final File crawlerDir;
     private final File cache;
-    private final File driver;
+    //private final File driver;
+    private final File appDir;
 
     /**
      * コンストラクタです。
@@ -54,7 +53,8 @@ public abstract class JournalFactory implements Serializable {
         this.sourceName = sourceName;
         this.term = term;
         this.assetNames.addAll(Arrays.asList(assetNames));
-        this.driver = new File(appDir, "chromedriver.exe");
+        //this.driver = new File(appDir, "chromedriver.exe");
+        this.appDir = appDir;
         this.crawlerDir = new File(appDir, getCrawlerName());
         this.crawlerDir.mkdirs();
         this.cache = new File(this.crawlerDir, "cache");
@@ -92,8 +92,6 @@ public abstract class JournalFactory implements Serializable {
     public List<Journal> createJurnals(List<Journal> existDatas, List<Journal> templates) {
 
         /* マスターを更新します。 */
-        //File file = doChoiceFileForUpdateMaster();
-        //doUpdateMaster(file);
         doUpdateMaster();
 
         List<Journal> journals = doCreateJournal(existDatas, templates);
@@ -132,7 +130,7 @@ public abstract class JournalFactory implements Serializable {
 
     /*
      * TODO パブリックなメソッドはこれまで。
-     * これ以降は、クラス構成の整理の後、protectedいかになるはずです。
+     * これ以降は、クラス構成の整理の後、protected以下になるはずです。
      */
 
     /**
@@ -170,9 +168,8 @@ public abstract class JournalFactory implements Serializable {
                 private static final long serialVersionUID = 1L;
 
                 @Override
-                protected File getDriverFile() {
-                    return driver;
-                    //return new File(dir, "chromedriver.exe");
+                protected File getDriverDir() {
+                    return appDir;
                 }
 
                 @Override
@@ -244,18 +241,21 @@ public abstract class JournalFactory implements Serializable {
      * ・ダウンロードした１つのファイルから「createCsvRow」でデータを取得します。
      */
     protected void doUpdateMaster() {
-        //File file = getDownloadFileLastOne();
         File file = doChoiceFileForUpdateMaster();
 
         Element body = getHtmlBody(file);
         List<String> rows = createCsvRow(body);
-        final JournalMerger textMerger = new JournalMerger(
-            getClass().getSimpleName(),
-            //getMaster(),
-            master,
-            getDateFormat());
+        final JournalMerger textMerger = createMerger();
         textMerger.stock(rows);
         textMerger.flash();
+    }
+
+    protected JournalMerger createMerger() {
+        final JournalMerger textMerger = new JournalMerger(
+            getClass().getSimpleName(),
+            master,
+            getDateFormat());
+        return textMerger;
     }
 
     protected File doChoiceFileForUpdateMaster() {
@@ -274,10 +274,11 @@ public abstract class JournalFactory implements Serializable {
 
             String strDate = pickupDate(row);
             String pattern = getDateFormat();
-            /* "yyyy/"を付与 */
             if (StringUtils.length(strDate) == 5) {
-                strDate = new SimpleDateFormat("yyyy").format(new Date()) + "/" + strDate;
-                pattern = "yyyy/" + pattern;
+                //                /* "yyyy/"を付与 */
+                //                strDate = new SimpleDateFormat("yyyy").format(new Date()) + "/" + strDate;
+                //                pattern = "yyyy/" + pattern;
+                throw new RuntimeException("不正日付:" + row);
             }
 
             Boolean in = this.term.in(strDate, pattern);
@@ -310,7 +311,6 @@ public abstract class JournalFactory implements Serializable {
                 for (Journal exist : existDatas) {
                     String sourceOfExixt = exist.getSource();
                     String sourceOfJournal = journal.getSource();
-                    //System.out.println(sourceOfExixt + "⇔" + sourceOfJournal);
                     if (StringUtils.equals(sourceOfExixt, sourceOfJournal)
                         && StringUtils.equals(exist.getRowIndex(), journal.getRowIndex())) {
                         iterator.remove();
@@ -650,6 +650,6 @@ public abstract class JournalFactory implements Serializable {
             getClass().getSimpleName(),
             this.master,
             getDateFormat());
-    };
+    }
 
 }

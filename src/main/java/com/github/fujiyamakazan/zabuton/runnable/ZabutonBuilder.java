@@ -15,7 +15,7 @@ import com.github.fujiyamakazan.zabuton.util.text.XmlText;
 
 /**
  * 成果物をビルドします。
- * @author k_inaba
+ * @author fujiyama
  */
 public class ZabutonBuilder implements Serializable {
 

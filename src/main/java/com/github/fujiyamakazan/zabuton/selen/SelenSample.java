@@ -2,11 +2,8 @@ package com.github.fujiyamakazan.zabuton.selen;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.edge.EdgeDriver;
 
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 
@@ -24,17 +21,17 @@ public class SelenSample implements Serializable {
 
             private static final long serialVersionUID = 1L;
 
-            @Override
-            protected WebDriver createDriver() {
-
-                System.setProperty("webdriver.edge.driver", getDriverFile().getAbsolutePath());
-
-                WebDriver driver = new EdgeDriver();
-
-                driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS); // 暗黙的な待機時間を設定
-
-                return driver;
-            }
+            //            @Override
+            //            protected WebDriver createDriver() {
+            //
+            //                System.setProperty("webdriver.edge.driver", getDriverFile().getAbsolutePath());
+            //
+            //                WebDriver driver = new EdgeDriver();
+            //
+            //                driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS); // 暗黙的な待機時間を設定
+            //
+            //                return driver;
+            //            }
 
             @Override
             protected File getDownloadDir() {
@@ -42,8 +39,9 @@ public class SelenSample implements Serializable {
             }
 
             @Override
-            protected File getDriverFile() {
-                return new File("C:\\tmp\\msedgedriver.exe");
+            protected File getDriverDir() {
+                //return new File("C:\\tmp\\msedgedriver.exe");
+                return new File("C:\\tmp");
             }
 
         };
@@ -59,7 +57,6 @@ public class SelenSample implements Serializable {
         driver.clickAndWait(By.id("signInSubmit"));
 
         driver.clickLinkPartialAndWait("過去3か月");
-
 
     }
 

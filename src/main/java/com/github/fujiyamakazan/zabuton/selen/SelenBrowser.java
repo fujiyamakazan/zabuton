@@ -42,8 +42,9 @@ public class SelenBrowser implements Serializable {
             }
 
             @Override
-            protected File getDriverFile() {
-                File driverFile = new File("C:\\tmp\\chromedriver.exe");
+            protected File getDriverDir() {
+                //File driverFile = new File("C:\\tmp\\chromedriver.exe");
+                File driverFile = new File("C:\\tmp");
                 return driverFile;
             }
         };

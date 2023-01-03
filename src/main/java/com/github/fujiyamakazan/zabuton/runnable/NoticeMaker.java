@@ -14,7 +14,7 @@ import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 
 /**
  * Jarから取得した情報をもとにNOTICEファイルを生成します。
- * @author k_inaba
+ * @author fujiyama
  */
 public class NoticeMaker implements Serializable {
     private static final long serialVersionUID = 1L;
