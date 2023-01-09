@@ -3,6 +3,7 @@ package com.github.fujiyamakazan.zabuton.util.date;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -70,8 +71,9 @@ public class Chronus implements Serializable {
         return df;
     }
 
-    public static String getNowYyyy() {
-        return new SimpleDateFormat("yyyy").format(new Date());
+    public static int getNowYyyy() {
+        LocalDate now = LocalDate.now();
+        return now.getYear();
     }
 
     /**

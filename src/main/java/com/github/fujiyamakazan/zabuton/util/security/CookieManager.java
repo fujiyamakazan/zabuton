@@ -40,7 +40,6 @@ public class CookieManager implements Serializable {
     /**
      * Cookieを読み込みます。
      * URLをキーとします。
-     * @param cmd2
      */
     public void executeByUrl(String url) {
         try {

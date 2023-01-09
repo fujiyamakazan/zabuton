@@ -6,28 +6,25 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
-import com.github.fujiyamakazan.zabuton.util.text.XmlText;
 
 /**
  * 成果物をビルドします。
  * @author fujiyama
  */
 public class ZabutonBuilder implements Serializable {
-
     private static final long serialVersionUID = 1L;
-
-    @SuppressWarnings("unused")
-    private static final Logger LOGGER = LoggerFactory.getLogger(ZabutonBuilder.class);
 
     /**
      * 「target」フォルダに成果物を作ります。
      */
     protected void execute() {
+
+        /* 禁則文字のチェックをします */
+        NgWordCheck.execute();
+
         File dirTarget = new File("target");
 
         /* 環境変数からJAVA_HOMEの場所を取得します。*/
@@ -38,26 +35,31 @@ public class ZabutonBuilder implements Serializable {
         File javaHome = new File(strJh);
 
         /* ライブラリをスキャンして情報を取得します。 */
-        File dirDependency = new File(dirTarget, "dependency");
-        File dirDependencyInfo = new File(dirTarget, "dependency-info");
+        final List<File> dependencyInfos;
+        final File dirDependency = new File(dirTarget, "dependency");
+        final File dirDependencyInfo = new File(dirTarget, "dependency-info");
+        if (skipDependensyScan() == false) {
+            dependencyInfos = DependencyInspector.scanJar(
+                Arrays.asList(dirDependency.listFiles()),
+                dirDependencyInfo,
+                javaHome);
 
-        final List<File> dependencyInfos = DependencyInspector.scanJar(
-            Arrays.asList(dirDependency.listFiles()),
-            dirDependencyInfo,
-            javaHome);
+        } else {
+            dependencyInfos = null;
+        }
 
-        /* JREを作ります。 */
-        final String nameJimage = "jimage"; // カスタムランタイムのフォルダ名
-        final File dirJimage = new File(dirTarget, nameJimage);
-        JreMaker.make(javaHome, dirJimage, dirDependencyInfo);
+        /* JREを作ります  */
+        final String jrePath = createJre(dirTarget, javaHome, dirDependencyInfo);
 
         /* プロジェクト名を取得します。 */
-        String pjName = new XmlText(new File(".project")).getTextOne("/projectDescription/name");
+        //String pjName = new XmlText(new File(".project")).getTextOne("/projectDescription/name");
+        String pjName = EnvUtils.getProjectName();
 
         /*
          * Jarを起動するためのスクリプトを作ります。
          */
-        String bat = ".\\" + nameJimage + "\\bin\\java -jar " + pjName + ".jar\n";
+        String bat = "cd /d %~dp0\n"
+            + jrePath + " -jar " + pjName + ".jar\n";
         String vbs = "Set ws = CreateObject(\"Wscript.Shell\")\n ws.run \"cmd /c main.bat\", vbhide\n";
         new Utf8Text(new File(dirTarget, "main.bat")).write(bat);
         new Utf8Text(new File(dirTarget, "main.vbs")).write(vbs);
@@ -65,10 +67,28 @@ public class ZabutonBuilder implements Serializable {
         /*
          * NOTICEファイルを作成します。
          */
-        String title = pjName + "が使用するライブラリ";
-        final File fileNotice = new File(dirTarget, "NOTICE.html");
-        NoticeMaker.make(fileNotice, title, dependencyInfos);
+        if (skipDependensyScan() == false) {
+            String title = pjName + "が使用するライブラリ";
+            final File fileNotice = new File(dirTarget, "NOTICE.html");
+            NoticeMaker.make(fileNotice, title, dependencyInfos);
+        }
 
+
+    }
+
+    protected boolean skipDependensyScan() {
+        return false;
+    }
+
+    /** JREを作ります。 */
+    protected String createJre(File dirTarget, File javaHome, File dirDependencyInfo) {
+
+        //final String nameJimage = "jimage"; // カスタムランタイムのフォルダ名
+        final File dirJimage = new File(dirTarget, "jimage");
+        JreMaker.make(javaHome, dirJimage, dirDependencyInfo);
+        final String nameJimage = dirJimage.getName();
+        final String jrePath = ".\\" + nameJimage + "\\bin\\java";
+        return jrePath;
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.github.fujiyamakazan.zabuton.util.text;
 
+import java.io.File;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +31,10 @@ public class SeparateKeyValuesText extends KeyValuesText {
 
     public SeparateKeyValuesText(String pathname) {
         super(pathname);
+    }
+
+    public SeparateKeyValuesText(File file) {
+        super(file);
     }
 
     @Override

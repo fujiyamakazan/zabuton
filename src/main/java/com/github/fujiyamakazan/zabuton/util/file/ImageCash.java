@@ -53,7 +53,7 @@ public class ImageCash {
         /*
          * 画像ファイルの情報を保存するテキストファイルを指定します。
          */
-        String dir = EnvUtils.getAppData() + "/" + f.getParentFile().getAbsolutePath().replaceAll(":", "/");
+        String dir = EnvUtils.getProjectDir().getAbsolutePath() + "/" + f.getParentFile().getAbsolutePath().replaceAll(":", "/");
         try {
             FileUtils.forceMkdir(new File(dir));
         } catch (IOException e) {

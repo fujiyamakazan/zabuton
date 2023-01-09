@@ -74,6 +74,23 @@
                 <artifactId>maven-source-plugin</artifactId> <version>3.0.1</version> <executions>
                 <execution> <id>attach-sources</id> <phase>verify</phase> <goals> <goal>jar</goal>
                 </goals> </execution> </executions> </plugin> -->
+            <!-- Javaの実行 -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>codegeneration</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>${groupId}.runnable.NgWordCheck</mainClass>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <dependencies>

@@ -43,8 +43,8 @@ public class ALine implements Serializable {
     private SimpleDateFormat dfYyyyMMdd = new SimpleDateFormat(Chronus.POPULAR_JP);
     private SimpleDateFormat dfYyyyMMddHHmmss = new SimpleDateFormat(this.dfYyyyMMdd.toPattern() + " HH:mm:ss");
 
-    private File setting = new File(EnvUtils.getAppData(), "a-line.setting.txt");
-    private File aliveLog = new File(EnvUtils.getAppData(),"a-line.log.txt");
+    private File setting = new File(EnvUtils.getProjectDir(), "a-line.setting.txt");
+    private File aliveLog = new File(EnvUtils.getProjectDir(),"a-line.log.txt");
 
     public static void main(String[] args) {
         new ALine().run(new String[] { "test" });
@@ -393,7 +393,7 @@ public class ALine implements Serializable {
     /**
      * ログファイルへ書込みます。
      */
-    private void writeLog(String msg) {
+    public void writeLog(String msg) {
         String text = getNow()
             + "[" + getHostName() + "]"
             + "" + msg;

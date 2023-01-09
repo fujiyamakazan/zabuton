@@ -20,7 +20,7 @@ public abstract class KeyValuesText implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @SuppressWarnings("unused")
-    private static final Logger log =  LoggerFactory.getLogger(KeyValuesText.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(KeyValuesText.class);
 
     protected Utf8Text utf8File;
 
@@ -32,6 +32,10 @@ public abstract class KeyValuesText implements Serializable {
 
     public KeyValuesText(String pathname) {
         this(new Utf8Text(new File(pathname)));
+    }
+
+    public KeyValuesText(File file) {
+        this(new Utf8Text(file));
     }
 
     /**
@@ -55,7 +59,7 @@ public abstract class KeyValuesText implements Serializable {
         if (this.keyValueString == null) {
             this.keyValueString = read();
         }
-        for (KeyValue kv: this.keyValueString) {
+        for (KeyValue kv : this.keyValueString) {
             if (StringUtils.equals(kv.getKey(), key)) {
                 return kv.getValue();
             }
@@ -73,7 +77,7 @@ public abstract class KeyValuesText implements Serializable {
             this.keyValueString = read();
         }
         boolean exist = false;
-        for (KeyValue kv: this.keyValueString) {
+        for (KeyValue kv : this.keyValueString) {
             if (StringUtils.equals(kv.getKey(), key)) {
                 kv.setValue(value);
                 exist = true;

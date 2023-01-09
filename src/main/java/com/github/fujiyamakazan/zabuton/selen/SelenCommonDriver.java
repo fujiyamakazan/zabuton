@@ -85,34 +85,26 @@ public abstract class SelenCommonDriver implements Serializable {
         public abstract WebDriver create(File downloadDefaultDir);
 
         /**
-         * ドライバのタスクを強制終了します。
-         */
-        public void killTask() {
-            RuntimeExc.executeCmd("taskkill /im "+getDriverFileName()+" /f");
-        }
-
-        /**
          * 例外情報から不正なバージョンの発生を検知します。
          */
         public abstract boolean occurredIllegalVersionDetected(Exception e);
-
-
 
     }
 
     /**
      * GoogleChrome用のWebドライバのファクトリです。
      */
-    private class ChoromeDriverOptions extends DriverFactory {
+    private class ChoromeDriverFactory extends DriverFactory {
         private static final long serialVersionUID = 1L;
+        private static final String DRIVER_EXE = "chromedriver.exe";
 
-        public ChoromeDriverOptions(File driverDir) {
+        public ChoromeDriverFactory(File driverDir) {
             super(driverDir);
         }
 
         @Override
         public String getDriverFileName() {
-            return "chromedriver.exe";
+            return DRIVER_EXE;
         }
 
         @Override
@@ -172,7 +164,6 @@ public abstract class SelenCommonDriver implements Serializable {
             return new ChromeDriver(options);
         }
 
-
         @Override
         public boolean occurredIllegalVersionDetected(Exception e) {
             return e instanceof SessionNotCreatedException
@@ -187,7 +178,7 @@ public abstract class SelenCommonDriver implements Serializable {
     public SelenCommonDriver() {
 
         /* デフォルトではGoogleChromeのWebドライバを生成します。 */
-        DriverFactory factory = new ChoromeDriverOptions(getDriverDir());
+        DriverFactory factory = new ChoromeDriverFactory(getDriverDir());
 
         final File driverFile = factory.getDriverFile();
 
@@ -200,7 +191,7 @@ public abstract class SelenCommonDriver implements Serializable {
             if (driverFile.exists() == false) {
                 throw new RuntimeException(
                     "ドライバのファイルが" + driverFile.getAbsolutePath() + "にありません。"
-                    + " [" + factory.getDriverUrl() + "]からダウンロードしてください。");
+                        + " [" + factory.getDriverUrl() + "]からダウンロードしてください。");
             }
 
         }
@@ -215,7 +206,7 @@ public abstract class SelenCommonDriver implements Serializable {
             if (factory.occurredIllegalVersionDetected(e)) {
                 /* ドライバファイルのバージョン不正を検知したときの処理 */
                 try {
-                    factory.killTask();
+                    killTask();
                     Thread.sleep(1000);
                     Files.deleteIfExists(Path.of(driverFile.getAbsolutePath())); // ファイル削除
                 } catch (Exception deleteException) {
@@ -573,5 +564,18 @@ public abstract class SelenCommonDriver implements Serializable {
      */
     public boolean presentElemet(By by) {
         return originalDriver.findElements(by).size() > 0;
+    }
+
+    /**
+     * ドライバのタスクを強制終了します。
+     */
+    public static void killTask() {
+        // 既存の処理を列挙
+        try {
+            RuntimeExc.executeCmd("taskkill /im " + ChoromeDriverFactory.DRIVER_EXE + " /f");
+        } catch (Exception e) {
+            /* プロセスがなくて失敗することもあるが問題としない。 */
+            LOGGER.debug(ThrowableToString.convertToString(e));
+        }
     }
 }

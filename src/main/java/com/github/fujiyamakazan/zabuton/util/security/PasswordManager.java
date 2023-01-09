@@ -36,15 +36,15 @@ public class PasswordManager extends JPageApplication {
     private MainPage mainPage;
     //private boolean autoLogin;
 
-    /**
-     * コンストラクタです。
-     */
-    public PasswordManager(String appId) {
-        this.saveDir = new File(EnvUtils.getAppData(appId), "PasswordManager");
-        if (this.saveDir.exists() == false) {
-            this.saveDir.mkdirs();
-        }
-    }
+//    /**
+//     * コンストラクタです。
+//     */
+//    public PasswordManager(String appId) {
+//        this.saveDir = new File(EnvUtils.getAppData(appId), "PasswordManager");
+//        if (this.saveDir.exists() == false) {
+//            this.saveDir.mkdirs();
+//        }
+//    }
 
     /**
      * コンストラクタです。
@@ -217,7 +217,7 @@ public class PasswordManager extends JPageApplication {
     public static void main(String[] args) {
 
         String url = "http://www.aaaa.aaaaa.aaaaa.aaaa.example.com/test";
-        PasswordManager pm = new PasswordManager("SampleApp");
+        PasswordManager pm = new PasswordManager(EnvUtils.getProjectDir());
         pm.executeByUrl(url);
         String id = pm.getId();
         String pw = pm.getPassword();
