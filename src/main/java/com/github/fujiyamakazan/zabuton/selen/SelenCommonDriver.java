@@ -162,6 +162,15 @@ public abstract class SelenCommonDriver implements Serializable {
 
             /* Webドライバのインスタンスを返します。*/
             return new ChromeDriver(options);
+
+
+            /*
+             * Edgeの場合、「自動テストソフトウェアによって制御されています」を非表示にする方法は下記の通り。
+             * TODO Choromeにも適用することを検討
+             */
+//            EdgeOptions options = new EdgeOptions();
+//            options.setExperimentalOption("useAutomationExtension", false);
+//            options.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
         }
 
         @Override
