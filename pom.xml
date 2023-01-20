@@ -5,6 +5,8 @@
     <groupId>com.github.fujiyamakazan.zabuton</groupId>
     <artifactId>zabuton</artifactId>
     <version>0.0.2</version>
+
+    <name>zabuton</name>
     <build>
         <resources>
             <resource>
