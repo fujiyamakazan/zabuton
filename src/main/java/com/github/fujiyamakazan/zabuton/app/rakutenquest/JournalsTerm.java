@@ -100,15 +100,21 @@ public class JournalsTerm implements Serializable {
         Date date;
         try {
             date = Chronus.parse(value, pattern);
-            if (date.before(start)) {
-                result = false;
-            } else if (date.equals(next) || date.after(next)) {
-                result = false;
-            } else {
-                result = true;
-            }
+            result = inCore(date, start, next);
         } catch (Exception e) {
             result = false;
+        }
+        return result;
+    }
+
+    private static boolean inCore(Date date, Date start, Date next) {
+        boolean result;
+        if (date.before(start)) {
+            result = false;
+        } else if (date.equals(next) || date.after(next)) {
+            result = false;
+        } else {
+            result = true;
         }
         return result;
     }

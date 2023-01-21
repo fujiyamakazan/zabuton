@@ -33,6 +33,8 @@ import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 
 public abstract class JournalFactory implements Serializable {
     private static final long serialVersionUID = 1L;
+    @SuppressWarnings("unused")
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(JournalFactory.class);
 
     protected final JournalCsv master;
     protected final PasswordManager pm;
@@ -273,21 +275,11 @@ public abstract class JournalFactory implements Serializable {
             journal.setRowIndex(String.valueOf(row.getIndex()));
 
             String strDate = pickupDate(row);
-            String pattern = getDateFormat();
             if (StringUtils.length(strDate) == 5) {
-                //                /* "yyyy/"を付与 */
-                //                strDate = new SimpleDateFormat("yyyy").format(new Date()) + "/" + strDate;
-                //                pattern = "yyyy/" + pattern;
                 throw new RuntimeException("不正日付:" + row);
             }
 
-            Boolean in = this.term.in(strDate, pattern);
-            Date date;
-            if (in == false) {
-                date = null;
-            } else {
-                date = Chronus.parse(strDate, pattern);
-            }
+            final Date date = getDateFromCsv(strDate);
 
             if (date == null) {
                 continue;
@@ -320,6 +312,17 @@ public abstract class JournalFactory implements Serializable {
             }
         }
         return journals;
+    }
+
+    protected Date getDateFromCsv(String strDate) {
+        final Date date;
+        String pattern = getDateFormat();
+        if (this.term.in(strDate, pattern) == false) {
+            date = null;
+        } else {
+            date = Chronus.parse(strDate, pattern);
+        }
+        return date;
     }
 
     /**

@@ -36,15 +36,15 @@ public class PasswordManager extends JPageApplication {
     private MainPage mainPage;
     //private boolean autoLogin;
 
-//    /**
-//     * コンストラクタです。
-//     */
-//    public PasswordManager(String appId) {
-//        this.saveDir = new File(EnvUtils.getAppData(appId), "PasswordManager");
-//        if (this.saveDir.exists() == false) {
-//            this.saveDir.mkdirs();
-//        }
-//    }
+    //    /**
+    //     * コンストラクタです。
+    //     */
+    //    public PasswordManager(String appId) {
+    //        this.saveDir = new File(EnvUtils.getAppData(appId), "PasswordManager");
+    //        if (this.saveDir.exists() == false) {
+    //            this.saveDir.mkdirs();
+    //        }
+    //    }
 
     /**
      * コンストラクタです。
@@ -79,7 +79,6 @@ public class PasswordManager extends JPageApplication {
             return;
         }
 
-
         this.mainPage = new MainPage();
         invokePage(this.mainPage);
 
@@ -100,7 +99,6 @@ public class PasswordManager extends JPageApplication {
             load();
             return;
         }
-
 
         this.mainPage = new MainPage();
         invokePage(this.mainPage);
@@ -143,10 +141,8 @@ public class PasswordManager extends JPageApplication {
             addLine(new JPagePassword("PW", PasswordManager.this.modelPw));
             this.saveButton = new JPageButton("OK", doSave);
             addLine(this.saveButton, new JPageCheckBox("端末に保存", modelSave),
-                    new JPageLink("保存されているパスワードを整理する", doLink));
+                new JPageLink("保存されているパスワードを整理する", doLink));
         }
-
-
 
         @Override
         protected void onAfterShow() {
@@ -203,7 +199,8 @@ public class PasswordManager extends JPageApplication {
                     }
                 }
             };
-            final JPageAction doLink = new JPageChangeAction(PasswordManager.this, ListPage.this, PasswordManager.this.mainPage);
+            final JPageAction doLink = new JPageChangeAction(PasswordManager.this, ListPage.this,
+                PasswordManager.this.mainPage);
 
             addLine(new JPageLabel("このパソコンには" + PasswordManager.this.saveDir.listFiles().length + "件のパスワードが保存されています。"));
             addLine(new JPageButton("削除", doDelete), new JPageLink("戻る", doLink));
