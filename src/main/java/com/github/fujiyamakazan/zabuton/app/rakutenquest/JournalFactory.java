@@ -41,7 +41,8 @@ public abstract class JournalFactory implements Serializable {
     protected final JournalsTerm term;
     /** 記録元名です。 */
     private final String sourceName;
-    private final List<String> assetNames = Generics.newArrayList();
+    //private final List<String> assetNames = Generics.newArrayList();
+    private final String assetName;
     private final File crawlerDir;
     private final File cache;
     //private final File driver;
@@ -51,10 +52,11 @@ public abstract class JournalFactory implements Serializable {
      * コンストラクタです。
      * @param sourceName 記録元名
      */
-    public JournalFactory(String sourceName, String[] assetNames, JournalsTerm term, File appDir) {
+    public JournalFactory(String sourceName, String assetName, JournalsTerm term, File appDir) {
         this.sourceName = sourceName;
         this.term = term;
-        this.assetNames.addAll(Arrays.asList(assetNames));
+        //this.assetNames.addAll(Arrays.asList(assetNames));
+        this.assetName = assetName;
         //this.driver = new File(appDir, "chromedriver.exe");
         this.appDir = appDir;
         this.crawlerDir = new File(appDir, getCrawlerName());
@@ -72,13 +74,13 @@ public abstract class JournalFactory implements Serializable {
         onInitialize();
     }
 
-    /**
-     * コンストラクタです。
-     * ク@param name 名称です。「記録元」に使われます。
-     */
-    public JournalFactory(String name, String assetName, JournalsTerm term, File dir) {
-        this(name, new String[] { assetName }, term, dir);
-    }
+    //    /**
+    //     * コンストラクタです。
+    //     * ク@param name 名称です。「記録元」に使われます。
+    //     */
+    //    public JournalFactory(String name, String assetName, JournalsTerm term, File dir) {
+    //        this(name, new String[] { assetName }, term, dir);
+    //    }
 
     /**
      * 明細の元となる情報をダウンロードします。
@@ -103,32 +105,31 @@ public abstract class JournalFactory implements Serializable {
     /**
      * 記録されている資産の金額を返します。現在の金額と差があれば、その情報を付与します。
      */
-    public String getSummary(Map<String, Integer> existAssets) {
-        String nowAsset = getAssetText();
-        if (StringUtils.isEmpty(nowAsset)) {
-            return "";
+    public String[] getSummary(Map<String, Integer> existAssets) {
+        Integer asset = getAssetText();
+        if (asset == null) {
+            return null;
         }
-        for (String assetName : this.assetNames) {
-            String existAsset = String.valueOf(existAssets.get(assetName));
-            if (nowAsset.contains(existAsset) == false) {
-                nowAsset += "★[" + assetName + "]はまだ適用されていません(更新前の値:[" + existAsset + "])★";
-            }
+        //assetText = assetText.replaceAll(",", ""); // カンマ除去
+        //if (StringUtils.isEmpty(nowAsset)) {
+        //    return new String[] { "", "" };
+        //}
+        //for (String assetName : this.assetNames) {
+        //String existAsset = String.valueOf(existAssets.get(assetName));
+        int existAsset = existAssets.get(assetName);
+        String assetNote = assetName;
+        //if (assetText.contains(existAsset) == false) {
+        if (asset != existAsset) {
+            assetNote += "★更新前の値:[" + existAsset + "]★";
         }
-        return nowAsset;
+        //}
+        return new String[] {String.valueOf(asset), assetNote};
     }
 
     /**
      * 記録されている資産の金額を返します。
      */
-    public abstract String getAssetText();
-    //    public String getAssetText() {
-    //        File file = getDownloadFileLastOne();
-    //        Element body = getHtmlBody(file);
-    //        return getAssetElement(body).text();
-    //    }
-    //    protected Element getAssetElement(Element body) {
-    //        return null;
-    //    }
+    public abstract Integer getAssetText(); // TODO 名称変更 → asset
 
     /*
      * TODO パブリックなメソッドはこれまで。
