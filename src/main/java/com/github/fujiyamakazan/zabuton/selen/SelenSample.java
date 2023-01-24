@@ -5,7 +5,6 @@ import java.io.Serializable;
 
 import org.openqa.selenium.By;
 
-import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 
 public class SelenSample implements Serializable {
@@ -49,7 +48,7 @@ public class SelenSample implements Serializable {
 
         driver.get("https://www.amazon.co.jp/gp/css/order-history?ie=UTF8&ref_=nav_orders_first&");
 
-        PasswordManager pm = new PasswordManager(EnvUtils.getProjectDir());
+        PasswordManager pm = new PasswordManager(new File("C:\\tmp"));
         pm.executeBySightKey("amazon");
 
         driver.type(By.name("email"), pm.getId());

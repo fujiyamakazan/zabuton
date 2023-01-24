@@ -12,7 +12,6 @@ import org.apache.wicket.util.lang.Generics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.KeyValue;
 import com.github.fujiyamakazan.zabuton.util.ListToStringer;
 import com.github.fujiyamakazan.zabuton.util.text.KeyValuesText;
@@ -32,14 +31,14 @@ public class NgWordCheck implements Serializable {
      * 動作確認をします。
      */
     public static void main(String[] args) {
-        execute();
+        execute(new File("."));
     }
 
     /**
      * 禁則文字をチェックします。
      */
-    public static void execute() {
-        File fileSettings = new File(EnvUtils.getProjectDir().getAbsolutePath(), "CheckNgWords.settings.txt");
+    public static void execute(File userAppDir) {
+        File fileSettings = new File(userAppDir, "CheckNgWords.settings.txt");
         if (fileSettings.exists() == false) {
             LOGGER.debug("禁則文字のチェックをする場合は、" + fileSettings.getAbsolutePath() + "を設置してください。");
             return;

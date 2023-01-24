@@ -10,8 +10,6 @@ import javax.imageio.ImageIO;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 
-import com.github.fujiyamakazan.zabuton.util.EnvUtils;
-
 /**
  * 画像ファイルのHIGHTとWIDTHを高速に取得する仕組みです。
  *
@@ -48,12 +46,12 @@ public class ImageCash {
     /**
      * キャッシュをつくるコンストラクタです。
      */
-    public ImageCash(File f) throws IOException {
+    public ImageCash(File f, File toDir) throws IOException {
 
         /*
          * 画像ファイルの情報を保存するテキストファイルを指定します。
          */
-        String dir = EnvUtils.getProjectDir().getAbsolutePath() + "/" + f.getParentFile().getAbsolutePath().replaceAll(":", "/");
+        String dir = toDir.getAbsolutePath() + "/" + f.getParentFile().getAbsolutePath().replaceAll(":", "/");
         try {
             FileUtils.forceMkdir(new File(dir));
         } catch (IOException e) {
@@ -103,7 +101,7 @@ public class ImageCash {
         File dir = new File("C:\\tmp\\img");
         for (File f : FileUtils.listFiles(dir, FileFilterUtils.trueFileFilter(), FileFilterUtils.trueFileFilter())) {
 
-            ImageCash ic = new ImageCash(f);
+            ImageCash ic = new ImageCash(f, new File("."));
             Integer height = ic.getHeight();
             Integer width = ic.getWidth();
             System.out.println(f.getAbsolutePath() + " " + height + "×" + width);

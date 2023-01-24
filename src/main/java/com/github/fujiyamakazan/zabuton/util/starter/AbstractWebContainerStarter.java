@@ -1,4 +1,4 @@
-package com.github.fujiyamakazan.zabuton.tool;
+package com.github.fujiyamakazan.zabuton.util.starter;
 
 import java.io.BufferedReader;
 import java.io.IOException;

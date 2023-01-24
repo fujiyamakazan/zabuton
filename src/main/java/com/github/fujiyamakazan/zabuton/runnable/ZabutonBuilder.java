@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
+import com.github.fujiyamakazan.zabuton.util.text.XmlText;
 
 /**
  * 成果物をビルドします。
@@ -20,10 +21,10 @@ public class ZabutonBuilder implements Serializable {
     /**
      * 「target」フォルダに成果物を作ります。
      */
-    protected void execute() {
+    protected void execute(File appDir) {
 
         /* 禁則文字のチェックをします */
-        NgWordCheck.execute();
+        NgWordCheck.execute(appDir);
 
         File dirTarget = new File("target");
 
@@ -53,7 +54,7 @@ public class ZabutonBuilder implements Serializable {
 
         /* プロジェクト名を取得します。 */
         //String pjName = new XmlText(new File(".project")).getTextOne("/projectDescription/name");
-        String pjName = EnvUtils.getProjectName();
+        String pjName = getProjectName();
 
         /*
          * Jarを起動するためのスクリプトを作ります。
@@ -72,7 +73,6 @@ public class ZabutonBuilder implements Serializable {
             final File fileNotice = new File(dirTarget, "NOTICE.html");
             NoticeMaker.make(fileNotice, title, dependencyInfos);
         }
-
 
     }
 
@@ -114,6 +114,18 @@ public class ZabutonBuilder implements Serializable {
         final File fileNotice = new File(dirTarget, "NOTICE.html");
         NoticeMaker.make(fileNotice, title, dependencyInfos);
 
+    }
+
+    /**
+     * .projectに記述されたプロジェクト名を取得します。(Eclipseからの起動を想定)
+     */
+    protected static String getProjectName() {
+
+        File projectFile = new File(".project");
+        if (projectFile.exists() == false) {
+            throw new RuntimeException(projectFile.getAbsolutePath() + "からプロジェクト名を取得できません。");
+        }
+        return new XmlText(projectFile).getTextOne("/projectDescription/name");
     }
 
 }

@@ -7,7 +7,6 @@ import java.net.URISyntaxException;
 import org.apache.wicket.model.Model;
 
 import com.github.fujiyamakazan.zabuton.security.CipherUtils;
-import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.KeyValue;
 import com.github.fujiyamakazan.zabuton.util.StringSeparator;
 import com.github.fujiyamakazan.zabuton.util.jframe.JPage;
@@ -208,19 +207,19 @@ public class PasswordManager extends JPageApplication {
 
     }
 
-    /**
-     * 開発中の動作確認をします。
-     */
-    public static void main(String[] args) {
-
-        String url = "http://www.aaaa.aaaaa.aaaaa.aaaa.example.com/test";
-        PasswordManager pm = new PasswordManager(EnvUtils.getProjectDir());
-        pm.executeByUrl(url);
-        String id = pm.getId();
-        String pw = pm.getPassword();
-        System.out.println("id=" + id);
-        System.out.println("pw=" + pw);
-
-    }
+    //    /**
+    //     * 開発中の動作確認をします。
+    //     */
+    //    public static void main(String[] args) {
+    //
+    //        String url = "http://www.aaaa.aaaaa.aaaaa.aaaa.example.com/test";
+    //        PasswordManager pm = new PasswordManager(EnvUtils.getProjectDir());
+    //        pm.executeByUrl(url);
+    //        String id = pm.getId();
+    //        String pw = pm.getPassword();
+    //        System.out.println("id=" + id);
+    //        System.out.println("pw=" + pw);
+    //
+    //    }
 
 }

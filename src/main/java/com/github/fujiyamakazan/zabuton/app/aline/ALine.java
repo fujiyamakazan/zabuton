@@ -1,4 +1,4 @@
-package com.github.fujiyamakazan.zabuton.tool;
+package com.github.fujiyamakazan.zabuton.app.aline;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -40,14 +40,23 @@ import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 public class ALine implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    private File setting;
+    private File aliveLog;
+
     private SimpleDateFormat dfYyyyMMdd = new SimpleDateFormat(Chronus.POPULAR_JP);
     private SimpleDateFormat dfYyyyMMddHHmmss = new SimpleDateFormat(this.dfYyyyMMdd.toPattern() + " HH:mm:ss");
 
-    private File setting = new File(EnvUtils.getProjectDir(), "a-line.setting.txt");
-    private File aliveLog = new File(EnvUtils.getProjectDir(),"a-line.log.txt");
+    /**
+     * コンストラクタです。
+     * @param appDir 設定ファイルを保存するディレクトリ
+     */
+    public ALine(File appDir) {
+        setting = new File(appDir, "a-line.setting.txt");
+        aliveLog = new File(appDir, "a-line.log.txt");
+    }
 
     public static void main(String[] args) {
-        new ALine().run(new String[] { "test" });
+        new ALine(new File(EnvUtils.getUserAppData(), "ALine")).run(new String[] { "test" });
     }
 
     public class SettingItems implements Serializable {
@@ -153,8 +162,8 @@ public class ALine implements Serializable {
 
     private SettingItems settingItems;
 
-    public static void execute(String[] args) {
-        new ALine().run(args);
+    public static void execute(String[] args, File appDir) {
+        new ALine(appDir).run(args);
     }
 
     /**
