@@ -578,12 +578,13 @@ public abstract class SelenCommonDriver implements Serializable {
      * ドライバのタスクを強制終了します。
      */
     public static void killTask() {
-        // 既存の処理を列挙
+        /* 既存の処理を列挙 */
+        LOGGER.trace("終了処理として残留しているドライバのタスクを終了します。");
         try {
             RuntimeExc.executeCmd("taskkill /im " + ChoromeDriverFactory.DRIVER_EXE + " /f");
         } catch (Exception e) {
             /* プロセスがなくて失敗することもあるが問題としない。 */
-            LOGGER.debug(ThrowableToString.convertToString(e));
+            LOGGER.debug(e.getMessage());
         }
     }
 }

@@ -23,7 +23,7 @@ public class RuntimeExc implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @SuppressWarnings("unused")
-    private static final Logger log = LoggerFactory.getLogger(RuntimeExc.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RuntimeExc.class);
 
     /* 標準出力 */
     private List<String> outs = new ArrayList<String>();
@@ -166,5 +166,7 @@ public class RuntimeExc implements Serializable {
     public boolean isSuccess() {
         return this.success;
     }
+
+
 
 }

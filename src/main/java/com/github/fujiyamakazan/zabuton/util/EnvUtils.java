@@ -1,14 +1,18 @@
 package com.github.fujiyamakazan.zabuton.util;
 
 import java.io.File;
+import java.io.Serializable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 環境依存の情報に関するユーティリティです。
  * @author fujiyama
  */
-public class EnvUtils {
-
-    //public static String project;
+public class EnvUtils implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnvUtils.class);
 
     public static String getUserName() {
         return System.getenv("USERNAME");
@@ -51,47 +55,15 @@ public class EnvUtils {
         return new File(getUserProfile(), "AppData\\Local\\Temp");
     }
 
-    //    public static File getAppData(String appId) {
-    //        return new File(getUserProfile(), "AppData\\Roaming\\" + appId);
-    //    }
-    //
-    //    public static File getAppData() {
-    //        return getAppData("Zabuton");
-    //    }
+    public static File getJavahome() {
+        String value = System.getProperty("java.home");
+        LOGGER.debug(value);
+        return new File(value);
+    }
 
-    //    /**
-    //     * プロジェクト名を返します。
-    //     * あらかじめstatic変数に登録された名称を使用します。(jarを想定)
-    //     * しかし、取得できない場合は
-    //     * .projectに記述されたプロジェクト名を取得します。(Eclipseからの起動を想定)
-    //     */
-    //    public static String getProjectName() {
-    //
-    //        if (StringUtils.isNotEmpty(project)) {
-    //            return project;
-    //        }
-    //
-    //        File projectFile = new File(".project");
-    //        if (projectFile.exists() == false) {
-    //            throw new RuntimeException(projectFile.getAbsolutePath() + "からプロジェクト名を取得できません。");
-    //        }
-    //        return new XmlText(projectFile).getTextOne("/projectDescription/name");
-    //    }
+    // TODO
+    //LOGGER.debug(System.getProperty("user.dir")); // \workspaceJava\zabuton
 
-    //    /**
-    //     * AppData/Roaming/プロジェクト名 のファイルを取得します。
-    //     */
-    //    public static File getProjectDir() {
-    //        String pjName = getProjectName();
-    //        File dir = new File(getUserProfile(), "AppData\\Roaming\\" + pjName);
-    //        if (dir.exists() == false) {
-    //            try {
-    //                FileUtils.forceMkdir(dir);
-    //            } catch (IOException e) {
-    //                throw new RuntimeException(e);
-    //            }
-    //        }
-    //        return dir;
-    //    }
+
 
 }

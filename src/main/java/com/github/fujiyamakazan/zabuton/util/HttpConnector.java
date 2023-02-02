@@ -206,13 +206,20 @@ public class HttpConnector {
     private static HttpURLConnection openConnection(
         String proxyHost, String proxyPort, URL url) throws IOException {
         HttpURLConnection connection;
-        SocketAddress addr = new InetSocketAddress(
-            proxyHost,
-            Integer.valueOf(proxyPort));
-        Proxy proxy = new Proxy(Proxy.Type.HTTP, addr);
 
-        connection = (HttpURLConnection) url.openConnection(proxy);
-        return connection;
+        if (proxyHost == null) {
+            connection = (HttpURLConnection) url.openConnection();
+            return connection;
+        } else {
+            SocketAddress addr = new InetSocketAddress(
+                proxyHost,
+                Integer.valueOf(proxyPort));
+            Proxy proxy = new Proxy(Proxy.Type.HTTP, addr);
+
+            connection = (HttpURLConnection) url.openConnection(proxy);
+            return connection;
+        }
+
     }
 
     /**
