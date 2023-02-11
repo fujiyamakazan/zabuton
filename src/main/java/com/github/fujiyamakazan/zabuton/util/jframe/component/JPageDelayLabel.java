@@ -1,6 +1,6 @@
 package com.github.fujiyamakazan.zabuton.util.jframe.component;
 
-import com.github.fujiyamakazan.zabuton.util.ThreadUtils;
+import com.github.fujiyamakazan.zabuton.util.ThreadSleep;
 
 /**
  * ラベルのコンポーネントモデルです。
@@ -29,7 +29,7 @@ public class JPageDelayLabel extends JPageLabel {
             super.label.setText(t);
             sound();
             //RakutenQuest.sound();
-            ThreadUtils.sleep(100);
+            ThreadSleep.sleep(100);
         }
 
     }

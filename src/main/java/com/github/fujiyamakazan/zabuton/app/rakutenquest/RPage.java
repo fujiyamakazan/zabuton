@@ -3,7 +3,7 @@ package com.github.fujiyamakazan.zabuton.app.rakutenquest;
 import java.awt.Color;
 import java.awt.Font;
 
-import com.github.fujiyamakazan.zabuton.util.ThreadUtils;
+import com.github.fujiyamakazan.zabuton.util.ThreadSleep;
 import com.github.fujiyamakazan.zabuton.util.jframe.JPage;
 
 
@@ -27,7 +27,7 @@ public class RPage extends JPage {
      */
     public void toast(int i) {
         show();
-        ThreadUtils.sleep(i * 1000);
+        ThreadSleep.sleep(i * 1000);
         dispose();
     }
 

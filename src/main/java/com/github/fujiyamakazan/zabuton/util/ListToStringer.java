@@ -20,6 +20,9 @@ public class ListToStringer {
      * リストをdelimiterを区切り文字として文字列に変換します。
      */
     public static String convert(List<?> list, String delimiter) {
+        if (list == null) {
+            return null;
+        }
         StringBuilder sb = new StringBuilder();
         for (Object e :list) {
             if (sb.length() > 0) {
