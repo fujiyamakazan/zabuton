@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
  */
 public class EnvUtils implements Serializable {
     private static final long serialVersionUID = 1L;
+    @SuppressWarnings("unused")
     private static final Logger LOGGER = LoggerFactory.getLogger(EnvUtils.class);
 
     public static String getUserName() {
@@ -56,9 +57,7 @@ public class EnvUtils implements Serializable {
     }
 
     public static File getJavahome() {
-        String value = System.getProperty("java.home");
-        LOGGER.debug(value);
-        return new File(value);
+        return new File(System.getProperty("java.home"));
     }
 
     // TODO
