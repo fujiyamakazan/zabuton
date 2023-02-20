@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -84,6 +87,15 @@ public class Chronus implements Serializable {
         c.setTime(date);
         c.add(Calendar.MONTH, amount);
         return c.getTime();
+    }
+
+    /**
+     * 年月日を指定してDateを生成します。
+     */
+    public static Date dateOf(int year, int month, int dayOfMonth) {
+        LocalDate ld = LocalDate.of(year, month, dayOfMonth);
+        LocalDateTime ldt = ld.atStartOfDay();
+        return Date.from(ZonedDateTime.of(ldt, ZoneId.systemDefault()).toInstant());
     }
 
 }
