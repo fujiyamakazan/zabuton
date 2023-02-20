@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 「無作為」のユーティリティ
+ * 「無作為」のユーティリティです。
  * @author fujiyama
  */
 public class Roulette implements Serializable {
@@ -41,6 +41,7 @@ public class Roulette implements Serializable {
     //}
 
     /**
+     * 乱数を発生させます。
      * 例：引数8 → 0～7
      * @return 乱数(0～指定数未満の整数)
      */
