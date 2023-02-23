@@ -114,7 +114,7 @@ public abstract class SelenCommonDriver implements Serializable {
 
         @Override
         public void download() {
-            String html = HttpConnector.byBody(getDriverUrl());
+            String html = HttpConnector.doGet(getDriverUrl());
             int count = 0;
             for (String line : html.split("\n")) {
                 if (StringUtils.startsWith(line, "If you are using Chrome version ")) {
@@ -127,7 +127,7 @@ public abstract class SelenCommonDriver implements Serializable {
                     String url = String.format("https://chromedriver.storage.googleapis.com/%s/chromedriver_win32.zip",
                         ver);
                     File zip = new File(driverFile.getAbsolutePath() + ".zip");
-                    HttpConnector.download(url, zip);
+                    HttpConnector.doDownload(url, zip);
                     LOGGER.debug(url);
                     new ZipUtils.UnzipTask(zip) {
                         private static final long serialVersionUID = 1L;
