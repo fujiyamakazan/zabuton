@@ -23,9 +23,6 @@ public class ZabutonBuilder implements Serializable {
      */
     protected void execute(File appDir) {
 
-        /* 禁則文字のチェックをします */
-        NgWordCheck.execute(appDir);
-
         File dirTarget = new File("target");
 
         /* 環境変数からJAVA_HOMEの場所を取得します。*/

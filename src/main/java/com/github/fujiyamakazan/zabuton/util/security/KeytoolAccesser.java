@@ -7,7 +7,6 @@ import com.github.fujiyamakazan.zabuton.util.exec.RuntimeExc;
 
 /**
  * Javaが持つSSL証明書を表示します。
- * @author k_inaba
  */
 public class KeytoolAccesser {
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(KeytoolAccesser.class);
