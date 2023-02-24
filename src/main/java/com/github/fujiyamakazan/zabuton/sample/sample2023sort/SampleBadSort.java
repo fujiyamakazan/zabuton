@@ -41,6 +41,9 @@ public class SampleBadSort {
 
     private static final int SIZE = 32;
 
+    /**
+     * 処理を実行します。
+     */
     public static void main(String[] args) {
 
         List<LocalDate> days = sample1();
@@ -129,7 +132,7 @@ public class SampleBadSort {
             public int compare(Integer o1, Integer o2) {
                 if (o1 == o2) {
                     return 0;
-                } else if(o1 < o2){
+                } else if (o1 < o2) {
                     return 1;
                 } else {
                     return -1;
@@ -162,7 +165,7 @@ public class SampleBadSort {
             int nextInt = r.nextInt(3);
             if (nextInt == 0) {
                 c.add(Calendar.DAY_OF_MONTH, 1);
-            } else if(nextInt == 1){
+            } else if (nextInt == 1) {
                 c.add(Calendar.DAY_OF_MONTH, 25);
             }
             dates.add(c.getTime());
