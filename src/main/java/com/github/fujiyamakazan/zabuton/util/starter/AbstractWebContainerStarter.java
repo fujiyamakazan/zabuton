@@ -130,7 +130,7 @@ public abstract class AbstractWebContainerStarter {
 
         } catch (Exception e) {
 
-            log.info("port=" + this.port + "に既存のアプリケーションは起動していません。");
+            //log.info("port=" + this.port + "に既存のアプリケーションは起動していません。");
             portNoUsed = true;
 
         } finally {

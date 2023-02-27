@@ -18,6 +18,9 @@ import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -40,11 +43,12 @@ import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 public class ALine implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    private static SimpleDateFormat dfYyyyMMdd = new SimpleDateFormat(Chronus.POPULAR_JP);
+    private static SimpleDateFormat dfYyyyMMddHHmmss = new SimpleDateFormat(dfYyyyMMdd.toPattern() + " HH:mm:ss");
+
     private File setting;
     private File aliveLog;
-
-    private SimpleDateFormat dfYyyyMMdd = new SimpleDateFormat(Chronus.POPULAR_JP);
-    private SimpleDateFormat dfYyyyMMddHHmmss = new SimpleDateFormat(this.dfYyyyMMdd.toPattern() + " HH:mm:ss");
+    private File logDir;
 
     /**
      * コンストラクタです。
@@ -53,6 +57,10 @@ public class ALine implements Serializable {
     public ALine(File appDir) {
         setting = new File(appDir, "a-line.setting.txt");
         aliveLog = new File(appDir, "a-line.log.txt");
+        logDir = new File(appDir, "a-line.send.logs");
+        if (logDir.exists() == false) {
+            logDir.mkdirs();
+        }
     }
 
     public static void main(String[] args) {
@@ -237,16 +245,10 @@ public class ALine implements Serializable {
             }
 
             /* ファイルから設定を読込む。 */
-            String text;
-            try {
-                text = FileUtils.readFileToString(this.setting, StandardCharsets.UTF_8);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            this.settingItems = new SettingItems(text);
+            setupSetting();
 
             /* 「有効化」されていなければ送信しない */
-            if (this.settingItems.use == false) {
+            if (isUse()) {
 
                 if (test) {
                     writeLog("「有効化」がオフなので、通知できません。");
@@ -320,6 +322,20 @@ public class ALine implements Serializable {
         }
     }
 
+    public boolean isUse() {
+        return this.settingItems.use;
+    }
+
+    public void setupSetting() {
+        String text;
+        try {
+            text = FileUtils.readFileToString(this.setting, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        this.settingItems = new SettingItems(text);
+    }
+
     public void writeWindowsBackupStart() {
         /* ログを記録する */
         writeLog("WindowsBackupStart");
@@ -352,7 +368,7 @@ public class ALine implements Serializable {
     /**
      * LINE Notify を呼出します。
      */
-    private void line(String message) throws Exception {
+    public void line(String message) throws Exception {
 
         HttpURLConnection conn = null;
         try {
@@ -453,12 +469,12 @@ public class ALine implements Serializable {
         }
     }
 
-    private String getToday() {
-        return this.dfYyyyMMdd.format(new Date());
+    private static String getToday() {
+        return dfYyyyMMdd.format(new Date());
     }
 
-    private String getNow() {
-        return this.dfYyyyMMddHHmmss.format(new Date());
+    private static String getNow() {
+        return dfYyyyMMddHHmmss.format(new Date());
     }
 
     protected String proxyHost() {
@@ -475,6 +491,36 @@ public class ALine implements Serializable {
 
     public boolean existSetting() {
         return this.setting.exists();
+    }
+
+    public String readToken() {
+        return this.settingItems.token;
+    }
+
+    public boolean canSend(String title, Duration distance) {
+        File subDir = new File(this.logDir, title);
+        if (subDir.exists()) {
+            for (File log : subDir.listFiles()) {
+                /* 指定期間を過ぎていないログがあればfalseを返す。*/
+                LocalDateTime mod = Chronus.localDateTimeOf(new Date(log.lastModified()));
+                if (Chronus.isPast(mod, distance) == false) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * ラインとともにログに記録する
+     */
+    public void lineWithLog(String msg, String title) throws Exception {
+        this.line(msg);
+        File subDir = new File(this.logDir, title);
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HHmmss");
+        File log = new File(subDir, now.format(formatter) + ".log");
+        Utf8Text.writeData(log, msg);
     }
 
 }
