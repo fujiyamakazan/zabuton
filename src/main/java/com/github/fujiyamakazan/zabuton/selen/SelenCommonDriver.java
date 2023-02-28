@@ -28,7 +28,7 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.github.fujiyamakazan.zabuton.util.EnvUtils;
-import com.github.fujiyamakazan.zabuton.util.HttpConnector;
+import com.github.fujiyamakazan.zabuton.util.HttpAccessObject;
 import com.github.fujiyamakazan.zabuton.util.RetryWorker;
 import com.github.fujiyamakazan.zabuton.util.ThrowableToString;
 import com.github.fujiyamakazan.zabuton.util.exec.RuntimeExc;
@@ -114,7 +114,7 @@ public abstract class SelenCommonDriver implements Serializable {
 
         @Override
         public void download() {
-            String html = HttpConnector.executeGet(getDriverUrl());
+            String html = HttpAccessObject.executeGet(getDriverUrl());
             int count = 0;
             for (String line : html.split("\n")) {
                 if (StringUtils.startsWith(line, "If you are using Chrome version ")) {
@@ -127,7 +127,7 @@ public abstract class SelenCommonDriver implements Serializable {
                     String url = String.format("https://chromedriver.storage.googleapis.com/%s/chromedriver_win32.zip",
                         ver);
                     File zip = new File(driverFile.getAbsolutePath() + ".zip");
-                    new HttpConnector().download(url, zip);
+                    new HttpAccessObject().download(url, zip);
                     LOGGER.debug(url);
                     new ZipUtils.UnzipTask(zip) {
                         private static final long serialVersionUID = 1L;
