@@ -33,9 +33,6 @@ import org.jsoup.Jsoup;
 
 /**
  * HTTP(S)接続をします。
- *
- * TODO リファクタリング
- *
  * @author fujiyama
  */
 public class HttpAccessObject implements Serializable {

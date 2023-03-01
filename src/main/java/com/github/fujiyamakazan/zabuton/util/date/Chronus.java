@@ -136,6 +136,9 @@ public class Chronus implements Serializable {
         return LocalDateTime.now().isAfter(dateTime);
     }
 
+    /**
+     * 動作確認をします。
+     */
     public static void main(String[] args) {
 
 

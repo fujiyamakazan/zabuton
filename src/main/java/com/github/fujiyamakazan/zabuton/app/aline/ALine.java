@@ -326,6 +326,9 @@ public class ALine implements Serializable {
         return this.settingItems.use;
     }
 
+    /**
+     * 設定をします。
+     */
     public void setupSetting() {
         String text;
         try {
@@ -497,6 +500,11 @@ public class ALine implements Serializable {
         return this.settingItems.token;
     }
 
+    /**
+     * 送れる状態かどうかをチェックします。
+     * @param title 区分名
+     * @param distance 前回同じ区分のメッセージを送信してから、次に送ってもよい期間
+     */
     public boolean canSend(String title, Duration distance) {
         File subDir = new File(this.logDir, title);
         if (subDir.exists()) {
@@ -512,7 +520,7 @@ public class ALine implements Serializable {
     }
 
     /**
-     * ラインとともにログに記録する
+     * ラインとともにログに記録します。
      */
     public void lineWithLog(String msg, String title) throws Exception {
         this.line(msg);
