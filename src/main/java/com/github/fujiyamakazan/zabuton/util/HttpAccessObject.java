@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -270,6 +271,17 @@ public class HttpAccessObject implements Serializable {
 
     public static String getTitle(String html) {
         return Jsoup.parse(html).getElementsByTag("title").text();
+    }
+
+    /**
+     * ポートが使用されているときにTrueを返します。
+     */
+    public static boolean usePort(int port) {
+        try (ServerSocket ss = new ServerSocket(port)) {
+            return false;
+        } catch (IOException e) {
+            return true;
+        }
     }
 
 }

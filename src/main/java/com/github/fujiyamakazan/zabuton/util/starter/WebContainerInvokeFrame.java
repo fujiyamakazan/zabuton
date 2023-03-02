@@ -16,16 +16,19 @@ import java.util.concurrent.TimeUnit;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.fujiyamakazan.zabuton.util.jframe.JFrameUtils;
 
 /**
  * ランチャーを表示してWebコンテナを起動します。
- * TODO port固定化のオプションを追加する
  *
  * @author fujiyama
  *
  */
 public class WebContainerInvokeFrame extends JFrame {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebContainerInvokeFrame.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -34,23 +37,23 @@ public class WebContainerInvokeFrame extends JFrame {
 
     private JButton startButton;
 
-    private AbstractWebContainerStarter starter;
+    private WicketBootByTomcat starter;
 
     /**
      * ランチャーを表示してWebコンテナを起動します。
-     * @param title タイトル
+     * @param appName タイトル
      * @param starter  Webコンテナを起動するオブジェクト。
      */
-    public static void show(String title, AbstractWebContainerStarter starter) {
+    public static void show(String appName, WicketBootByTomcat starter) {
 
         starter.start();
 
-        WebContainerInvokeFrame invoker = new WebContainerInvokeFrame(title, starter);
+        WebContainerInvokeFrame invoker = new WebContainerInvokeFrame(appName, starter);
         invoker.execute();
     }
 
-    public WebContainerInvokeFrame(String title, AbstractWebContainerStarter starter) {
-        super(title);
+    public WebContainerInvokeFrame(String appName, WicketBootByTomcat starter) {
+        super(appName);
         this.starter = starter;
     }
 
@@ -175,6 +178,10 @@ public class WebContainerInvokeFrame extends JFrame {
 
         boolean yes = JFrameUtils.showConfirmDialog(this, getTitle() + "を終了しますか?");
         if (yes) {
+
+            LOGGER.info("Tomcat停止を停止します。");
+            starter.stopServer();
+
             /* JVMを終了 */
             System.exit(0);
         }

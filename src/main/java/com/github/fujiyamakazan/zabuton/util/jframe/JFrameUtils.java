@@ -132,10 +132,11 @@ public class JFrameUtils {
     }
 
     private static boolean showConfirmDialogCore(Component parent, String message, int iconType) {
-        JFrame tmpFrame = null;
+        JFrame tmpForm = null;
         if (parent == null) {
-            tmpFrame = new JFrame();
-            parent = tmpFrame;
+            tmpForm = new JFrame();
+            tmpForm.setAlwaysOnTop(true); // 最前面
+            parent = tmpForm;
         }
 
         int ans = JOptionPane.showConfirmDialog(
@@ -147,8 +148,8 @@ public class JFrameUtils {
 
         boolean result = ans == JOptionPane.YES_OPTION;
 
-        if (tmpFrame != null) {
-            tmpFrame.dispose();
+        if (tmpForm != null) {
+            tmpForm.dispose();
         }
         return result;
     }
