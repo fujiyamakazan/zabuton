@@ -1,4 +1,4 @@
-package com.github.fujiyamakazan.zabuton.app;
+package com.github.fujiyamakazan.zabuton.spring;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -9,6 +9,10 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/**
+ * ITimerListnerを実装したコンポーネントをスケジュールで実行します。
+ * @author fujiyama
+ */
 @Component
 public class ZabuTimer {
 

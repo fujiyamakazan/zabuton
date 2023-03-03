@@ -30,9 +30,9 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.HttpAccessObject;
 import com.github.fujiyamakazan.zabuton.util.RetryWorker;
-import com.github.fujiyamakazan.zabuton.util.ThrowableToString;
 import com.github.fujiyamakazan.zabuton.util.exec.RuntimeExc;
 import com.github.fujiyamakazan.zabuton.util.file.ZipUtils;
+import com.github.fujiyamakazan.zabuton.util.string.Stringul;
 
 public abstract class SelenCommonDriver implements Serializable {
 
@@ -209,7 +209,7 @@ public abstract class SelenCommonDriver implements Serializable {
             driver = factory.create(getDownloadDir());
 
         } catch (Exception e) {
-            LOGGER.error(ThrowableToString.convertToString(e));
+            LOGGER.error(Stringul.ofException(e));
 
             if (factory.occurredIllegalVersionDetected(e)) {
                 /* ドライバファイルのバージョン不正を検知したときの処理 */

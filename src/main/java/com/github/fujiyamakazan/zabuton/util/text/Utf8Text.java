@@ -12,8 +12,8 @@ import org.apache.commons.io.FileUtils;
  * @author fujiyama
  */
 public class Utf8Text extends TextFile {
-
     private static final long serialVersionUID = 1L;
+    private static final Charset CHARSET = StandardCharsets.UTF_8;
 
     public Utf8Text(File file) {
         super(file);
@@ -25,7 +25,7 @@ public class Utf8Text extends TextFile {
 
     @Override
     protected Charset getCharset() {
-        return StandardCharsets.UTF_8;
+        return CHARSET;
     }
 
     /**
@@ -33,7 +33,7 @@ public class Utf8Text extends TextFile {
      */
     public static void writeData(File file, String data) {
         try {
-            FileUtils.write(file, data, StandardCharsets.UTF_8);
+            FileUtils.write(file, data, CHARSET);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -44,7 +44,7 @@ public class Utf8Text extends TextFile {
      */
     public static String readData(File file) {
         try {
-            return FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+            return FileUtils.readFileToString(file, CHARSET);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

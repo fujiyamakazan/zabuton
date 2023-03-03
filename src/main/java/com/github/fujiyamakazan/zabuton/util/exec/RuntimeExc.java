@@ -22,7 +22,6 @@ public class RuntimeExc implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @SuppressWarnings("unused")
     private static final Logger LOGGER = LoggerFactory.getLogger(RuntimeExc.class);
 
     /* 標準出力 */
@@ -34,15 +33,47 @@ public class RuntimeExc implements Serializable {
     private boolean success = false;
 
     /**
+     * コマンドプロンプトを使用する文字コードをUTF-8へ変更した後、
+     * 処理結果をファイルに出力します。(パラメータ付きのコマンドに未対応)
+     *
+     * TODO CmdAccessObjectへの移行
+     *
+     */
+    public static void executeCmdToUtf8Text(File target, String command) {
+        command = "chcp 65001|" + command + " > " + target.getAbsolutePath();
+        //execute(new String[] { "cmd", "/c", arg2 });
+        executeCmd(command);
+    }
+
+    /**
+     * コマンドプロンプトで処理を実行します。
+     * @return リターンコードが0のときにTrueを返します。
+     *
+     * TODO CmdAccessObjectへの移行
+     *
+     */
+    public static boolean executeCmd(String... cmdarray) {
+        List<String> list = Generics.newArrayList();
+        list.add("cmd");
+        list.add("/c");
+        for (String p : cmdarray) {
+            list.add(p);
+        }
+        return execute(list.toArray(new String[list.size()]));
+    }
+
+    /**
      * コマンドを実行します。
-     * @param params コマンド
+     * @param cmdarray コマンドとパラメータ
      * @return リターンコードが0のときにTrueを返します。
      */
-    public static boolean execute(String... params) {
+    public static boolean execute(String... cmdarray) {
         RuntimeExc me = new RuntimeExc();
-        me.exec(params);
+        me.exec(true, cmdarray);
 
-        if (me.isSuccess() == false) {
+        if (me.success) {
+            LOGGER.debug(me.getOutText());
+        } else {
             throw new RuntimeException(me.getErrText());
         }
 
@@ -50,37 +81,28 @@ public class RuntimeExc implements Serializable {
     }
 
     /**
-     * コマンドプロンプトを実行します。
-     * @return リターンコードが0のときにTrueを返します。
+     * 動作確認をします。
      */
-    public static boolean executeCmd(String... params) {
-
-        List<String> list = Generics.newArrayList();
-        list.add("cmd");
-        list.add("/c");
-        for (String p : params) {
-            list.add(p);
-        }
-
-        //return execute(new String[] {"cmd", "/c", command});
-        return execute(list.toArray(new String[list.size()]));
+    public static void main(String[] args) {
+        executeCmd("date", "/t");
+        execute("C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe", "http://google.co.jp?test");
     }
 
-    public static boolean executeCmdToUtf8Text(String command, File out) {
-        String arg2 = "chcp 65001|" + command + " > " + out.getAbsolutePath();
-        return execute(new String[] { "cmd", "/c", arg2 });
-    }
 
-    public void exec(String... params) {
-        exec(true, params);
+    /**
+     * コマンドを実行します。
+     * @param cmdarray コマンドとパラメータ
+     */
+    public void exec(String... cmdarray) {
+        exec(true, cmdarray);
     }
 
     /**
      * コマンドを実行します。
-     * @param sync 同期しない場合はfalse
-     * @param params コマンド
+     * @param sync 非同期の場合はfalseを指定
+     * @param cmdarray コマンドとパラメータ
      */
-    public void exec(boolean sync, String... params) {
+    public void exec(boolean sync, String... cmdarray) {
         String enc = System.getProperty("os.name").toLowerCase().startsWith("windows")
             ? "MS932"
             : "UTF-8";
@@ -88,7 +110,7 @@ public class RuntimeExc implements Serializable {
         Runtime runtime = Runtime.getRuntime();
         Process process;
         try {
-            process = runtime.exec(params);
+            process = runtime.exec(cmdarray);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -166,7 +188,5 @@ public class RuntimeExc implements Serializable {
     public boolean isSuccess() {
         return this.success;
     }
-
-
 
 }

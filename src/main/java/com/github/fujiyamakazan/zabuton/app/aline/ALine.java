@@ -32,8 +32,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.github.fujiyamakazan.zabuton.util.EnvUtils;
-import com.github.fujiyamakazan.zabuton.util.ThrowableToString;
 import com.github.fujiyamakazan.zabuton.util.date.Chronus;
+import com.github.fujiyamakazan.zabuton.util.string.Stringul;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 
 /**
@@ -318,7 +318,7 @@ public class ALine implements Serializable {
 
             /* ログ出力 */
             writeLog("エラーが発生しました。" + e.getMessage());
-            writeLog(ThrowableToString.convertToString(e));
+            writeLog(Stringul.ofException(e));
         }
     }
 

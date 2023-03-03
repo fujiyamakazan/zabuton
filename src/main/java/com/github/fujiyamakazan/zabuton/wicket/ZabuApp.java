@@ -1,8 +1,9 @@
-package com.github.fujiyamakazan.zabuton.app;
+package com.github.fujiyamakazan.zabuton.wicket;
 
 import org.apache.wicket.RuntimeConfigurationType;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
@@ -67,7 +68,7 @@ public abstract class ZabuApp extends WebApplication {
 
     @Override
     public Session newSession(Request request, Response response) {
-        return new ZabuSession(request);
+        return new WebSession(request);
     }
 
 }

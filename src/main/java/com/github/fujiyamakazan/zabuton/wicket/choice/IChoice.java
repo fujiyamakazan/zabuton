@@ -1,4 +1,4 @@
-package com.github.fujiyamakazan.zabuton.util.choice;
+package com.github.fujiyamakazan.zabuton.wicket.choice;
 
 import java.io.Serializable;
 

@@ -1,4 +1,4 @@
-package com.github.fujiyamakazan.zabuton.util.choice;
+package com.github.fujiyamakazan.zabuton.wicket.choice;
 
 /**
  * 選択肢に使うオブジェクトです。
