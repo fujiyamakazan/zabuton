@@ -283,5 +283,10 @@ public class HttpAccessObject implements Serializable {
             return true;
         }
     }
+    
+    public void setCookies(List<Cookie> httpCookies) {
+        this.cookies = httpCookies;
+    }
+
 
 }
