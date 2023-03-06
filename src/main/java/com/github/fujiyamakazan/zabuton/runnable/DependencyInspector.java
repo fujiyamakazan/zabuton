@@ -28,6 +28,7 @@ import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
  * 依存するライブラリ（Jar）の解析をします。
  * @author fujiyama
  */
+@SuppressWarnings("deprecation")
 public class DependencyInspector {
     private static final Logger LOGGER = LoggerFactory.getLogger(DependencyInspector.class);
 

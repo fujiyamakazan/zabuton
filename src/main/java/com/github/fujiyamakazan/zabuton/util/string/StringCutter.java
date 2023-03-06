@@ -1,7 +1,8 @@
 package com.github.fujiyamakazan.zabuton.util.string;
 
 /**
- * 部分文字列に関する操作をします。
+ * キーワードを指定し、その前後で文字列を分割します。
+ *
  * @author fuijyama
  */
 public class StringCutter {

@@ -3,7 +3,8 @@ package com.github.fujiyamakazan.zabuton.util.security;
 import java.io.File;
 
 import com.github.fujiyamakazan.zabuton.util.EnvUtils;
-import com.github.fujiyamakazan.zabuton.util.exec.RuntimeExc;
+import com.github.fujiyamakazan.zabuton.util.exec.RuntimeExec;
+import com.github.fujiyamakazan.zabuton.util.exec.RuntimeExec.RuntimeExecResult;
 
 /**
  * Javaが持つSSL証明書を表示します。
@@ -12,7 +13,8 @@ public class KeytoolAccesser {
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(KeytoolAccesser.class);
 
     public static void main(String[] args) {
-        execute();
+        String result = execute();
+        LOGGER.debug(result);
     }
 
     /**
@@ -25,11 +27,10 @@ public class KeytoolAccesser {
         File cacerts = new File(EnvUtils.getJavahome(), "lib/security/cacerts");
         String pw = "changeit";
 
-        RuntimeExc exe = new RuntimeExc();
-        exe.exec(true, keytool.getAbsolutePath(), "-keystore", cacerts.getAbsolutePath(), "-list", "-storepass", pw);
-        String result = exe.getOutText();
-        //LOGGER.debug(result);
-        return result;
+        //RuntimeExc exe = new RuntimeExc();
+        RuntimeExecResult r = RuntimeExec.exec(
+            keytool.getAbsolutePath(), "-keystore", cacerts.getAbsolutePath(), "-list", "-storepass", pw);
+        return r.getOut();
     }
 
 

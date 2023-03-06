@@ -2,6 +2,8 @@ package com.github.fujiyamakazan.zabuton.util;
 
 import java.io.Serializable;
 
+import com.github.fujiyamakazan.zabuton.util.string.Stringul;
+
 public class StringBuilderLn implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -10,7 +12,7 @@ public class StringBuilderLn implements Serializable {
     private final String delimiter;
 
     public StringBuilderLn() {
-        this.delimiter = "\n";
+        this.delimiter = Stringul.NEW_LINE_CODE;
     }
 
     public StringBuilderLn(String delimiter) {

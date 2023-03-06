@@ -3,6 +3,13 @@ package com.github.fujiyamakazan.zabuton.util.string;
 import java.io.Serializable;
 import java.util.regex.Pattern;
 
+/**
+ * 日本円の文字列表現に関するユーティリティです。
+ *
+ * TODO これ以上メソッドが増えないようなら、Stringulへの移行を検討
+ *
+ * @author fujiyama
+ */
 public class MoneyUtils implements Serializable {
     private static final long serialVersionUID = 1L;
     @SuppressWarnings("unused")

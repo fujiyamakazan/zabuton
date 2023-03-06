@@ -30,7 +30,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.HttpAccessObject;
 import com.github.fujiyamakazan.zabuton.util.RetryWorker;
-import com.github.fujiyamakazan.zabuton.util.exec.RuntimeExc;
+import com.github.fujiyamakazan.zabuton.util.exec.CmdAccessObject;
 import com.github.fujiyamakazan.zabuton.util.file.ZipUtils;
 import com.github.fujiyamakazan.zabuton.util.string.Stringul;
 
@@ -581,7 +581,7 @@ public abstract class SelenCommonDriver implements Serializable {
         /* 既存の処理を列挙 */
         LOGGER.trace("終了処理として残留しているドライバのタスクを終了します。");
         try {
-            RuntimeExc.executeCmd("taskkill /im " + ChoromeDriverFactory.DRIVER_EXE + " /f");
+            CmdAccessObject.executeCmd("taskkill /im " + ChoromeDriverFactory.DRIVER_EXE + " /f");
         } catch (Exception e) {
             /* プロセスがなくて失敗することもあるが問題としない。 */
             LOGGER.debug(e.getMessage());

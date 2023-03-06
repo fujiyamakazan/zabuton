@@ -23,6 +23,7 @@ import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
  *
  * @author fujiyama
  */
+@SuppressWarnings("deprecation")
 public class JreMaker implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory.getLogger(ZabutonBuilder.class);

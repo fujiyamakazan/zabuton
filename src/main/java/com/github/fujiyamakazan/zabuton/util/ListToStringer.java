@@ -11,9 +11,21 @@ import java.util.List;
  */
 public class ListToStringer {
 
+    /**
+     * リストをカンマ区切りで文字列にします。
+     * // TODO Stringulへの集約
+     */
     public static String convert(List<?> list) {
         //return convert(list, "\n");
         return convert(list, ","); // 2021.9.12
+    }
+
+    /**
+     * 配列をカンマ区切りで文字列にします。
+     * // TODO Stringulへの集約
+     */
+    public static String convert(String[] strings) {
+        return convert(Arrays.asList(strings));
     }
 
     /**
@@ -37,9 +49,7 @@ public class ListToStringer {
         return sb.toString();
     }
 
-    public static String convert(String[] strings) {
-        return convert(Arrays.asList(strings));
-    }
+
 
 }
 

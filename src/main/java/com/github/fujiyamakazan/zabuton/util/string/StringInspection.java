@@ -1,46 +1,169 @@
 package com.github.fujiyamakazan.zabuton.util.string;
 
-import java.io.UnsupportedEncodingException;
+import java.io.Serializable;
+import java.nio.charset.Charset;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
- * <pre>
- * 文字列検査のクラス
- * 原則として以下の条件を満たすメソッドを定義します。
- * ・検査対象の文字列をString型で受け取る
- * ・検査対象の文字列に対し何らかの評価を行う。
- * ・判定結果をboolean,int,charのいずれかで返却する。
- * </pre>
+ * 文字列の検査をするユーティリティです。
+ *
+ * 引数には検査対象のStringをとり、
+ * なんらかの判定結果をbooleanで返却します。
+ *
  * @author fujiyama
  */
-public class StringInspection {
+public class StringInspection implements Serializable {
+    private static final long serialVersionUID = 1L;
+    @SuppressWarnings("unused")
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(StringInspection.class);
+
     /**
-     * シングルバイトかを判定します。
+     * 引数strにarrayの文字が含まれるかを検査します。
+     * @deprecated {@link StringUtils#contains(CharSequence, CharSequence)} を直接利用してください。
      */
-    public static boolean isSinglebyte(String str, String encoding) {
-        if (isEmpty(str)) {
+    public static boolean contains(String str, char[] searchArray) {
+        return StringUtils.contains(str, String.valueOf(searchArray));
+        //        for (char c: str.toCharArray()) {
+        //            boolean flg = false;
+        //            for (char h : array) {
+        //                if (c == h) {
+        //                    flg = true;
+        //                    break;
+        //                }
+        //            }
+        //            if (!flg) {
+        //                return true;
+        //            }
+        //        }
+        //        return false;
+    }
+
+    /**
+     * strがarrayの要素だけで構成されているかを評価します。
+     * "ABCBA", "ABC" ⇒ TRUE
+     * "AB9BA", "ABC" ⇒ FALSE
+     */
+    public static boolean isOnly(String str, String searchStr) {
+        //return contains(str, array) == false;
+        if (StringUtils.isEmpty(str)) {
+            return true;
+        }
+        for (char s : str.toCharArray()) {
+            if (searchStr.contains(String.valueOf(s)) == false) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * strがarrayの要素だけで構成されているかを評価します。
+     * "ABCBA", "ABC" ⇒ TRUE
+     * "AB9BA", "ABC" ⇒ FALSE
+     */
+    public static boolean isOnly(String str, char[] searchArray) {
+        return isOnly(str, String.valueOf(searchArray));
+    }
+
+    /**
+     * strがarrayの要素だけで構成されているかを評価します。
+     * @deprecated {@link #isOnly(String, char[])} 名称を見直したメソッドをご利用ください。
+     */
+    public static boolean match(String str, char[] array) {
+        return isOnly(str, array);
+    }
+
+    /**
+     * 半角数字だけで構成される文字かを判定します。
+     */
+    public static boolean isHalfNum(String str) {
+        if (StringUtils.isEmpty(str)) {
+            return false;
+        }
+        return isOnly(str, StringSet.HANKAKU_NUM);
+    }
+
+    ///**
+    // * 「Empty」の解釈が一般的でないため、廃止。
+    // * 空文字判定。Trimの後、評価されます。
+    // * @param str 検査対象
+    // * @return null、またはBlankであればTrue
+    // */
+    //public static boolean isEmpty(String str) {
+    //    return isEmpty(str, true);
+    //}
+    ///**
+    // * 「Blank」「Empty」の解釈が一般的でないため、廃止。
+    // * @param str 検査対象
+    // * @param trim 前後のスペースを無視(Trim)するか？
+    // * @return null、またはBlankであればTrue
+    // */
+    //public static boolean isEmpty(String str, boolean trim) {
+    //    if (str == null) {
+    //        return true;
+    //    }
+    //    if (trim) {
+    //        str.trim();
+    //    }
+    //    if (isBlank(str)) {
+    //        return true;
+    //    }
+    //    return false;
+    //}
+    ///**
+    // * Blankかどうか
+    // * 0バイトのStringをBlankとするのは一般的でないため、廃止。
+    // */
+    //public static boolean isBlank(String str) {
+    //    if ("".equals(str)) {
+    //        return true;
+    //    }
+    //    return false;
+    //}
+    ///**
+    // * @param c 検査対象
+    // * @return スペース
+    // */
+    //public static boolean isSpace(char c) {
+    //    if (c == ' ') {
+    //        return true;
+    //    }
+    //    return false;
+    //}
+
+    /**
+     * シングルバイトかどうかを判定します。空文字はfalseとします。
+     * 「シングルバイト＝半角」ではありません。（UTF-8の半角カタカナなど）
+     */
+    public static boolean isSinglebyte(String str, Charset charset) {
+        if (StringUtils.isEmpty(str)) {
             return false;
         }
         int length = str.length();
-        int lengthB;
-        try {
-            lengthB = str.getBytes(encoding).length;
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("文字コード指定が不正です。encoding=[" + encoding + "]");
-        }
+        int lengthB = str.getBytes(charset).length;
+        //LOGGER.debug("文字数:" + length + " バイト数:" + lengthB);
         return length == lengthB;
     }
 
     /**
-     * マルチバイトかを判定します。
+     * シングルバイトかどうかを判定します。
+     * @deprecated {@link #isSinglebyte(String, Charset)}
      */
-    public static boolean isMultibyte(String str, String encoding) {
-        if (isEmpty(str)) {
+    public static boolean isSinglebyte(String str, String charsetName) {
+        return isSinglebyte(str, Charset.forName(charsetName));
+    }
+
+    /**
+     * マルチバイトかどうかを判定します。空文字はfalseとします。
+     */
+    public static boolean isMultibyte(String str, Charset charset) {
+        if (StringUtils.isEmpty(str)) {
             return false;
         }
         boolean onlySingle = true;
         for (int i = 0; i < str.length(); i++) {
-            System.out.println(str.substring(i, i + 1));
-            if (isSinglebyte(str.substring(i, i + 1), encoding)) {
+            if (isSinglebyte(str.substring(i, i + 1), charset)) {
                 onlySingle = false;
                 break;
             }
@@ -48,126 +171,12 @@ public class StringInspection {
         return onlySingle;
     }
 
-
     /**
-     * <pre>
-     * str1にstr2が含まれるかを評価します。
-     * [実装例] contains("ABC9A", "ABC") ⇒ TRUE
-     * ・不正な文字の検出など
-     * </pre>
-     * @param str1 検査対象
-     * @param str2 文字列
-     * @return strにinclusionsが含まれればTrue
+     * マルチバイトかどうかを判定します。
+     * @deprecated {@link #isSinglebyte(String, Charset)}
      */
-    public static boolean contains(String str1, char[] str2) {
-        if (isEmpty(str1)) {
-            return false;
-        }
-        for (int i = 0; i < str1.length(); i++) {
-            char c = str1.charAt(i);
-            boolean isHankaku = false;
-            for (char h : str2) {
-                if (c == h) {
-                    isHankaku = true;
-                    break;
-                }
-            }
-            if (!isHankaku) {
-                return true;
-            }
-        }
-        return false;
+    public static boolean isMultibyte(String str, String charsetName) {
+        return isMultibyte(str, Charset.forName(charsetName));
     }
 
-    /**
-     * <pre>
-     * str1がstr2だけで構成されているかを評価します。
-     * [実装例] madeonly("ABCBA", "ABC") ⇒ TRUE
-     * [実装例] madeonly("AB9BA", "ABC") ⇒ FALSE
-     * ・不正な文字の検出など
-     * </pre>
-     * @param str1 検査対象
-     * @param str2 文字列
-     * @return strにinclusionsが含まれればTrue
-     */
-    public static boolean match(String str1, char[] str2) {
-        return !contains(str1, str2);
-    }
-
-//    /**
-//     * <pre>
-//     * 「全角が含まれるか」を評価します。
-//     * 「半角のみか」を評価する場合は以下のように否定(NOT)を使用してください。
-//     *  ⇒!containsZenkaku(str)
-//     *
-//     * 【補足】
-//     * 全角とはほぼ正方形の字形をした文字を示します。
-//     * 文字コードにより2Byteであるとは限りません。
-//     * </pre>
-//     * @param str 検査対象
-//     * @return 全角の文字が含まれればTrue
-//     */
-//    public static boolean containsZenkakuSample(String str) {
-//        return contains(str, StringSet.HANKAKU.toCharArray());
-//    }
-
-    /*
-     * 空文字、nullなどの判定メソッド集
-     * isEmpty(String)以外は積極的に利用する必要はありません。
-     * 他のメソッドはBlank、Space、nullの違いを明確に定義する為に
-     * 作成しました。
-     */
-    /**
-     * 空文字判定。Trimの後、評価されます。
-     * @param str 検査対象
-     * @return null、またはBlankであればTrue
-     */
-    public static boolean isEmpty(String str) {
-        return isEmpty(str, true);
-    }
-
-    /**
-     * 空文字判定をします。
-     * @param str 検査対象
-     * @param trim 前後のスペースを無視(Trim)するか？
-     * @return null、またはBlankであればTrue
-     */
-    public static boolean isEmpty(String str, boolean trim) {
-        if (str == null) {
-            return true;
-        }
-
-        if (trim) {
-            str.trim();
-        }
-        if (isBlank(str)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * ブランク判定をします。
-     * @param str 検査対象
-     * @return 0Byteの文字列
-     */
-    public static boolean isBlank(String str) {
-        if ("".equals(str)) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * スペース判定をします。
-     * @param c 検査対象
-     * @return スペース
-     */
-    public static boolean isSpace(char c) {
-        if (c == ' ') {
-            return true;
-        }
-        return false;
-    }
 }

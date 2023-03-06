@@ -6,10 +6,15 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.github.fujiyamakazan.zabuton.util.ListToStringer;
+
+/**
+ * 正規表現による処理のユーティリティです。
+ * @author fujiyama
+ */
 public class RegexUtils implements Serializable {
     private static final long serialVersionUID = 1L;
-    @SuppressWarnings("unused")
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RegexUtils.class);
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(RegexUtils.class);
 
     /**
      * 正規表現でパターンが一致するかを検査します。
@@ -18,16 +23,55 @@ public class RegexUtils implements Serializable {
      * @return 一致すればTrue
      */
     public static boolean find(String value, String pattern) {
-        Pattern p = Pattern.compile(pattern);
+        Matcher m = Pattern.compile(pattern).matcher(value);
+        return m.find();
+    }
 
-        Matcher m = p.matcher(value);
-        boolean result;
-        if (m.find()) {
-            result = true;
-        } else {
-            result = false;
+
+    /**
+     * 動作確認をします。
+     */
+    public static void main(String[] args) {
+
+        LOGGER.debug("郵便番号かどうかを判定：" + find("〒 238-0000神奈川県～", "〒\\s?[0-9]{3}-?[0-9]{4}"));
+
+        LOGGER.debug(ListToStringer.convert(pickup("babcd", "a(.+)c"))); // b
+        LOGGER.debug("" + indexOfNotHankaku("0123全456")); // 4
+        LOGGER.debug("" + onlyHalfAlphabet("ABCＡＢＣ")); // false
+
+    }
+
+    /**
+     * 正規表現による文字列検査・抽出。
+     * パターンに一致すれば要素が1件以上のリストを返却し、
+     * パターンに一致しなけれnullを返却する。
+     * グループとして複数件取得していれば個別のリスト用として構成される。
+     * @param str 対象文字列
+     * @param pattern 正規表現のパターン
+     * @return 取得結果
+     */
+    public static List<String> findPattern(String str, String pattern) {
+        if (pattern == null || pattern.isEmpty()) {
+            throw new IllegalArgumentException("パターンが指定されていません。");
         }
-        return result;
+
+        if (str == null || str.isEmpty()) {
+            return null;
+        }
+
+        Pattern p = Pattern.compile(pattern);
+        Matcher m = p.matcher(str);
+        List<String> list = new ArrayList<String>();
+        if (m.find()) {
+            if (m.groupCount() == 0) {
+                list.add(m.group());
+            } else {
+                for (int i = 0; i < m.groupCount(); i++) {
+                    list.add(m.group(i));
+                }
+            }
+        }
+        return list;
     }
 
     /**
@@ -96,17 +140,24 @@ public class RegexUtils implements Serializable {
         return false;
     }
 
-
-
     /**
-     * 動作確認をします。
+     * 正規表現による文字列検査・抽出。
+     * パターンに一致しなければnullを返却する。
+     * グループとして複数件取得していればその１件目を返却する。
+     * @param str 対象文字列
+     * @param pattern 正規表現のパターン
+     * @return 取得結果
      */
-    public static void main(String[] args) {
-
-        System.out.println(pickup("babcd", "a(.+)c")); // b
-        System.out.println(indexOfNotHankaku("0123全456")); // 4
-        System.out.println(onlyHalfAlphabet("ABCＡＢＣ")); // false
-
+    public static String findPatternFirst(String str, String pattern) {
+        List<String> list = findPattern(str, pattern);
+        if (list.size() == 0) {
+            return null;
+        } else {
+            return list.get(0);
+        }
     }
+
+
+
 
 }

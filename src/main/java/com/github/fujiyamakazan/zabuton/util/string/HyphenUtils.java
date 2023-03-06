@@ -5,6 +5,11 @@ import java.util.List;
 
 import org.apache.wicket.util.lang.Generics;
 
+/**
+ * ハイフンに関するユーティリティです。
+ * TODO StringSetと役割分担を検討
+ * @author fujiyama
+ */
 public class HyphenUtils implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(HyphenUtils.class);
