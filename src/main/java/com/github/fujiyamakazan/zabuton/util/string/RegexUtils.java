@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class RegexUtils implements Serializable {
     private static final long serialVersionUID = 1L;
+    @SuppressWarnings("unused")
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(RegexUtils.class);
 
 
@@ -82,14 +83,16 @@ public class RegexUtils implements Serializable {
      */
     public static void main(String[] args) {
         //LOGGER.debug("郵便番号かどうかを判定１：" + find("〒 220-0000神奈川県～", "〒\\s?[0-9]{3}-?[0-9]{4}"));
-        LOGGER.debug("郵便番号を取得１：" + pickup("〒 110-0000東京都～ 〒 220-0000神奈川県～", "〒\\s?[0-9]{3}-?[0-9]{4}"));
-        LOGGER.debug("郵便番号を取得２：" + pickup("090-0000-0000", "〒\\s?[0-9]{3}-?[0-9]{4}"));
+        //LOGGER.debug("郵便番号を取得１：" + pickup("〒 110-0000東京都～ 〒 220-0000神奈川県～", "〒\\s?[0-9]{3}-?[0-9]{4}"));
+        //LOGGER.debug("郵便番号を取得２：" + pickup("090-0000-0000", "〒\\s?[0-9]{3}-?[0-9]{4}"));
         //LOGGER.debug("郵便番号を取得１：" + pickupOne("〒 110-0000東京都～ 〒 220-0000神奈川県～", "〒\\s?([0-9]{3})-?([0-9]{4})"));
         //LOGGER.debug("郵便番号を取得２：" + findPattern("〒 238-0000神奈川県～", "〒\\s?[0-9]{3}-?[0-9]{4}"));
 
         //LOGGER.debug(ListToStringer.convert(pickup("babcd", "a(.+)c"))); // b
         //LOGGER.debug("" + indexOfNotHankaku("0123全456")); // 4
         //LOGGER.debug("" + onlyHalfAlphabet("ABCＡＢＣ")); // false
+
+        //LOGGER.debug(indexOfNotHankaku("aaaｱあああabc") + "");
 
     }
 
@@ -143,31 +146,32 @@ public class RegexUtils implements Serializable {
     //        }
     //    }
 
-    /**
-     * 文字列を左から検査し、半角でない文字が見つかれば、その最初の位置を返します。
-     * 全て半角文字の場合は-1を返します。
-     *
-     * TODO 要調査。動作原理はどうなっているのか？
-     *
-     * @param value 対象文字列
-     * @return int 位置
-     */
-    public static int indexOfNotHankaku(String value) {
-        Pattern pattern = Pattern.compile(".*[^ -~｡-ﾟ].*");
 
-        for (int i = 0; i < value.length(); i++) {
-            String c = String.valueOf(value.charAt(i));
-            Matcher matcher = pattern.matcher(c);
-            if (matcher.matches() == true) {
-                return i; // 全角
-            } else {
-                continue; // 半角→次の文字へ
-            }
-        }
-        return -1;
-    }
 
-    // 必要に応じてStringInspectionで実装する。
+
+
+    // 以下はStringSetの定数を使う方が良い。必要に応じてStringInspectionで実装する。
+
+    //    /**
+    //     * 文字列を左から検査し、半角でない文字が見つかれば、その最初の位置を返します。
+    //     * 全て半角文字の場合は-1を返します。
+    //     * @param value 対象文字列
+    //     * @return int 位置
+    //     */
+    //    public static int indexOfNotHankaku(String value) {
+    //        Pattern pattern = Pattern.compile(".*[^ -~｡-ﾟ].*"); // [ ]はASCIIの始端、[~]はASCIIの終端
+    //
+    //        for (int i = 0; i < value.length(); i++) {
+    //            String c = String.valueOf(value.charAt(i));
+    //            Matcher matcher = pattern.matcher(c);
+    //            if (matcher.matches() == true) {
+    //                return i; // 全角
+    //            } else {
+    //                continue; // 半角→次の文字へ
+    //            }
+    //        }
+    //        return -1;
+    //    }
     ///**
     // * 半角のアルファベットだけで構築されているかを検査します。
     // * @param value 対象文字列
