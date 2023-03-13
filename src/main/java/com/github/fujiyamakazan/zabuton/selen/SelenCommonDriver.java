@@ -32,6 +32,7 @@ import com.github.fujiyamakazan.zabuton.util.HttpAccessObject;
 import com.github.fujiyamakazan.zabuton.util.RetryWorker;
 import com.github.fujiyamakazan.zabuton.util.exec.CmdAccessObject;
 import com.github.fujiyamakazan.zabuton.util.file.ZipUtils;
+import com.github.fujiyamakazan.zabuton.util.security.CookieManager;
 import com.github.fujiyamakazan.zabuton.util.string.Stringul;
 
 public abstract class SelenCommonDriver implements Serializable {
@@ -267,11 +268,18 @@ public abstract class SelenCommonDriver implements Serializable {
     //        return file;
     //    }
 
+    private CookieManager cm;
+
     /**
      * URLを指定して表示します。
      */
     public void get(String url) {
+
         this.originalDriver.get(url);
+
+        if(useCookieManager() && this.cm != null) {
+            this.cm.save();
+        }
     }
 
     /**
@@ -279,6 +287,14 @@ public abstract class SelenCommonDriver implements Serializable {
      */
     public void clickAndWait(By by) {
         clickAndWait(by, false);
+
+    }
+
+    /**
+     * 画面要素を指定してクリックします。
+     */
+    public void clickAndWait(WebElement element) {
+        clickAndWait(element, false);
 
     }
 
@@ -587,4 +603,23 @@ public abstract class SelenCommonDriver implements Serializable {
             LOGGER.debug(e.getMessage());
         }
     }
+
+    protected boolean useCookieManager() {
+        return false;
+    }
+
+    public void getWithCookie(String url) {
+        if (useCookieManager() == false) {
+            throw new RuntimeException();
+        }
+        this.get(url);
+        this.cm = createCookieManager();
+        this.cm.executeByUrl(url);
+    }
+
+    protected CookieManager createCookieManager() {
+        throw new RuntimeException("未実装");
+    };
+
+
 }

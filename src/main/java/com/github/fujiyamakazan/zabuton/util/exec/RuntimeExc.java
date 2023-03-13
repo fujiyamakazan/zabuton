@@ -7,8 +7,9 @@ import com.github.fujiyamakazan.zabuton.util.exec.RuntimeExec.RuntimeExecResult;
 
 /**
  * Runtime#exec のユーティリティです。
- * @deprecated 名前の修正、およびstatic化をした {@link RuntimeExc} へ集約してください。
+ * @deprecated 名前の修正、およびstatic化をした {@link RuntimeExec} へ集約してください。
  */
+@Deprecated
 public class RuntimeExc {
 
     private RuntimeExecResult result;

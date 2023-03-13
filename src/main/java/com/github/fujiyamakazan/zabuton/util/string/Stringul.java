@@ -168,6 +168,7 @@ public class Stringul implements Serializable {
      * 文字列のなかのindexにあたる文字を返す。
      * @deprecated メソッドに隠ぺいするメリットがない。基本APIを直接使用すること。
      */
+    @Deprecated
     public static String getWordOnIndex(String str, int index) {
         //return String.valueOf(line.toString().toCharArray()[index]);
         return String.valueOf(str.charAt(index));
@@ -177,6 +178,7 @@ public class Stringul implements Serializable {
      * lineの中にあるsindex ～ eindex の文字を返します。
      * @deprecated StringUtils#substring とほぼ同等の処理なうえ、末尾の処理に差異が出る。呼び出し箇所が無くなったら廃止する。
      */
+    @Deprecated
     public static String getWordBettweenIndex(String line, int sindex, int eindex) {
         StringBuffer ret = new StringBuffer();
         for (int i = sindex; i <= eindex; i++) {
@@ -189,6 +191,7 @@ public class Stringul implements Serializable {
      * 文字を区切り文字の前後に分割するメソッドです。
      * @deprecated {@link String#split(String)}を利用すること。
      */
+    @Deprecated
     public static List<String> stringSeparater(String str, String delimiter) {
         return Arrays.asList(str.split(delimiter));
         //ArrayList<String> arl = new ArrayList<String>();

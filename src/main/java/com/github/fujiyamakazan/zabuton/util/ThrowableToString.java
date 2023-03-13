@@ -8,6 +8,7 @@ public class ThrowableToString {
      * 例外オブジェクトを文字列型に変換します。
      * @deprecated {@link Stringul#ofThrowable(Throwable)}
      */
+    @Deprecated
     public static String convertToString(Throwable t) {
         //StringWriter sw = new StringWriter();
         //PrintWriter pw = new PrintWriter(sw);

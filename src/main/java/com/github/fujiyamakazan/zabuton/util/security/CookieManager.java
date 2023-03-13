@@ -15,12 +15,10 @@ import com.github.fujiyamakazan.zabuton.util.CsvUtils;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 
 public class CookieManager implements Serializable {
-
-    private static final String NONE = "NONE";
     private static final long serialVersionUID = 1L;
-    @SuppressWarnings("unused")
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(CookieManager.class);
 
+    private static final String NONE = "NONE";
     private final SelenCommonDriver cmd;
     private final File saveDir;
     private String sightKey;
@@ -48,34 +46,41 @@ public class CookieManager implements Serializable {
             throw new RuntimeException(e);
         }
 
-        /* invalid cookie domainが発生しないようにする。 */
-        this.cmd.get(url);
+        ///* invalid cookie domainが発生しないようにする。 */
+        //this.cmd.get(url);
 
         cookieDir = new File(this.saveDir, sightKey);
-        if (cookieDir.exists()) {
-            for (File f : cookieDir.listFiles()) {
 
-                String data = Utf8Text.readData(f);
-                String[] datas = CsvUtils.splitCsv(data);
-                String name = datas[0];
-                String value = datas[1];
-                String domain = datas[2];
-                String path = datas[3];
-                String strExpiry = datas[4];
-                final Date expiry;
-                if (StringUtils.equals(strExpiry, NONE)) {
-                    expiry = null;
-                } else {
-                    expiry = new Date(Long.parseLong(strExpiry));
+        try {
+            if (cookieDir.exists()) {
+                for (File f : cookieDir.listFiles()) {
+
+                    String data = Utf8Text.readData(f);
+                    String[] datas = CsvUtils.splitCsv(data);
+                    String name = datas[0];
+                    String value = datas[1];
+                    String domain = datas[2];
+                    String path = datas[3];
+                    String strExpiry = datas[4];
+                    final Date expiry;
+                    if (StringUtils.equals(strExpiry, NONE)) {
+                        expiry = null;
+                    } else {
+                        expiry = new Date(Long.parseLong(strExpiry));
+                    }
+                    LOGGER.debug("domain:" + domain);
+                    Cookie cookie = new Cookie(name, value, domain, path, expiry);
+
+                    cmd.addCookie(cookie);
                 }
-                Cookie cookie = new Cookie(name, value, domain, path, expiry);
-
-                cmd.addCookie(cookie);
             }
+        } catch (org.openqa.selenium.InvalidCookieDomainException e) {
+            throw new RuntimeException("InvalidCookieDomainExceptionが発生しました。"
+                + "Cooikeを操作する前にドメインへ移動してください。", e);
         }
 
-        /* 再表示 */
-        this.cmd.get(url);
+        ///* 再表示 */
+        //this.cmd.get(url);
 
     }
 

@@ -61,6 +61,7 @@ public class RuntimeExec implements Serializable {
      * cmd.exeに関わる処理は、公開メソッドを別のクラスへ集約しました。
      * @deprecated {@link CmdAccessObject#executeCmdToUtf8Text(File, String)}
      */
+    @Deprecated
     public static void executeCmdToUtf8Text(File target, String command) {
         CmdAccessObject.executeCmdToUtf8Text(target, command);
     }
@@ -69,6 +70,7 @@ public class RuntimeExec implements Serializable {
      * cmd.exeに関わる処理は、公開メソッドを別のクラスへ集約しました。
      * @deprecated  {@link CmdAccessObject#executeCmd(String...)}
      */
+    @Deprecated
     public static RuntimeExecResult executeCmd(String... cmdarray) {
         return CmdAccessObject.executeCmd(cmdarray);
     }
@@ -78,6 +80,7 @@ public class RuntimeExec implements Serializable {
      * @param cmdarray コマンドとパラメータ
      * @deprecated {@link #exec(String...)} へ集約
      */
+    @Deprecated
     public static RuntimeExecResult execute(String... cmdarray) {
         return exec(cmdarray);
         //if (me.success) {

@@ -26,6 +26,7 @@ import com.github.fujiyamakazan.zabuton.util.CsvUtils;
 import com.github.fujiyamakazan.zabuton.util.RetryWorker;
 import com.github.fujiyamakazan.zabuton.util.date.Chronus;
 import com.github.fujiyamakazan.zabuton.util.jframe.JFrameUtils;
+import com.github.fujiyamakazan.zabuton.util.security.CookieManager;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
 import com.github.fujiyamakazan.zabuton.util.text.TextFile;
@@ -41,11 +42,9 @@ public abstract class JournalFactory implements Serializable {
     protected final JournalsTerm term;
     /** 記録元名です。 */
     private final String sourceName;
-    //private final List<String> assetNames = Generics.newArrayList();
     private final String assetName;
     private final File crawlerDir;
     private final File cache;
-    //private final File driver;
     private final File appDir;
 
     /**
@@ -55,9 +54,7 @@ public abstract class JournalFactory implements Serializable {
     public JournalFactory(String sourceName, String assetName, JournalsTerm term, File appDir) {
         this.sourceName = sourceName;
         this.term = term;
-        //this.assetNames.addAll(Arrays.asList(assetNames));
         this.assetName = assetName;
-        //this.driver = new File(appDir, "chromedriver.exe");
         this.appDir = appDir;
         this.crawlerDir = new File(appDir, getCrawlerName());
         this.crawlerDir.mkdirs();
@@ -178,6 +175,16 @@ public abstract class JournalFactory implements Serializable {
                 @Override
                 protected File getDownloadDir() {
                     return cache;
+                }
+
+                @Override
+                protected boolean useCookieManager() {
+                    return JournalFactory.this.useCookieManager();
+                }
+
+                @Override
+                protected CookieManager createCookieManager() {
+                    return new CookieManager(appDir, this);
                 }
 
             };
@@ -654,6 +661,10 @@ public abstract class JournalFactory implements Serializable {
             getClass().getSimpleName(),
             this.master,
             getDateFormat());
+    }
+
+    protected boolean useCookieManager() {
+        return true;
     }
 
 }

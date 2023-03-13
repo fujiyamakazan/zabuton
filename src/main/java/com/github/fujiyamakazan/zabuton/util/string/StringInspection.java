@@ -22,6 +22,7 @@ public class StringInspection implements Serializable {
      * 引数strにarrayの文字が含まれるかを検査します。
      * @deprecated {@link StringUtils#contains(CharSequence, CharSequence)} を直接利用してください。
      */
+    @Deprecated
     public static boolean contains(String str, char[] searchArray) {
         return StringUtils.contains(str, String.valueOf(searchArray));
         //        for (char c: str.toCharArray()) {
@@ -70,6 +71,7 @@ public class StringInspection implements Serializable {
      * strがarrayの要素だけで構成されているかを評価します。
      * @deprecated {@link #isOnly(String, char[])} 名称を見直したメソッドをご利用ください。
      */
+    @Deprecated
     public static boolean match(String str, char[] array) {
         return isOnly(str, array);
     }
@@ -150,6 +152,7 @@ public class StringInspection implements Serializable {
      * シングルバイトかどうかを判定します。
      * @deprecated {@link #isSinglebyte(String, Charset)}
      */
+    @Deprecated
     public static boolean isSinglebyte(String str, String charsetName) {
         return isSinglebyte(str, Charset.forName(charsetName));
     }
@@ -175,6 +178,7 @@ public class StringInspection implements Serializable {
      * マルチバイトかどうかを判定します。
      * @deprecated {@link #isSinglebyte(String, Charset)}
      */
+    @Deprecated
     public static boolean isMultibyte(String str, String charsetName) {
         return isMultibyte(str, Charset.forName(charsetName));
     }
