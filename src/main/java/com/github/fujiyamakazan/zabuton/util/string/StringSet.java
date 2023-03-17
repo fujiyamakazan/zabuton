@@ -1,6 +1,7 @@
 package com.github.fujiyamakazan.zabuton.util.string;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -195,6 +196,61 @@ public class StringSet implements Serializable {
     }
 
     /**
+     * 波ダッシュ問題の対象文字です。
+     */
+    public static final String NAMI_DASH_ETC_1 = iniNamiDashEtc()[0];
+    public static final String NAMI_DASH_ETC_2 = iniNamiDashEtc()[1];
+
+    private static String[] iniNamiDashEtc() {
+
+        String etc1 = "";
+        String etc2 = "";
+        LOGGER.debug("波ダッシュ WAVE DASH");
+        LOGGER.debug("U+301C:" + hexToChar("301C")); // 〜
+        LOGGER.debug("U+FF5E:" + hexToChar("FF5E")); // ～
+        etc1 += hexToChar("301C");
+        etc2 += hexToChar("FF5E");
+
+        LOGGER.debug("双柱 DOUBLE VERTICAL LINE");
+        LOGGER.debug("U+2016:" + hexToChar("2016")); // ‖
+        LOGGER.debug("U+2225:" + hexToChar("2225")); // ∥
+        etc1 += hexToChar("2016");
+        etc2 += hexToChar("2225");
+
+        LOGGER.debug("負符号 MINUS SIGN");
+        LOGGER.debug("U+2212:" + hexToChar("2212")); // −
+        LOGGER.debug("U+FF0D:" + hexToChar("FF0D")); // －
+        etc1 += hexToChar("2212");
+        etc2 += hexToChar("FF0D");
+
+        LOGGER.debug("セント記号 MINUS SIGN");
+        LOGGER.debug("U+00A2:" + hexToChar("00A2")); // ¢
+        LOGGER.debug("U+FFE0:" + hexToChar("FFE0")); // ￠
+        etc1 += hexToChar("00A2");
+        etc2 += hexToChar("FFE0");
+
+        LOGGER.debug("ポンド記号 POUND SIGN");
+        LOGGER.debug("U+00A3:" + hexToChar("00A3")); // £
+        LOGGER.debug("U+FFE1:" + hexToChar("FFE1")); // ￡
+        etc1 += hexToChar("00A3");
+        etc2 += hexToChar("FFE1");
+
+        LOGGER.debug("否定記号  NOT SIGN");
+        LOGGER.debug("U+00AC:" + hexToChar("00AC")); // ¬
+        LOGGER.debug("U+FFE2:" + hexToChar("FFE2")); // ￢
+        etc1 += hexToChar("00AC");
+        etc2 += hexToChar("FFE2");
+
+        LOGGER.debug("ダッシュ(全角)  EM DASH");
+        LOGGER.debug("U+2014:" + hexToChar("2014")); // —
+        LOGGER.debug("U+2015:" + hexToChar("2015")); // ―
+        etc1 += hexToChar("2014");
+        etc2 += hexToChar("2015");
+
+        return new String[] { etc1, etc2 };
+    }
+
+    /**
      * 全角カタカナと半角カタカナの対応表です。
      * 濁点、半濁点を含むカタカナは、半角では記号付き２文字です。
      */
@@ -324,13 +380,67 @@ public class StringSet implements Serializable {
         all.put("JIS X 0208 のサンプル", SAMPLE_JIS_X_0208);
         all.put("JIS X 0208 以外のサンプル", SAMPLE_UNICODE);
         all.put("字形がハイフンに近い文字", LIKE_HYPHEN);
+        all.put("波ダッシュ問題1", NAMI_DASH_ETC_1);
+        all.put("波ダッシュ問題2", NAMI_DASH_ETC_2);
         return all;
+    }
+
+    /*
+     * 一覧のメモ
+     *
+     * ・Unicode一覧 3000-3FFF (ひらがな、全角カタカナが含まれる)
+     * 　　https://ja.wikipedia.org/wiki/Unicode%E4%B8%80%E8%A6%A7_3000-3FFF
+     */
+
+    /**
+     * 文字をバイトの文字列へ変換します。
+     */
+    private static String charToByteString(char c, Charset charset) {
+        byte[] bytes = String.valueOf(c).getBytes(charset);
+        String str = "";
+        for (int j = 0; j < bytes.length; j++) {
+            str += Integer.toHexString(bytes[j] & 0xff) + " ";
+        }
+        return str;
+    }
+
+    /**
+     * 文字を10進数へ変換します。
+     */
+    private static int charToDecimal(char c) {
+        return (int) c;
+    }
+
+    /** 10進数を文字へ変換します。*/
+    private static char decimalToChar(int decimal) {
+        return (char) decimal;
+    }
+
+    /**
+     * 文字を16進数へ変換します。
+     */
+    private static String charToHex(char c) {
+        int decimal = charToDecimal(c);
+        return Integer.toHexString(decimal);
+    }
+
+    /** 16進数を文字へ変換します。 */
+    private static char hexToChar(String hex) {
+        int decimal = hexToDecimal(hex);
+        return decimalToChar(decimal);
+    }
+
+    /**
+     * 16進数を10進数へ変換します。
+     */
+    private static int hexToDecimal(String hex) {
+        return Integer.parseInt(hex, 16);
     }
 
     /**
      * 動作確認をします。
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnsupportedEncodingException {
 
         LOGGER.debug("種別ごとに出力");
         Map<String, String> map = getAll();
@@ -342,21 +452,35 @@ public class StringSet implements Serializable {
         String all = sb.toString();
         //String all = HANKAKU;
 
-        LOGGER.debug("intと16進表記で出力");
+        LOGGER.debug("符号位置とバイト配列");
         for (char c : all.toCharArray()) {
-
-            byte[] utf8Bytes = String.valueOf(c).getBytes(StandardCharsets.UTF_8);
-            String utf8 = "";
-            for (int j = 0; j < utf8Bytes.length; j++) {
-                utf8 += Integer.toHexString(utf8Bytes[j] & 0xff) + " ";
-            }
-            byte[] sjisBytes = String.valueOf(c).getBytes(Charset.forName("Shift_JIS"));
-            String sjis = "";
-            for (int j = 0; j < sjisBytes.length; j++) {
-                sjis += Integer.toHexString(sjisBytes[j] & 0xff) + " ";
-            }
-
+            String utf8 = charToByteString(c, StandardCharsets.UTF_8);
+            String sjis = charToByteString(c, Charset.forName("Shift_JIS"));
             LOGGER.debug(String.format("%s: %s(int) %s(Unicode) %s(Shift_JIS)", c, (int) c, utf8, sjis));
         }
+
+        LOGGER.debug("波ダッシュ問題");
+        /* 一度Shift_JISに変換した後Unicodeに戻す */
+        for (char c: ("1" + NAMI_DASH_ETC_2).toCharArray()) {
+            LOGGER.debug("[" + c + "]");
+            String strSjis = new String(String.valueOf(c).getBytes(StandardCharsets.UTF_8), Charset.forName("Shift_JIS"));
+            String strUnicode = new String(strSjis.getBytes(Charset.forName("Shift_JIS")), StandardCharsets.UTF_8);
+            LOGGER.debug(strUnicode);
+        }
+
+
+        //        char[] buf = new char[] { (char) Integer.parseInt("81", 16), (char) Integer.parseInt("60", 16) };
+        //        LOGGER.debug(new String(new String(buf).getBytes(StandardCharsets.UTF_8), "Shift_JIS"));
+        //
+        //        LOGGER.debug("あ:"
+        //            + charToDecimal('あ') + "(コードポイント) "
+        //            + "U+" + charToHex('あ') + "(コードポイント) ");
+        //
+        //
+        //        LOGGER.debug("～:"
+        //            + charToDecimal('～') + "(コードポイント) "
+        //            + "U+" + charToHex('～') + "(コードポイント) ");
+
     }
+
 }
