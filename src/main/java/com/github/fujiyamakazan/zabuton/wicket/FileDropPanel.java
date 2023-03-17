@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 public class FileDropPanel extends Panel {
     private static final long serialVersionUID = 1L;
 
-    private static final Logger log = LoggerFactory.getLogger(FileDropPanel.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileDropPanel.class);
 
     /**
      * アップロードされたファイル。
@@ -135,7 +135,7 @@ public class FileDropPanel extends Panel {
 
             @Override
             protected void onError(AjaxRequestTarget target, FileUploadException e) {
-                log.error(e.getMessage());
+                LOGGER.error(e.getMessage());
             }
         });
     }
