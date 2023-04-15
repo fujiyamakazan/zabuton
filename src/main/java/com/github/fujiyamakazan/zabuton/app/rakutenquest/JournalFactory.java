@@ -22,8 +22,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
+import com.github.fujiyamakazan.zabuton.selen.SelenUtils;
 import com.github.fujiyamakazan.zabuton.util.CsvUtils;
-import com.github.fujiyamakazan.zabuton.util.RetryWorker;
 import com.github.fujiyamakazan.zabuton.util.date.Chronus;
 import com.github.fujiyamakazan.zabuton.util.jframe.JFrameUtils;
 import com.github.fujiyamakazan.zabuton.util.security.CookieManager;
@@ -537,16 +537,17 @@ public abstract class JournalFactory implements Serializable {
      * ダウンロードされていなければnullを返します。
      */
     protected final File getDownloadFileLastOne() {
-        File lastFile;
-        List<File> list = new ArrayList<File>(Arrays.asList(cache.listFiles()));
-        if (list.isEmpty()) {
-            lastFile = null;
-        } else {
-            Collections.sort(list, new LastModifiedFileComparator());
-            Collections.reverse(list);
-            lastFile = list.get(0);
-        }
-        return lastFile;
+        return SelenUtils.getLastOne(cache);
+//        File lastFile;
+//        List<File> list = new ArrayList<File>(Arrays.asList(cache.listFiles()));
+//        if (list.isEmpty()) {
+//            lastFile = null;
+//        } else {
+//            Collections.sort(list, new LastModifiedFileComparator());
+//            Collections.reverse(list);
+//            lastFile = list.get(0);
+//        }
+//        return lastFile;
     }
 
     /**
@@ -588,49 +589,45 @@ public abstract class JournalFactory implements Serializable {
      * ダウンロードをします。
      */
     protected final void downloadFile(DownloadFileWorker downloadFileWorker) {
+        SelenUtils.downloadFile(downloadFileWorker, cache);
 
-        int iniSize = getDownloadFiles().size();
-
-        downloadFileWorker.action();
-
-        /*
-         * ダウンロードが終わるのを待ちます。
-         * 3秒に一度最新のファイルをチェックし、ファイルが増えていること、
-         * そのファイルが一時ファイルでないことをもって、終了判定をします。
-         */
-        new RetryWorker() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            protected void run() {
-                int count = getDownloadFiles().size();
-                if (count <= iniSize) {
-                    throw new RuntimeException("ダウンロード未完了");
-                } else {
-                    String name = getDownloadFileLastOne().getName();
-                    if (name.endsWith(".tmp") || name.endsWith(".crdownload")) {
-                        throw new RuntimeException("ダウンロード実行中");
-                    }
-                }
-            }
-
-            @Override
-            protected void recovery() {
-                try {
-                    Thread.sleep(3_000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }.start();
+//        int iniSize = getDownloadFiles().size();
+//
+//        downloadFileWorker.action();
+//
+//        /*
+//         * ダウンロードが終わるのを待ちます。
+//         * 3秒に一度最新のファイルをチェックし、ファイルが増えていること、
+//         * そのファイルが一時ファイルでないことをもって、終了判定をします。
+//         */
+//        new RetryWorker() {
+//            private static final long serialVersionUID = 1L;
+//
+//            @Override
+//            protected void run() {
+//                int count = getDownloadFiles().size();
+//                if (count <= iniSize) {
+//                    throw new RuntimeException("ダウンロード未完了");
+//                } else {
+//                    String name = getDownloadFileLastOne().getName();
+//                    if (name.endsWith(".tmp") || name.endsWith(".crdownload")) {
+//                        throw new RuntimeException("ダウンロード実行中");
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            protected void recovery() {
+//                try {
+//                    Thread.sleep(3_000);
+//                } catch (InterruptedException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
+//        }.start();
     }
 
-    /**
-     * ダウンロードの処理を実装するためのクラスです。
-     */
-    public abstract class DownloadFileWorker {
-        protected abstract void action();
-    }
+
 
     //    /**
     //     * ダウンロードしたファイルを削除します。

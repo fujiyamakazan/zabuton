@@ -27,6 +27,8 @@ public abstract class ZabuApp extends WebApplication {
         return (ZabuApp) WebApplication.get();
     }
 
+    private AnnotationConfigApplicationContext ctx;
+
     @Override
     protected void init() {
         super.init();
@@ -44,7 +46,7 @@ public abstract class ZabuApp extends WebApplication {
 
         /* SpringBeanを利用する */
         try  {
-            AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+            ctx = new AnnotationConfigApplicationContext();
             ctx.scan(this.getClass().getPackageName()); // アプリケーションと同じ階層のコンポーネントをスキャンする
             ctx.scan(ZabuApp.class.getPackageName()); // ZabuAppと同じ階層のコンポーネントをスキャンする
             ctx.refresh();

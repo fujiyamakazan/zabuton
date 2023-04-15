@@ -16,6 +16,7 @@ import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 
 public class CookieManager implements Serializable {
     private static final long serialVersionUID = 1L;
+    @SuppressWarnings("unused")
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(CookieManager.class);
 
     private static final String NONE = "NONE";
@@ -68,7 +69,7 @@ public class CookieManager implements Serializable {
                     } else {
                         expiry = new Date(Long.parseLong(strExpiry));
                     }
-                    LOGGER.debug("domain:" + domain);
+                    //LOGGER.debug("domain:" + domain);
                     Cookie cookie = new Cookie(name, value, domain, path, expiry);
 
                     cmd.addCookie(cookie);

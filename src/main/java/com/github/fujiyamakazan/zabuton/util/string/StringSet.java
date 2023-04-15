@@ -1,7 +1,6 @@
 package com.github.fujiyamakazan.zabuton.util.string;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -419,6 +418,7 @@ public class StringSet implements Serializable {
     /**
      * 文字を16進数へ変換します。
      */
+    @SuppressWarnings("unused")
     private static String charToHex(char c) {
         int decimal = charToDecimal(c);
         return Integer.toHexString(decimal);
@@ -440,7 +440,7 @@ public class StringSet implements Serializable {
     /**
      * 動作確認をします。
      */
-    public static void main(String[] args) throws UnsupportedEncodingException {
+    public static void main(String[] args) {
 
         LOGGER.debug("種別ごとに出力");
         Map<String, String> map = getAll();

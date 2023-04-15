@@ -46,7 +46,7 @@ public abstract class SelenCommonDriver implements Serializable {
 
     private final transient WebDriver originalDriver;
 
-    /** Seleniumの一時ファイルを自動削除する場合はtrueを指定します。 */
+    /** Seleniumの一時ファイルの自動削除を中断する場合はfalseを指定します。 */
     public static boolean deleteTemp = true;
 
     /**

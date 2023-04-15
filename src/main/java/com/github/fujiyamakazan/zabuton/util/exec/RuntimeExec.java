@@ -170,6 +170,13 @@ public class RuntimeExec implements Serializable {
     }
 
     /**
+     * ファイルのをメモ帳で表示します。
+     */
+    public static void showNotepad(File file) {
+        exec(false, "cmd", "/c", "notepad", file.getAbsolutePath());
+    }
+
+    /**
      * 動作確認をします。
      */
     public static void main(String[] args) {
