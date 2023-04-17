@@ -4,6 +4,12 @@ import java.io.Serializable;
 
 import com.github.fujiyamakazan.zabuton.util.string.Stringul;
 
+/**
+ * 区切り文字を指定して文字列を連結します。
+ * @deprecated 標準APIがあります。{@see StringJoiner}
+ * @author fujiyama
+ */
+@Deprecated
 public class StringBuilderLn implements Serializable {
     private static final long serialVersionUID = 1L;
 

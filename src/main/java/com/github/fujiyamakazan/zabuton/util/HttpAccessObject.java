@@ -88,7 +88,7 @@ public class HttpAccessObject implements Serializable {
         try (final CloseableHttpClient cl = HttpClients.createDefault();
             final CloseableHttpResponse res = cl.execute(req)) {
             HttpEntity entity = common(url, res);
-            return EntityUtils.toString(entity);
+            return EntityUtils.toString(entity, StandardCharsets.UTF_8); // TODO 文字コード可変対応
         } catch (RedirectException re) {
             return get(re.url); // リダイレクト
         } catch (Exception e) {
@@ -283,7 +283,7 @@ public class HttpAccessObject implements Serializable {
             return true;
         }
     }
-    
+
     public void setCookies(List<Cookie> httpCookies) {
         this.cookies = httpCookies;
     }

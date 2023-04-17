@@ -13,7 +13,7 @@ import org.apache.commons.io.FileUtils;
  */
 public class Utf8Text extends TextFile {
     private static final long serialVersionUID = 1L;
-    private static final Charset CHARSET = StandardCharsets.UTF_8;
+    public static final Charset CHARSET = StandardCharsets.UTF_8;
 
     public Utf8Text(File file) {
         super(file);
