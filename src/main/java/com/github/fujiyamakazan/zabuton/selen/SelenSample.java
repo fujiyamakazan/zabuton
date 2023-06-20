@@ -5,6 +5,7 @@ import java.io.Serializable;
 
 import org.openqa.selenium.By;
 
+import com.github.fujiyamakazan.zabuton.util.HttpAccessObject;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 
 public class SelenSample implements Serializable {
@@ -43,6 +44,13 @@ public class SelenSample implements Serializable {
                 //return new File("C:\\tmp\\msedgedriver.exe");
                 return new File("C:\\tmp");
             }
+
+            @Override
+            protected HttpAccessObject createHao() {
+                return new HttpAccessObject("10.2.0.4", 8080);
+            }
+
+
 
         };
 

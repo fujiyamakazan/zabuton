@@ -6,12 +6,19 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
@@ -115,36 +122,58 @@ public abstract class SelenCommonDriver implements Serializable {
 
         @Override
         public void download() {
-            String html = HttpAccessObject.executeGet(getDriverUrl());
-            int count = 0;
-            for (String line : html.split("\n")) {
-                if (StringUtils.startsWith(line, "If you are using Chrome version ")) {
-                    if (count == 0) { // 1行目は飛ばす（現行バージョンではない可能性が高い。）
-                        count++;
-                        continue;
-                    }
-                    String keyword = "ChromeDriver ";
-                    String ver = line.substring(line.lastIndexOf(keyword) + keyword.length());
-                    String url = String.format("https://chromedriver.storage.googleapis.com/%s/chromedriver_win32.zip",
-                        ver);
-                    File zip = new File(driverFile.getAbsolutePath() + ".zip");
-                    new HttpAccessObject().download(url, zip);
-                    LOGGER.debug(url);
-                    new ZipUtils.UnzipTask(zip) {
-                        private static final long serialVersionUID = 1L;
+            HttpAccessObject hao = createHao();
+            String html = hao.get(getDriverUrl());
 
-                        @Override
-                        protected void runByEntry(String name, File file) {
-                            try {
-                                FileUtils.copyFile(file, new File(driverFile.getParentFile(), name));
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    }.start();
-                    break;
+            Document doc = Jsoup.parse(html);
+            Elements links = doc.getElementsByTag("a");
+
+            String ver = null;
+            for (Iterator<Element> ite = links.listIterator(); ite.hasNext();) {
+                Element link = ite.next();
+                String text = link.text();
+                if (StringUtils.startsWith(text, "ChromeDriver")) {
+                    Matcher m = Pattern.compile("[^0-9.]+([0-9.]+)").matcher(text);
+                    if (m.find()) {
+                        ver = m.group(1);
+                        break;
+                    }
                 }
             }
+
+            //            int count = 0;
+            //            for (String line : html.split("\n")) {
+            //                if (StringUtils.startsWith(line, "If you are using Chrome version ")) {
+            //                    if (count == 0) { // 1行目は飛ばす（現行バージョンではない可能性が高い。）
+            //                        count++;
+            //                        continue;
+            //                    }
+            //                    String keyword = "ChromeDriver ";
+            //                    String ver = line.substring(line.lastIndexOf(keyword) + keyword.length());
+            String url = String.format("https://chromedriver.storage.googleapis.com/"
+                + "%s/chromedriver_win32.zip", ver);
+
+            ver = "114.0.5735.90";
+
+            File zip = new File(driverFile.getAbsolutePath() + ".zip");
+            //new HttpAccessObject().download(url, zip);
+            hao.download(url, zip);
+            LOGGER.debug(url);
+            new ZipUtils.UnzipTask(zip) {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                protected void runByEntry(String name, File file) {
+                    try {
+                        FileUtils.copyFile(file, new File(driverFile.getParentFile(), name));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }.start();
+            //                    break;
+            //                }
+            //            }
 
         }
 
@@ -236,6 +265,10 @@ public abstract class SelenCommonDriver implements Serializable {
         this.originalDriver = driver;
     }
 
+    protected HttpAccessObject createHao() {
+        return new HttpAccessObject();
+    }
+
     /**
      * 拡張ポイントです。
      * 作成されたドライバに設定を追加します。
@@ -277,7 +310,7 @@ public abstract class SelenCommonDriver implements Serializable {
 
         this.originalDriver.get(url);
 
-        if(useCookieManager() && this.cm != null) {
+        if (useCookieManager() && this.cm != null) {
             this.cm.save();
         }
     }
@@ -608,6 +641,10 @@ public abstract class SelenCommonDriver implements Serializable {
         return false;
     }
 
+    /**
+     * URLを指定して表示します。
+     * cookie操作もします。
+     */
     public void getWithCookie(String url) {
         if (useCookieManager() == false) {
             throw new RuntimeException();
@@ -619,7 +656,6 @@ public abstract class SelenCommonDriver implements Serializable {
 
     protected CookieManager createCookieManager() {
         throw new RuntimeException("未実装");
-    };
-
+    }
 
 }
