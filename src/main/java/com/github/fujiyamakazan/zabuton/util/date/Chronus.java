@@ -107,6 +107,13 @@ public class Chronus implements Serializable {
     }
 
     /**
+     * long から LocaleDate へ変換します。
+     */
+    public static LocalDate localDateOf(long lng) {
+        return localDateOf(new Date(lng));
+    }
+
+    /**
      * Date から LocaleDateTime へ変換します。
      */
     public static LocalDateTime localDateTimeOf(Date date) {
