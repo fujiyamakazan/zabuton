@@ -567,8 +567,7 @@ public abstract class SelenCommonDriver implements Serializable {
                     FileUtils.deleteDirectory(f);
                 } catch (IOException e) {
                     //throw new RuntimeException(e);
-                    LOGGER.error("scoped_dirの削除に失敗", e);
-
+                    LOGGER.warn("scoped_dirの削除に失敗", e);
                 }
             }
             if (f.getName().equals("screenshot")) {

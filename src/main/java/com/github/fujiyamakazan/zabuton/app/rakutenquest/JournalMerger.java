@@ -162,10 +162,6 @@ public class JournalMerger implements Serializable {
         return line;
     }
 
-    //    protected final boolean contains(JournalCsv masterCsv, String dailyLine) {
-    //        return false;
-    //    }
-
     /**
      * 仮保存していたレコードをマスターに保存します。
      */

@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.io.comparator.NameFileComparator;
@@ -42,19 +41,26 @@ public abstract class JournalFactory implements Serializable {
     protected final JournalsTerm term;
     /** 記録元名です。 */
     private final String sourceName;
-    private final String assetName;
+    //private final String assetName;
     private final File crawlerDir;
     private final File cache;
     private final File appDir;
+    private Exception downloadException;
+    private Exception createJurnalsException;
 
     /**
      * コンストラクタです。
      * @param sourceName 記録元名
      */
-    public JournalFactory(String sourceName, String assetName, JournalsTerm term, File appDir) {
+    public JournalFactory(
+        String sourceName,
+        //String assetName,
+        JournalsTerm term,
+        File appDir) {
+
         this.sourceName = sourceName;
         this.term = term;
-        this.assetName = assetName;
+        //this.assetName = assetName;
         this.appDir = appDir;
         this.crawlerDir = new File(appDir, getCrawlerName());
         this.crawlerDir.mkdirs();
@@ -99,34 +105,34 @@ public abstract class JournalFactory implements Serializable {
         return journals;
     }
 
-    /**
-     * 記録されている資産の金額を返します。現在の金額と差があれば、その情報を付与します。
-     */
-    public String[] getSummary(Map<String, Integer> existAssets) {
-        Integer asset = getAssetText();
-        if (asset == null) {
-            return null;
-        }
-        //assetText = assetText.replaceAll(",", ""); // カンマ除去
-        //if (StringUtils.isEmpty(nowAsset)) {
-        //    return new String[] { "", "" };
-        //}
-        //for (String assetName : this.assetNames) {
-        //String existAsset = String.valueOf(existAssets.get(assetName));
-        int existAsset = existAssets.get(assetName);
-        String assetNote = assetName;
-        //if (assetText.contains(existAsset) == false) {
-        if (asset != existAsset) {
-            assetNote += "★更新前の値:[" + existAsset + "]★";
-        }
-        //}
-        return new String[] {String.valueOf(asset), assetNote};
-    }
+//    /**
+//     * 記録されている資産の金額を返します。現在の金額と差があれば、その情報を付与します。
+//     */
+//    public String[] getSummary(Map<String, Integer> existAssets) {
+//        Integer asset = getAssetText();
+//        if (asset == null) {
+//            return null;
+//        }
+//        //assetText = assetText.replaceAll(",", ""); // カンマ除去
+//        //if (StringUtils.isEmpty(nowAsset)) {
+//        //    return new String[] { "", "" };
+//        //}
+//        //for (String assetName : this.assetNames) {
+//        //String existAsset = String.valueOf(existAssets.get(assetName));
+//        int existAsset = existAssets.get(assetName);
+//        String assetNote = assetName;
+//        //if (assetText.contains(existAsset) == false) {
+//        if (asset != existAsset) {
+//            assetNote += "★更新前の値:[" + existAsset + "]★";
+//        }
+//        //}
+//        return new String[] {String.valueOf(asset), assetNote};
+//    }
 
-    /**
-     * 記録されている資産の金額を返します。
-     */
-    public abstract Integer getAssetText(); // TODO 名称変更 → asset
+//    /**
+//     * 記録されている資産の金額を返します。
+//     */
+//    public abstract Integer getAssetText();
 
     /*
      * TODO パブリックなメソッドはこれまで。
@@ -336,7 +342,7 @@ public abstract class JournalFactory implements Serializable {
     /**
      * ファイルからHTMLを取得します。
      */
-    protected final Element getHtmlBody(File file) {
+    public final Element getHtmlBody(File file) {
         TextFile textObj = new TextFile(file) {
             private static final long serialVersionUID = 1L;
 
@@ -509,7 +515,7 @@ public abstract class JournalFactory implements Serializable {
     /**
      * 名前を指定して、ダウンロードされたファイルを返します。
      */
-    protected final File getDownloadFile(String name) {
+    public final File getDownloadFile(String name) {
         return new File(cache, name);
     }
 
@@ -536,7 +542,7 @@ public abstract class JournalFactory implements Serializable {
      * 直近にダウンロードされたファイルを１つ返します。
      * ダウンロードされていなければnullを返します。
      */
-    protected final File getDownloadFileLastOne() {
+    public final File getDownloadFileLastOne() {
         return SelenUtils.getLastOne(cache);
 //        File lastFile;
 //        List<File> list = new ArrayList<File>(Arrays.asList(cache.listFiles()));
@@ -663,5 +669,24 @@ public abstract class JournalFactory implements Serializable {
     protected boolean useCookieManager() {
         return true;
     }
+
+    public void setDownloadException(Exception e) {
+        this.downloadException = e;
+    }
+
+    public Exception getDownloadException() {
+        return downloadException;
+    }
+
+    public void setCreateJurnalsException(Exception e) {
+        this.createJurnalsException = e;
+    }
+
+    public Exception getCreateJurnalsException() {
+        return createJurnalsException;
+    }
+
+
+
 
 }
