@@ -105,34 +105,34 @@ public abstract class JournalFactory implements Serializable {
         return journals;
     }
 
-//    /**
-//     * 記録されている資産の金額を返します。現在の金額と差があれば、その情報を付与します。
-//     */
-//    public String[] getSummary(Map<String, Integer> existAssets) {
-//        Integer asset = getAssetText();
-//        if (asset == null) {
-//            return null;
-//        }
-//        //assetText = assetText.replaceAll(",", ""); // カンマ除去
-//        //if (StringUtils.isEmpty(nowAsset)) {
-//        //    return new String[] { "", "" };
-//        //}
-//        //for (String assetName : this.assetNames) {
-//        //String existAsset = String.valueOf(existAssets.get(assetName));
-//        int existAsset = existAssets.get(assetName);
-//        String assetNote = assetName;
-//        //if (assetText.contains(existAsset) == false) {
-//        if (asset != existAsset) {
-//            assetNote += "★更新前の値:[" + existAsset + "]★";
-//        }
-//        //}
-//        return new String[] {String.valueOf(asset), assetNote};
-//    }
+    //    /**
+    //     * 記録されている資産の金額を返します。現在の金額と差があれば、その情報を付与します。
+    //     */
+    //    public String[] getSummary(Map<String, Integer> existAssets) {
+    //        Integer asset = getAssetText();
+    //        if (asset == null) {
+    //            return null;
+    //        }
+    //        //assetText = assetText.replaceAll(",", ""); // カンマ除去
+    //        //if (StringUtils.isEmpty(nowAsset)) {
+    //        //    return new String[] { "", "" };
+    //        //}
+    //        //for (String assetName : this.assetNames) {
+    //        //String existAsset = String.valueOf(existAssets.get(assetName));
+    //        int existAsset = existAssets.get(assetName);
+    //        String assetNote = assetName;
+    //        //if (assetText.contains(existAsset) == false) {
+    //        if (asset != existAsset) {
+    //            assetNote += "★更新前の値:[" + existAsset + "]★";
+    //        }
+    //        //}
+    //        return new String[] {String.valueOf(asset), assetNote};
+    //    }
 
-//    /**
-//     * 記録されている資産の金額を返します。
-//     */
-//    public abstract Integer getAssetText();
+    //    /**
+    //     * 記録されている資産の金額を返します。
+    //     */
+    //    public abstract Integer getAssetText();
 
     /*
      * TODO パブリックなメソッドはこれまで。
@@ -544,16 +544,16 @@ public abstract class JournalFactory implements Serializable {
      */
     public final File getDownloadFileLastOne() {
         return SelenUtils.getLastOne(cache);
-//        File lastFile;
-//        List<File> list = new ArrayList<File>(Arrays.asList(cache.listFiles()));
-//        if (list.isEmpty()) {
-//            lastFile = null;
-//        } else {
-//            Collections.sort(list, new LastModifiedFileComparator());
-//            Collections.reverse(list);
-//            lastFile = list.get(0);
-//        }
-//        return lastFile;
+        //        File lastFile;
+        //        List<File> list = new ArrayList<File>(Arrays.asList(cache.listFiles()));
+        //        if (list.isEmpty()) {
+        //            lastFile = null;
+        //        } else {
+        //            Collections.sort(list, new LastModifiedFileComparator());
+        //            Collections.reverse(list);
+        //            lastFile = list.get(0);
+        //        }
+        //        return lastFile;
     }
 
     /**
@@ -597,43 +597,41 @@ public abstract class JournalFactory implements Serializable {
     protected final void downloadFile(DownloadFileWorker downloadFileWorker) {
         SelenUtils.downloadFile(downloadFileWorker, cache);
 
-//        int iniSize = getDownloadFiles().size();
-//
-//        downloadFileWorker.action();
-//
-//        /*
-//         * ダウンロードが終わるのを待ちます。
-//         * 3秒に一度最新のファイルをチェックし、ファイルが増えていること、
-//         * そのファイルが一時ファイルでないことをもって、終了判定をします。
-//         */
-//        new RetryWorker() {
-//            private static final long serialVersionUID = 1L;
-//
-//            @Override
-//            protected void run() {
-//                int count = getDownloadFiles().size();
-//                if (count <= iniSize) {
-//                    throw new RuntimeException("ダウンロード未完了");
-//                } else {
-//                    String name = getDownloadFileLastOne().getName();
-//                    if (name.endsWith(".tmp") || name.endsWith(".crdownload")) {
-//                        throw new RuntimeException("ダウンロード実行中");
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            protected void recovery() {
-//                try {
-//                    Thread.sleep(3_000);
-//                } catch (InterruptedException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//        }.start();
+        //        int iniSize = getDownloadFiles().size();
+        //
+        //        downloadFileWorker.action();
+        //
+        //        /*
+        //         * ダウンロードが終わるのを待ちます。
+        //         * 3秒に一度最新のファイルをチェックし、ファイルが増えていること、
+        //         * そのファイルが一時ファイルでないことをもって、終了判定をします。
+        //         */
+        //        new RetryWorker() {
+        //            private static final long serialVersionUID = 1L;
+        //
+        //            @Override
+        //            protected void run() {
+        //                int count = getDownloadFiles().size();
+        //                if (count <= iniSize) {
+        //                    throw new RuntimeException("ダウンロード未完了");
+        //                } else {
+        //                    String name = getDownloadFileLastOne().getName();
+        //                    if (name.endsWith(".tmp") || name.endsWith(".crdownload")) {
+        //                        throw new RuntimeException("ダウンロード実行中");
+        //                    }
+        //                }
+        //            }
+        //
+        //            @Override
+        //            protected void recovery() {
+        //                try {
+        //                    Thread.sleep(3_000);
+        //                } catch (InterruptedException e) {
+        //                    throw new RuntimeException(e);
+        //                }
+        //            }
+        //        }.start();
     }
-
-
 
     //    /**
     //     * ダウンロードしたファイルを削除します。
@@ -685,8 +683,5 @@ public abstract class JournalFactory implements Serializable {
     public Exception getCreateJurnalsException() {
         return createJurnalsException;
     }
-
-
-
 
 }

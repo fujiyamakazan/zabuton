@@ -23,8 +23,7 @@ public class SelenUtils implements Serializable {
      */
     public static final void downloadFile(
         DownloadFileWorker downloadFileWorker,
-        File dir
-        ) {
+        File dir) {
 
         int iniSize = dir.listFiles().length;
 
@@ -66,7 +65,7 @@ public class SelenUtils implements Serializable {
      * 直近のファイルを１つ返します。
      * ファイルが取得できなけければnullを返します。
      */
-    public final static File getLastOne(File dir) {
+    public static final File getLastOne(File dir) {
         File lastFile;
         List<File> list = new ArrayList<File>(Arrays.asList(dir.listFiles()));
         if (list.isEmpty()) {

@@ -27,6 +27,9 @@ public abstract class Scraper implements Serializable {
 
     private File dir;
 
+    /**
+     * コンストラクタです。
+     */
     public Scraper() {
         String name = getName();
         this.driverDir = new File(getAppDir(), "selen");
@@ -49,7 +52,7 @@ public abstract class Scraper implements Serializable {
     protected boolean existFile(String path) {
         File f = new File(this.dir, path);
         return f.exists();
-    };
+    }
 
     protected final void save(String name, String path) {
         Utf8Text.writeData(new File(dir, name), path);

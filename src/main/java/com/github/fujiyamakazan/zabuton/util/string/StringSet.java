@@ -202,12 +202,13 @@ public class StringSet implements Serializable {
 
     private static String[] iniNamiDashEtc() {
 
-        String etc1 = "";
-        String etc2 = "";
+
         LOGGER.debug("波ダッシュ WAVE DASH");
         LOGGER.debug("U+301C:" + hexToChar("301C")); // 〜
         LOGGER.debug("U+FF5E:" + hexToChar("FF5E")); // ～
+        String etc1 = "";
         etc1 += hexToChar("301C");
+        String etc2 = "";
         etc2 += hexToChar("FF5E");
 
         LOGGER.debug("双柱 DOUBLE VERTICAL LINE");
@@ -461,13 +462,13 @@ public class StringSet implements Serializable {
 
         LOGGER.debug("波ダッシュ問題");
         /* 一度Shift_JISに変換した後Unicodeに戻す */
-        for (char c: ("1" + NAMI_DASH_ETC_2).toCharArray()) {
+        for (char c : ("1" + NAMI_DASH_ETC_2).toCharArray()) {
             LOGGER.debug("[" + c + "]");
-            String strSjis = new String(String.valueOf(c).getBytes(StandardCharsets.UTF_8), Charset.forName("Shift_JIS"));
+            String strSjis = new String(String.valueOf(c).getBytes(StandardCharsets.UTF_8),
+                Charset.forName("Shift_JIS"));
             String strUnicode = new String(strSjis.getBytes(Charset.forName("Shift_JIS")), StandardCharsets.UTF_8);
             LOGGER.debug(strUnicode);
         }
-
 
         //        char[] buf = new char[] { (char) Integer.parseInt("81", 16), (char) Integer.parseInt("60", 16) };
         //        LOGGER.debug(new String(new String(buf).getBytes(StandardCharsets.UTF_8), "Shift_JIS"));
