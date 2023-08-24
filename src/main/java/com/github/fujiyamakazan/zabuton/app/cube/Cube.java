@@ -86,8 +86,15 @@ public class Cube {
         }
 
         public void roll(Move move) {
+
+            Face[] patternR = new Face[] { Face.U, Face.B, Face.D, Face.F };
+
             switch (move) {
                 case R: // R面に向かって時計回り(x)
+
+                    this.face = roll(patternR, this.face);
+
+                    /*
                     switch (face) {
                         case U:
                             this.face = Face.B;
@@ -105,6 +112,8 @@ public class Cube {
                             // L,R 変更無し
                             break;
                     }
+                    */
+
                     break;
 
                 case R_: // R面に向かって反時計回り(x')
@@ -207,9 +216,24 @@ public class Cube {
                     }
                     break;
 
+                //TODO D, D', B, B', L, L'
+
                 default:
                     throw new RuntimeException();
             }
+        }
+
+        private static Face roll(Face[] pattern, Face face) {
+            for (int i = 0; i < pattern.length; i++) {
+                if (pattern[i].equals(face)) {
+                    if (i == pattern.length - 1) {
+                        return pattern[0];
+                    } else {
+                        return pattern[i + 1];
+                    }
+                }
+            }
+            return face;
         }
 
         @Override
@@ -246,7 +270,6 @@ public class Cube {
         }
     }
 
-
     /** ピースです。 */
     private List<Piece> piecies = Generics.newArrayList();
 
@@ -277,23 +300,31 @@ public class Cube {
         piecies.add(new Piece(FaceColor.of(Face.D, Color.W), FaceColor.of(Face.R, Color.R)).pos(Pos.DR));
         piecies.add(new Piece(FaceColor.of(Face.D, Color.W), FaceColor.of(Face.F, Color.B)).pos(Pos.FD));
         /* コーナー(上層) */
-        piecies.add(new Piece(FaceColor.of(Face.U, Color.Y), FaceColor.of(Face.B, Color.G), FaceColor.of(Face.L, Color.O))
-            .pos(Pos.BUL));
-        piecies.add(new Piece(FaceColor.of(Face.U, Color.Y), FaceColor.of(Face.B, Color.G), FaceColor.of(Face.R, Color.R))
-            .pos(Pos.BUR));
-        piecies.add(new Piece(FaceColor.of(Face.U, Color.Y), FaceColor.of(Face.F, Color.B), FaceColor.of(Face.L, Color.O))
-            .pos(Pos.FUL));
-        piecies.add(new Piece(FaceColor.of(Face.U, Color.Y), FaceColor.of(Face.F, Color.B), FaceColor.of(Face.R, Color.R))
-            .pos(Pos.FUR));
+        piecies
+            .add(new Piece(FaceColor.of(Face.U, Color.Y), FaceColor.of(Face.B, Color.G), FaceColor.of(Face.L, Color.O))
+                .pos(Pos.BUL));
+        piecies
+            .add(new Piece(FaceColor.of(Face.U, Color.Y), FaceColor.of(Face.B, Color.G), FaceColor.of(Face.R, Color.R))
+                .pos(Pos.BUR));
+        piecies
+            .add(new Piece(FaceColor.of(Face.U, Color.Y), FaceColor.of(Face.F, Color.B), FaceColor.of(Face.L, Color.O))
+                .pos(Pos.FUL));
+        piecies
+            .add(new Piece(FaceColor.of(Face.U, Color.Y), FaceColor.of(Face.F, Color.B), FaceColor.of(Face.R, Color.R))
+                .pos(Pos.FUR));
         /* コーナー(下層) */
-        piecies.add(new Piece(FaceColor.of(Face.D, Color.W), FaceColor.of(Face.B, Color.G), FaceColor.of(Face.L, Color.O))
-            .pos(Pos.BDL));
-        piecies.add(new Piece(FaceColor.of(Face.D, Color.W), FaceColor.of(Face.B, Color.G), FaceColor.of(Face.R, Color.R))
-            .pos(Pos.BDR));
-        piecies.add(new Piece(FaceColor.of(Face.D, Color.W), FaceColor.of(Face.F, Color.B), FaceColor.of(Face.L, Color.O))
-            .pos(Pos.FDL));
-        piecies.add(new Piece(FaceColor.of(Face.D, Color.W), FaceColor.of(Face.F, Color.B), FaceColor.of(Face.R, Color.R))
-            .pos(Pos.FDR));
+        piecies
+            .add(new Piece(FaceColor.of(Face.D, Color.W), FaceColor.of(Face.B, Color.G), FaceColor.of(Face.L, Color.O))
+                .pos(Pos.BDL));
+        piecies
+            .add(new Piece(FaceColor.of(Face.D, Color.W), FaceColor.of(Face.B, Color.G), FaceColor.of(Face.R, Color.R))
+                .pos(Pos.BDR));
+        piecies
+            .add(new Piece(FaceColor.of(Face.D, Color.W), FaceColor.of(Face.F, Color.B), FaceColor.of(Face.L, Color.O))
+                .pos(Pos.FDL));
+        piecies
+            .add(new Piece(FaceColor.of(Face.D, Color.W), FaceColor.of(Face.F, Color.B), FaceColor.of(Face.R, Color.R))
+                .pos(Pos.FDR));
     }
 
     private static final String DUMMY = "    \n    \n    ";
@@ -501,18 +532,40 @@ public class Cube {
      */
     public static void main(String[] args) {
         Cube cube = new Cube();
-        System.out.println(cube.get());
+        String org = cube.get();
+        System.out.println(org);
 
-        System.out.println("-- RUR'U' --");
+        //System.out.println("-- RUR'U' --");
         cube.move(Move.R);
-        cube.move(Move.U);
-        cube.move(Move.R_);
-        cube.move(Move.U_);
+        //cube.move(Move.U);
+        //cube.move(Move.R_);
+        //cube.move(Move.U_);
+        //cube.move(Move.D);
 
         System.out.println();
-        System.out.println(cube.get());
-        System.out.println(cube.history);
+        String after = cube.get();
+        System.out.println(after);
+        //System.out.println(cube.history);
 
+        System.out.println("-- df --");
+        System.out.println(df(org, after));
+
+    }
+
+    private static String df(String a, String b) {
+        char[] c1 = a.toCharArray();
+        char[] c2 = b.toCharArray();
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < c1.length; i++) {
+            if (c1[i] == c2[i]) {
+                sb.append(c1[i]);
+            } else {
+                sb.append('*');
+            }
+        }
+
+        return sb.toString();
     }
 
     private static String joinString(String... linesList) {
