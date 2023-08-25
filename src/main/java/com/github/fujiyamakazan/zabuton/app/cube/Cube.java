@@ -1,5 +1,6 @@
 package com.github.fujiyamakazan.zabuton.app.cube;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -9,6 +10,20 @@ import org.apache.wicket.util.lang.Generics;
 public class Cube {
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(Cube.class);
+
+    /**
+     * 操作を識別します。
+     */
+    private enum Move {
+        U, U_, F, F_, B, B_, L, L_, R, R_, D, D_
+    }
+
+    /**
+     * 面を識別します。
+     */
+    private enum Face {
+        U, F, B, L, R, D
+    }
 
     /**
      * 位置を識別します。
@@ -51,18 +66,18 @@ public class Cube {
     private static final Pos[] ORDER_EDGE_D = new Pos[] { Pos.FD, Pos.DR, Pos.BD, Pos.DL };
 
     /**
-     * 面を識別します。
+     * 回転軸を識別します。
      */
-    private enum Face {
-        U, F, B, L, R, D
+    private enum Axis {
+        X, Y, Z
     }
 
-    /**
-     * 移動の種類を識別します。
-     */
-    private enum Move {
-        U, U_, F, F_, B, B_, L, L_, R, R_, D, D_
-    }
+    /** x(R面に向かって時計回り)のときの面の遷移です。 */
+    private static final Face[] ORDER_FACE_X = new Face[] { Face.U, Face.B, Face.D, Face.F };
+    /** y(U面に向かって時計回り)のときの面の遷移です。 */
+    private static final Face[] ORDER_FACE_Y = new Face[] { Face.L, Face.B, Face.R, Face.F };
+    /** z(F面に向かって時計回り)のときの面の遷移です。 */
+    private static final Face[] ORDER_FACE_Z = new Face[] { Face.R, Face.D, Face.L, Face.U };
 
     /**
      * 色を識別します。
@@ -85,145 +100,30 @@ public class Cube {
             return v;
         }
 
-        public void roll(Move move) {
+        public void roll(Axis axis, boolean reverse) {
 
-            Face[] patternR = new Face[] { Face.U, Face.B, Face.D, Face.F };
-
-            switch (move) {
-                case R: // R面に向かって時計回り(x)
-
-                    this.face = roll(patternR, this.face);
-
-                    /*
-                    switch (face) {
-                        case U:
-                            this.face = Face.B;
-                            break;
-                        case B:
-                            this.face = Face.D;
-                            break;
-                        case D:
-                            this.face = Face.F;
-                            break;
-                        case F:
-                            this.face = Face.U;
-                            break;
-                        default:
-                            // L,R 変更無し
-                            break;
-                    }
-                    */
-
+            switch (axis) {
+                case X: // R面に向かって時計回り(x), 反時計回り(x')
+                    this.face = roll(ORDER_FACE_X, this.face, reverse);
                     break;
 
-                case R_: // R面に向かって反時計回り(x')
-                    switch (face) {
-                        case U:
-                            this.face = Face.F;
-                            break;
-                        case B:
-                            this.face = Face.U;
-                            break;
-                        case D:
-                            this.face = Face.B;
-                            break;
-                        case F:
-                            this.face = Face.D;
-                            break;
-                        default:
-                            // L,R 変更無し
-                            break;
-                    }
+                case Y: // U面に向かって時計回り(y), 反時計回り(y')
+                    this.face = roll(ORDER_FACE_Y, this.face, reverse);
                     break;
 
-                case U: // U面に向かって時計回り(y)
-                    switch (face) {
-                        case F:
-                            this.face = Face.L;
-                            break;
-                        case L:
-                            this.face = Face.B;
-                            break;
-                        case B:
-                            this.face = Face.R;
-                            break;
-                        case R:
-                            this.face = Face.F;
-                            break;
-                        default:
-                            // U,D 変更無し
-                            break;
-                    }
+                case Z: // F面に向かって時計回り(z), 反時計回り(z')
+                    this.face = roll(ORDER_FACE_Z, this.face, reverse);
                     break;
-
-                case U_: // U面に向かって反時計回り(y')
-                    switch (face) {
-                        case F:
-                            this.face = Face.R;
-                            break;
-                        case L:
-                            this.face = Face.F;
-                            break;
-                        case B:
-                            this.face = Face.L;
-                            break;
-                        case R:
-                            this.face = Face.B;
-                            break;
-                        default:
-                            // U,D 変更無し
-                            break;
-                    }
-                    break;
-
-                case F: // F面に向かって時計回り(z)
-                    switch (face) {
-                        case U:
-                            this.face = Face.R;
-                            break;
-                        case R:
-                            this.face = Face.D;
-                            break;
-                        case D:
-                            this.face = Face.L;
-                            break;
-                        case L:
-                            this.face = Face.U;
-                            break;
-                        default:
-                            // F,B 変更無し
-                            break;
-                    }
-                    break;
-
-                case F_: // F面に向かって反時計回り(z')
-                    switch (face) {
-                        case U:
-                            this.face = Face.L;
-                            break;
-                        case R:
-                            this.face = Face.U;
-                            break;
-                        case D:
-                            this.face = Face.R;
-                            break;
-                        case L:
-                            this.face = Face.D;
-                            break;
-                        default:
-                            // F,B 変更無し
-                            break;
-                    }
-                    break;
-
-                //TODO D, D', B, B', L, L'
 
                 default:
                     throw new RuntimeException();
             }
         }
 
-        private static Face roll(Face[] pattern, Face face) {
+        private static Face roll(Face[] pattern, Face face, boolean reverse) {
+            if (reverse) {
+                pattern = reverse(pattern);
+            }
             for (int i = 0; i < pattern.length; i++) {
                 if (pattern[i].equals(face)) {
                     if (i == pattern.length - 1) {
@@ -251,10 +151,10 @@ public class Cube {
      */
     private class Piece {
         private Pos pos;
-        protected final List<FaceColor> vectors;
+        protected final List<FaceColor> facecolors;
 
-        public Piece(FaceColor... vectors) {
-            this.vectors = Arrays.asList(vectors);
+        public Piece(FaceColor... facecolors) {
+            this.facecolors = Arrays.asList(facecolors);
         }
 
         public Piece pos(Pos pos) {
@@ -263,9 +163,9 @@ public class Cube {
             return this;
         }
 
-        public void roll(Move move) {
-            for (FaceColor v : vectors) {
-                v.roll(move);
+        public void roll(Axis axis, boolean reverse) {
+            for (FaceColor v : facecolors) {
+                v.roll(axis, reverse);
             }
         }
     }
@@ -437,7 +337,7 @@ public class Cube {
 
     private String pcik(Pos pos, Face face) {
         Piece p = pick(pos);
-        for (FaceColor v : p.vectors) {
+        for (FaceColor v : p.facecolors) {
             if (v.face.equals(face)) {
                 return v.color.name();
             }
@@ -448,110 +348,99 @@ public class Cube {
     private void move(Move move) {
         switch (move) {
             case R:
-                move(move, ORDER_CORNER_R); // コーナー移動
-                move(move, ORDER_EDGE_R); // エッジ移動
+                move(Axis.X, false, ORDER_CORNER_R); // コーナー移動
+                move(Axis.X, false, ORDER_EDGE_R); // エッジ移動
                 break;
 
             case R_:
-                move(move, reverse(ORDER_CORNER_R)); // コーナー移動
-                move(move, reverse(ORDER_EDGE_R)); // エッジ移動
-                break;
-
-            case U:
-                move(move, ORDER_CORNER_U); // コーナー移動
-                move(move, ORDER_EDGE_U); // エッジ移動
-                break;
-
-            case U_:
-                move(move, reverse(ORDER_CORNER_U)); // コーナー移動
-                move(move, reverse(ORDER_EDGE_U)); // エッジ移動
-                break;
-
-            case F:
-                move(move, ORDER_CORNER_F); // コーナー移動
-                move(move, ORDER_EDGE_F); // エッジ移動
-                break;
-
-            case F_:
-                move(move, reverse(ORDER_CORNER_F)); // コーナー移動
-                move(move, reverse(ORDER_EDGE_F)); // エッジ移動
-                break;
-
-            case B:
-                move(move, ORDER_CORNER_B); // コーナー移動
-                move(move, ORDER_EDGE_B); // エッジ移動
-                break;
-
-            case B_:
-                move(move, reverse(ORDER_CORNER_B)); // コーナー移動
-                move(move, reverse(ORDER_EDGE_B)); // エッジ移動
+                move(Axis.X, true, reverse(ORDER_CORNER_R)); // コーナー移動
+                move(Axis.X, true, reverse(ORDER_EDGE_R)); // エッジ移動
                 break;
 
             case L:
-                move(move, ORDER_CORNER_L); // コーナー移動
-                move(move, ORDER_EDGE_L); // エッジ移動
+                move(Axis.X, true, ORDER_CORNER_L); // コーナー移動
+                move(Axis.X, true, ORDER_EDGE_L); // エッジ移動
                 break;
 
             case L_:
-                move(move, reverse(ORDER_CORNER_L)); // コーナー移動
-                move(move, reverse(ORDER_EDGE_L)); // エッジ移動
+                move(Axis.X, false, reverse(ORDER_CORNER_L)); // コーナー移動
+                move(Axis.X, false, reverse(ORDER_EDGE_L)); // エッジ移動
+                break;
+
+            case U:
+                move(Axis.Y, false, ORDER_CORNER_U); // コーナー移動
+                move(Axis.Y, false, ORDER_EDGE_U); // エッジ移動
+                break;
+
+            case U_:
+                move(Axis.Y, true, reverse(ORDER_CORNER_U)); // コーナー移動
+                move(Axis.Y, true, reverse(ORDER_EDGE_U)); // エッジ移動
                 break;
 
             case D:
-                move(move, ORDER_CORNER_D); // コーナー移動
-                move(move, ORDER_EDGE_D); // エッジ移動
+                move(Axis.Y, true, ORDER_CORNER_D); // コーナー移動
+                move(Axis.Y, true, ORDER_EDGE_D); // エッジ移動
                 break;
 
             case D_:
-                move(move, reverse(ORDER_CORNER_D)); // コーナー移動
-                move(move, reverse(ORDER_EDGE_D)); // エッジ移動
+                move(Axis.Y, false, reverse(ORDER_CORNER_D)); // コーナー移動
+                move(Axis.Y, false, reverse(ORDER_EDGE_D)); // エッジ移動
                 break;
+
+            case F:
+                move(Axis.Z, false, ORDER_CORNER_F); // コーナー移動
+                move(Axis.Z, false, ORDER_EDGE_F); // エッジ移動
+                break;
+
+            case F_:
+                move(Axis.Z, true, reverse(ORDER_CORNER_F)); // コーナー移動
+                move(Axis.Z, true, reverse(ORDER_EDGE_F)); // エッジ移動
+                break;
+
+            case B:
+                move(Axis.Z, true, ORDER_CORNER_B); // コーナー移動
+                move(Axis.Z, true, ORDER_EDGE_B); // エッジ移動
+                break;
+
+            case B_:
+                move(Axis.Z, false, reverse(ORDER_CORNER_B)); // コーナー移動
+                move(Axis.Z, false, reverse(ORDER_EDGE_B)); // エッジ移動
+                break;
+
             default:
                 throw new IllegalArgumentException(move.name());
         }
 
     }
 
-    private void move(Move move, Pos[] pos) {
+    private void move(Axis axis, boolean reverse, Pos[] pos) {
         /* 移動 1>2>3>4 */
         Piece buffer = pick(pos[3]);
-        pick(pos[2]).pos(pos[3]).roll(move);
-        pick(pos[1]).pos(pos[2]).roll(move);
-        pick(pos[0]).pos(pos[1]).roll(move);
-        buffer.pos(pos[0]).roll(move);
+        pick(pos[2]).pos(pos[3]).roll(axis, reverse);
+        pick(pos[1]).pos(pos[2]).roll(axis, reverse);
+        pick(pos[0]).pos(pos[1]).roll(axis, reverse);
+        buffer.pos(pos[0]).roll(axis, reverse);
     }
 
+    /**
+     * 配列を反転させます。
+     */
     private static Pos[] reverse(Pos[] ary) {
-        List<Pos> asList = Arrays.asList(ary);
+        List<Pos> asList = new ArrayList<Pos>(Arrays.asList(ary));
         Collections.reverse(asList);
         return asList.toArray(new Pos[asList.size()]);
     }
 
     /**
-     * 動作確認をします。
+     * 配列を反転させます。
      */
-    public static void main(String[] args) {
-        Cube cube = new Cube();
-        String org = cube.get();
-        System.out.println(org);
-
-        //System.out.println("-- RUR'U' --");
-        cube.move(Move.R);
-        //cube.move(Move.U);
-        //cube.move(Move.R_);
-        //cube.move(Move.U_);
-        //cube.move(Move.D);
-
-        System.out.println();
-        String after = cube.get();
-        System.out.println(after);
-        //System.out.println(cube.history);
-
-        System.out.println("-- df --");
-        System.out.println(df(org, after));
-
+    private static Face[] reverse(Face[] ary) {
+        List<Face> asList = new ArrayList<Face>(Arrays.asList(ary));
+        Collections.reverse(asList);
+        return asList.toArray(new Face[asList.size()]);
     }
 
+    @SuppressWarnings("unused")
     private static String df(String a, String b) {
         char[] c1 = a.toCharArray();
         char[] c2 = b.toCharArray();
@@ -562,6 +451,23 @@ public class Cube {
                 sb.append(c1[i]);
             } else {
                 sb.append('*');
+            }
+        }
+
+        return sb.toString();
+    }
+
+    @SuppressWarnings("unused")
+    private static String dfAfter(String a, String b) {
+        char[] c1 = a.toCharArray();
+        char[] c2 = b.toCharArray();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < c1.length; i++) {
+            if (c1[i] == c2[i] && c1[i] != '\n' && c1[i] != ' ') {
+                //sb.append(c1[i]);
+                sb.append('_');
+            } else {
+                sb.append(c2[i]);
             }
         }
 
@@ -588,6 +494,33 @@ public class Cube {
             sb.append(str + "\n");
         }
         return sb.toString();
+    }
+
+    /**
+     * 動作確認をします。
+     */
+    public static void main(String[] args) {
+        Cube cube = new Cube();
+        final String org = cube.get();
+        //System.out.println(org);
+
+        //System.out.println("-- RUR'U' --");
+        //cube.move(Move.R);
+        //cube.move(Move.U);
+        //cube.move(Move.R_);
+        //cube.move(Move.U_);
+
+        cube.move(Move.L_);
+
+        System.out.println();
+        String after = cube.get();
+        System.out.println(after);
+        //System.out.println(cube.history);
+
+        System.out.println("-- df --");
+        //System.out.println(df(org, after));
+        System.out.println(dfAfter(org, after));
+
     }
 
 }
