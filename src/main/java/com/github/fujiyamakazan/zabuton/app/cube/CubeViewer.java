@@ -20,15 +20,17 @@ public class CubeViewer implements Serializable {
         this.cube = cube;
     }
 
+
+
     /**
      * 配色情報の文字列を返します。
      */
     public String getColorString() {
         String str = "";
         str += StringJoinerMultiLine.joinString(DUMMY, getColorString(Face.U)) + "\n";
-        str += StringJoinerMultiLine.joinString(getColorString(Face.L), getColorString(Face.F), getColorString(Face.R)) + "\n";
+        str += StringJoinerMultiLine.joinString(getColorString(Face.L), getColorString(Face.F), getColorString(Face.R))
+            + "\n";
         str += StringJoinerMultiLine.joinString(DUMMY, getColorString(Face.D), DUMMY, getColorString(Face.B)) + "\n";
-
         return str;
     }
 
@@ -126,4 +128,14 @@ public class CubeViewer implements Serializable {
     private String getColorString(Pos pos, Face face) {
         return cube.getColorString(pos, face);
     }
+
+    /**
+     * 配色情報の文字列を返します。１組の行で表します。
+     */
+    public String getColorString1Line() {
+        return StringJoinerMultiLine.joinString(
+            getColorString(Face.U), getColorString(Face.L), getColorString(Face.F),
+            getColorString(Face.R), getColorString(Face.D), getColorString(Face.B));
+    }
+
 }

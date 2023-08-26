@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 
 /**
  * 「無作為」のユーティリティです。
@@ -21,10 +22,16 @@ public class Roulette implements Serializable {
      */
     public static <T> T randomOne(Collection<T> collection) {
         List<T> list = new ArrayList<T>(collection);
-        //Collections.shuffle(list);
-        //T one = list.get(0);
         T one = list.get(getRandomNumber(list.size()));
         return one;
+    }
+
+    /**
+     * 無作為に１つの要素を抽出します。
+     * @return 引数の中から無作為に抽出された一つの要素
+     */
+    public static <T> T randomOne(T[] array) {
+        return randomOne(new ArrayList<T>(Arrays.asList(array)));
     }
 
     /**
@@ -36,6 +43,11 @@ public class Roulette implements Serializable {
         return Double.valueOf(Math.random() * max).intValue();
     }
 
+    public static boolean getRandomTrueOrFalse() {
+        Random random = new Random();
+        return random.nextBoolean();  // trueかfalseをランダムに生成
+    }
+
     /**
      * 動作確認をします。
      */
@@ -44,5 +56,7 @@ public class Roulette implements Serializable {
         String one = randomOne(c);
         LOGGER.debug(one);
     }
+
+
 
 }

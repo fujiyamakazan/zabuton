@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.apache.wicket.util.lang.Generics;
 
+import com.github.fujiyamakazan.zabuton.util.random.Roulette;
+
 public class Cube {
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(Cube.class);
@@ -92,6 +94,7 @@ public class Cube {
             this.corners = corners;
             this.edges = edges;
         }
+
     }
 
     /**
@@ -102,10 +105,17 @@ public class Cube {
         private Color color;
 
         public static Fc of(Face face, Color color) {
-            Fc v = new Fc();
-            v.face = face;
-            v.color = color;
-            return v;
+            return new Fc(face, color);
+        }
+
+        public Fc(Face face, Color color) {
+            this.face = face;
+            this.color = color;
+        }
+
+        public Fc(Fc orz) {
+            this.face = orz.face;
+            this.color = orz.color;
         }
 
         @Override
@@ -125,6 +135,14 @@ public class Cube {
 
         public Piece(Fc... fcs) {
             this.fcs = Arrays.asList(fcs);
+        }
+
+        public Piece(Piece orz) {
+            this.fcs = Generics.newArrayList();
+            for (Fc fc : orz.fcs) {
+                this.fcs.add(new Fc(fc));
+            }
+            this.pos = orz.pos;
         }
 
         public Piece pos(Pos pos) {
@@ -212,6 +230,39 @@ public class Cube {
     }
 
     /**
+     * コピーコンストラクタです。
+     */
+    public Cube(Cube orz) {
+        piecies = Generics.newArrayList();
+        for (Piece p : orz.piecies) {
+            piecies.add(new Piece(p));
+        }
+    }
+
+    /**
+     * 完成状態かを判定します。
+     */
+    private boolean isGoal() {
+        for (Face face : Face.values()) {
+            Color color = null;
+            for (Piece p : piecies) {
+                for (Fc fc : p.fcs) {
+                    if (fc.face.equals(face)) {
+                        if (color == null) {
+                            color = fc.color;
+                        } else {
+                            if (color != fc.color) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
      * 指定された位置、面の色を返します。
      */
     public String getColorString(Pos pos, Face face) {
@@ -247,7 +298,12 @@ public class Cube {
         rotate(face, true);
     }
 
+    private List<String> history = Generics.newArrayList();
+
     private void rotate(Face face, boolean prime) {
+
+        history.add(face.name() + (prime ? "'" : ""));
+
         List<Pos> posCorners;
         List<Pos> posEdges;
         if (!prime) {
@@ -296,27 +352,54 @@ public class Cube {
 
         final String org = viewer.getColorString();
 
-        System.out.println("-- RUR'U' --");
+        System.out.println("isGoal:" + cube.isGoal());
 
-        for (int i = 0; i < 6; i++) {
-            cube.rotatePosi(Face.R);
-            cube.rotatePosi(Face.U);
-            cube.rotatePrime(Face.R);
-            cube.rotatePrime(Face.U);
-            System.out.println(viewer.getColorString(Face.F));
-            System.out.println();
+        //        System.out.println("-- RUR'U' --");
+        //        for (int i = 0; i < 6; i++) {
+        //            cube.rotatePosi(Face.R);
+        //            cube.rotatePosi(Face.U);
+        //            cube.rotatePrime(Face.R);
+        //            cube.rotatePrime(Face.U);
+        //            System.out.println(viewer.getColorString(Face.F));
+        //            System.out.println();
+        //        }
+
+        /* シャッフル */
+        for (int i = 0; i < 2; i++) {
+            Face f = Roulette.randomOne(Face.values());
+            cube.rotate(f, Roulette.getRandomTrueOrFalse());
         }
-
-        //cube.move(Move.L_);
-
-        //System.out.println();
-        String after = viewer.getColorString();
-        //System.out.println(after);
-        //System.out.println(cube.history);
-
+        System.out.println(cube.history);
+        String shuffle = viewer.getColorString();
         System.out.println("-- df --");
-        //System.out.println(df(org, after));
-        System.out.println(dfAfter(org, after));
+        System.out.println(dfAfter(org, shuffle));
+
+        /* 繰り返し実験 */
+        for (int i = 0; i < 10; i++) {
+            System.out.println("〓" + i + "〓");
+            Cube c1 = new Cube(cube);
+            final CubeViewer v1 = new CubeViewer(c1);
+            for (int j = 0; j < 7; j++) {
+
+                ///* ランダム */
+                //Face f = Roulette.randomOne(Face.values());
+                //c1.rotate(f, Roulette.getRandomTrueOrFalse());
+
+                /* TODO D面クロス */
+
+                if (c1.isGoal()) {
+                    System.out.println("=完成=");
+                    break;
+                }
+
+            }
+            String after = v1.getColorString1Line();
+            System.out.println(c1.history);
+            System.out.println(after);
+            if (c1.isGoal()) {
+                break;
+            }
+        }
 
     }
 
