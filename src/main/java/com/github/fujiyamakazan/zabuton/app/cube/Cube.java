@@ -11,27 +11,38 @@ public class Cube {
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(Cube.class);
 
-    /**
-     * 操作を識別します。
-     * @deprecated
-     */
-    private enum Move {
-        U, U_, F, F_, B, B_, L, L_, R, R_, D, D_
-    }
+    //    /**
+    //     * 面を識別します。
+    //     */
+    //    public enum Face {
+    //        U, F, B, L, R, D
+    //    }
 
     /**
-     * 面を識別します。
+     * 色を識別します。
      */
-    private enum Face {
-        U, F, B, L, R, D
+    private enum Color {
+        Y, B, G, O, R, W
     }
 
     /**
      * 回転軸を識別します。
      */
     private enum Axis {
-        X, Y, Z
+        /** R面からL面に向かう軸。時計回りの操作はRとL' */
+        X,
+        /** U面からD面に向かう軸。時計回りの操作はUとD' */
+        Y,
+        /** F面からB面に向かう軸。時計回りの操作はFとB' */
+        Z,
     }
+
+    /** X軸を時計回りに一周したときの面の配列です。 */
+    private static final Face[] ORDER_X = { Face.U, Face.B, Face.D, Face.F };
+    /** Y軸を時計回りに一周したときの面の配列です。 */
+    private static final Face[] ORDER_Y = { Face.L, Face.B, Face.R, Face.F };
+    /** Z軸を時計回りに一周したときの面の配列です。 */
+    private static final Face[] ORDER_Z = { Face.R, Face.D, Face.L, Face.U };
 
     /**
      * 位置を識別します。
@@ -49,49 +60,39 @@ public class Cube {
     }
 
     /**
-     * 色を識別します。
+     * 面と操作を識別します。
      */
-    private enum Color {
-        Y, B, G, O, R, W
-    }
+    public enum Face {
 
-    /**
-     * 操作を識別します。
-     */
-    private enum Op {
+        R(Axis.X, true, new Pos[] { Pos.FUR, Pos.BUR, Pos.BDR, Pos.FDR }, new Pos[] { Pos.FR, Pos.UR, Pos.BR, Pos.DR }), //
+        L(Axis.X, false, new Pos[] { Pos.BUL, Pos.FUL, Pos.FDL, Pos.BDL },
+            new Pos[] { Pos.UL, Pos.FL, Pos.DL, Pos.BL }), //
 
-        R(Axis.X, new Pos[] { Pos.FUR, Pos.BUR, Pos.BDR, Pos.FDR }, new Pos[] { Pos.FR, Pos.UR, Pos.BR, Pos.DR }), //
-        L(Axis.X, new Pos[] { Pos.BUL, Pos.FUL, Pos.FDL, Pos.BDL }, new Pos[] { Pos.UL, Pos.FL, Pos.DL, Pos.BL }), //
+        U(Axis.Y, true, new Pos[] { Pos.FUL, Pos.BUL, Pos.BUR, Pos.FUR }, new Pos[] { Pos.FU, Pos.UL, Pos.BU, Pos.UR }), //
+        D(Axis.Y, false, new Pos[] { Pos.FDL, Pos.FDR, Pos.BDR, Pos.BDL },
+            new Pos[] { Pos.FD, Pos.DR, Pos.BD, Pos.DL }), //
 
-        U(Axis.Y, new Pos[] { Pos.FUL, Pos.BUL, Pos.BUR, Pos.FUR }, new Pos[] { Pos.FU, Pos.UL, Pos.BU, Pos.UR }), //
-        D(Axis.Y, new Pos[] { Pos.FDL, Pos.FDR, Pos.BDR, Pos.BDL }, new Pos[] { Pos.FD, Pos.DR, Pos.BD, Pos.DL }), //
+        F(Axis.Z, true, new Pos[] { Pos.FUL, Pos.FUR, Pos.FDR, Pos.FDL }, new Pos[] { Pos.FU, Pos.FR, Pos.FD, Pos.FL }), //
+        B(Axis.Z, false, new Pos[] { Pos.BUR, Pos.BUL, Pos.BDL, Pos.BDR },
+            new Pos[] { Pos.BU, Pos.BL, Pos.BD, Pos.BR }), //
+            ;
 
-        F(Axis.Z, new Pos[] { Pos.FUL, Pos.FUR, Pos.FDR, Pos.FDL }, new Pos[] { Pos.FU, Pos.FR, Pos.FD, Pos.FL }), //
-        B(Axis.Z, new Pos[] { Pos.BUR, Pos.BUL, Pos.BDL, Pos.BDR }, new Pos[] { Pos.BU, Pos.BL, Pos.BD, Pos.BR }), //
-
-        ;
-
-        /* 操作で移動するコーナーの位置です。 */
-        private Pos[] corners;
-        /* 操作で移動するエッジの位置です。 */
-        private Pos[] edges;
-        /* 操作の回転軸です。 */
+        /** 操作の回転軸です。 */
         private Axis axis;
+        /** 回転軸に対して正方向ならtrue, 逆方向ならfalseです。 */
+        private boolean clockwise;
+        /** 操作で移動するコーナーの位置です。順序は回転軸の時計回りです。*/
+        private Pos[] corners;
+        /** 操作で移動するエッジの位置です。順序は回転軸の時計回りです。*/
+        private Pos[] edges;
 
-        private Op(Axis axis, Pos[] corners, Pos[] edges) {
+        private Face(Axis axis, boolean clockwise, Pos[] corners, Pos[] edges) {
+            this.axis = axis;
+            this.clockwise = clockwise;
             this.corners = corners;
             this.edges = edges;
-            this.axis = axis;
         }
-
     }
-
-    /** x(R面に向かって時計回り)のときの面の遷移です。 */
-    private static final Face[] ORDER_FACE_X = new Face[] { Face.U, Face.B, Face.D, Face.F };
-    /** y(U面に向かって時計回り)のときの面の遷移です。 */
-    private static final Face[] ORDER_FACE_Y = new Face[] { Face.L, Face.B, Face.R, Face.F };
-    /** z(F面に向かって時計回り)のときの面の遷移です。 */
-    private static final Face[] ORDER_FACE_Z = new Face[] { Face.R, Face.D, Face.L, Face.U };
 
     /**
      * 配色情報（色と方向）です。
@@ -131,30 +132,29 @@ public class Cube {
             return this;
         }
 
-        public void roll(Axis axis, boolean reverse) {
+        public void rollAll(Axis axis, boolean clockwise) {
             for (Fc v : fcs) {
+                final Face[] faces;
                 switch (axis) {
-                    case X: // R面に向かって時計回り(x), 反時計回り(x')
-                        v.face = roll(ORDER_FACE_X, v.face, reverse);
+                    case X:
+                        faces = ORDER_X;
                         break;
-
-                    case Y: // U面に向かって時計回り(y), 反時計回り(y')
-                        v.face = roll(ORDER_FACE_Y, v.face, reverse);
+                    case Y:
+                        faces = ORDER_Y;
                         break;
-
-                    case Z: // F面に向かって時計回り(z), 反時計回り(z')
-                        v.face = roll(ORDER_FACE_Z, v.face, reverse);
+                    case Z:
+                        faces = ORDER_Z;
                         break;
-
                     default:
                         throw new RuntimeException();
                 }
+                v.face = roll(v.face, clockwise, faces);
             }
         }
 
-        private Face roll(Face[] pattern, Face face, boolean reverse) {
-            if (reverse) {
-                pattern = reverse(pattern);
+        private Face roll(Face face, boolean clockwise, Face[] pattern) {
+            if (!clockwise) {
+                pattern = reverse(pattern).toArray(new Face[pattern.length]);
             }
             for (int i = 0; i < pattern.length; i++) {
                 if (pattern[i].equals(face)) {
@@ -211,103 +211,17 @@ public class Cube {
         piecies.add(new Piece(Fc.of(Face.D, Color.W), Fc.of(Face.F, Color.B), Fc.of(Face.R, Color.R)).pos(Pos.FDR));
     }
 
-    private static final String DUMMY = "    \n    \n    ";
-
-    private String get() {
-        String str = "";
-        str += joinString(DUMMY, get(Face.U)) + "\n";
-        str += joinString(get(Face.L), get(Face.F), get(Face.R)) + "\n";
-        str += joinString(DUMMY, get(Face.D), DUMMY, get(Face.B)) + "\n";
-
-        return str;
-    }
-
-    private String get(Face face) {
-        String str = " ";
-        switch (face) {
-            case U:
-                str += pcik(Pos.BUL, Face.U);
-                str += pcik(Pos.BU, Face.U);
-                str += pcik(Pos.BUR, Face.U);
-                str += "\n ";
-                str += pcik(Pos.UL, Face.U);
-                str += pcik(Pos.U, Face.U);
-                str += pcik(Pos.UR, Face.U);
-                str += "\n ";
-                str += pcik(Pos.FUL, Face.U);
-                str += pcik(Pos.FU, Face.U);
-                str += pcik(Pos.FUR, Face.U);
-                break;
-            case F:
-                str += pcik(Pos.FUL, Face.F);
-                str += pcik(Pos.FU, Face.F);
-                str += pcik(Pos.FUR, Face.F);
-                str += "\n ";
-                str += pcik(Pos.FL, Face.F);
-                str += pcik(Pos.F, Face.F);
-                str += pcik(Pos.FR, Face.F);
-                str += "\n ";
-                str += pcik(Pos.FDL, Face.F);
-                str += pcik(Pos.FD, Face.F);
-                str += pcik(Pos.FDR, Face.F);
-                break;
-            case D:
-                str += pcik(Pos.FDL, Face.D);
-                str += pcik(Pos.FD, Face.D);
-                str += pcik(Pos.FDR, Face.D);
-                str += "\n ";
-                str += pcik(Pos.DL, Face.D);
-                str += pcik(Pos.D, Face.D);
-                str += pcik(Pos.DR, Face.D);
-                str += "\n ";
-                str += pcik(Pos.BDL, Face.D);
-                str += pcik(Pos.BD, Face.D);
-                str += pcik(Pos.BDR, Face.D);
-                break;
-            case L:
-                str += pcik(Pos.BUL, Face.L);
-                str += pcik(Pos.UL, Face.L);
-                str += pcik(Pos.FUL, Face.L);
-                str += "\n ";
-                str += pcik(Pos.BL, Face.L);
-                str += pcik(Pos.L, Face.L);
-                str += pcik(Pos.FL, Face.L);
-                str += "\n ";
-                str += pcik(Pos.BDL, Face.L);
-                str += pcik(Pos.DL, Face.L);
-                str += pcik(Pos.FDL, Face.L);
-                break;
-            case R:
-                str += pcik(Pos.FUR, Face.R);
-                str += pcik(Pos.UR, Face.R);
-                str += pcik(Pos.BUR, Face.R);
-                str += "\n ";
-                str += pcik(Pos.FR, Face.R);
-                str += pcik(Pos.R, Face.R);
-                str += pcik(Pos.BR, Face.R);
-                str += "\n ";
-                str += pcik(Pos.FDR, Face.R);
-                str += pcik(Pos.DR, Face.R);
-                str += pcik(Pos.BDR, Face.R);
-                break;
-            case B:
-                str += pcik(Pos.BUR, Face.B);
-                str += pcik(Pos.BU, Face.B);
-                str += pcik(Pos.BUL, Face.B);
-                str += "\n ";
-                str += pcik(Pos.BR, Face.B);
-                str += pcik(Pos.B, Face.B);
-                str += pcik(Pos.BL, Face.B);
-                str += "\n ";
-                str += pcik(Pos.BDR, Face.B);
-                str += pcik(Pos.BD, Face.B);
-                str += pcik(Pos.BDL, Face.B);
-                break;
-            default:
-                throw new IllegalArgumentException(face.name());
+    /**
+     * 指定された位置、面の色を返します。
+     */
+    public String getColorString(Pos pos, Face face) {
+        Piece p = pick(pos);
+        for (Fc v : p.fcs) {
+            if (v.face.equals(face)) {
+                return v.color.name();
+            }
         }
-
-        return str;
+        throw new RuntimeException("pos=" + pos + ", face=" + face);
     }
 
     private Piece pick(Pos pos) {
@@ -319,73 +233,91 @@ public class Cube {
         throw new RuntimeException("pos=" + pos);
     }
 
-    private String pcik(Pos pos, Face face) {
-        Piece p = pick(pos);
-        for (Fc v : p.fcs) {
-            if (v.face.equals(face)) {
-                return v.color.name();
-            }
-        }
-        throw new RuntimeException("pos=" + pos + ", face=" + face);
+    /**
+     * 面を軸に時計回りに回転させます。
+     */
+    private void rotatePosi(Face face) {
+        rotate(face, false);
     }
 
-    private void move(Op op, boolean prime) {
-        switch (op) {
-            case R:
-            case U:
-            case F:
-                move(op.axis, prime, op.corners, prime);
-                move(op.axis, prime, op.edges, prime);
-                break;
-            case L:
-            case D:
-            case B:
-                move(op.axis, !prime, op.corners, prime);
-                move(op.axis, !prime, op.edges, prime);
-                break;
-
-            default:
-                throw new IllegalArgumentException(op.name());
-        }
+    /**
+     * 面を軸に反時計回りに回転させます。
+     */
+    private void rotatePrime(Face face) {
+        rotate(face, true);
     }
 
-    private void move(Axis axis, boolean reverse, Pos[] pos, boolean posRevers) {
-        if (posRevers) {
-            pos = reverse(pos);
+    private void rotate(Face face, boolean prime) {
+        List<Pos> posCorners;
+        List<Pos> posEdges;
+        if (!prime) {
+            posCorners = Arrays.asList(face.corners);
+            posEdges = Arrays.asList(face.edges);
+        } else {
+            posCorners = reverse(face.corners);
+            posEdges = reverse(face.edges);
         }
 
+        final boolean clockwise; // 軸に対して時計回りか否か
+        if (!prime) {
+            clockwise = face.clockwise;
+        } else {
+            clockwise = !face.clockwise;
+        }
+        move(face.axis, clockwise, posCorners);
+        move(face.axis, clockwise, posEdges);
+    }
+
+    private void move(Axis axis, boolean clockwise, List<Pos> pos) {
         /* 移動 1>2>3>4 */
-        Piece buffer = pick(pos[3]);
-        pick(pos[2]).pos(pos[3]).roll(axis, reverse);
-        pick(pos[1]).pos(pos[2]).roll(axis, reverse);
-        pick(pos[0]).pos(pos[1]).roll(axis, reverse);
-        buffer.pos(pos[0]).roll(axis, reverse);
-    }
-
-    private void movePosi(Op op) {
-        move(op, false);
-    }
-
-    private void movePrime(Op op) {
-        move(op, true);
+        Piece buffer = pick(pos.get(3));
+        pick(pos.get(2)).pos(pos.get(3)).rollAll(axis, clockwise);
+        pick(pos.get(1)).pos(pos.get(2)).rollAll(axis, clockwise);
+        pick(pos.get(0)).pos(pos.get(1)).rollAll(axis, clockwise);
+        buffer.pos(pos.get(0)).rollAll(axis, clockwise);
     }
 
     /**
      * 配列を反転させます。
      */
-    private static Pos[] reverse(Pos[] ary) {
-        List<Pos> asList = new ArrayList<Pos>(Arrays.asList(ary));
-        Collections.reverse(asList);
-        return asList.toArray(new Pos[asList.size()]);
+    private static <T> List<T> reverse(T[] ary) {
+        List<T> list = new ArrayList<T>(Arrays.asList(ary));
+        Collections.reverse(list);
+        return list;
+        //return asList.toArray(new T[asList.size()]);
     }
 
     /**
-     * 配列を反転させます。
+     * 動作確認をします。
      */
-    private static Face[] reverse(Face[] ary) {
-        List<Face> asList = new ArrayList<Face>(Arrays.asList(ary));
-        Collections.reverse(asList);
-        return asList.toArray(new Face[asList.size()]);
+    public static void main(String[] args) {
+        final Cube cube = new Cube();
+        final CubeViewer viewer = new CubeViewer(cube);
+
+        final String org = viewer.getColorString();
+
+        System.out.println("-- RUR'U' --");
+
+        for (int i = 0; i < 6; i++) {
+            cube.rotatePosi(Face.R);
+            cube.rotatePosi(Face.U);
+            cube.rotatePrime(Face.R);
+            cube.rotatePrime(Face.U);
+            System.out.println(viewer.getColorString(Face.F));
+            System.out.println();
+        }
+
+        //cube.move(Move.L_);
+
+        //System.out.println();
+        String after = viewer.getColorString();
+        //System.out.println(after);
+        //System.out.println(cube.history);
+
+        System.out.println("-- df --");
+        //System.out.println(df(org, after));
+        System.out.println(dfAfter(org, after));
+
     }
 
     /**
@@ -415,7 +347,6 @@ public class Cube {
      * @param a A
      * @param b B
      */
-    @SuppressWarnings("unused")
     private static String dfAfter(String a, String b) {
         char[] c1 = a.toCharArray();
         char[] c2 = b.toCharArray();
@@ -429,60 +360,6 @@ public class Cube {
             }
         }
         return sb.toString();
-    }
-
-    private static String joinString(String... linesList) {
-        List<String> joinedList = null;
-        for (String lines : linesList) {
-            List<String> listLine = Generics.newArrayList();
-            for (String line : lines.split("\n")) {
-                listLine.add(line);
-            }
-            if (joinedList == null) {
-                joinedList = listLine;
-            } else {
-                for (int i = 0; i < listLine.size(); i++) {
-                    joinedList.set(i, joinedList.get(i) + listLine.get(i));
-                }
-            }
-        }
-        StringBuilder sb = new StringBuilder();
-        for (String str : joinedList) {
-            sb.append(str + "\n");
-        }
-        return sb.toString();
-    }
-
-    /**
-     * 動作確認をします。
-     */
-    public static void main(String[] args) {
-        Cube cube = new Cube();
-        final String org = cube.get();
-        //System.out.println(org);
-
-        System.out.println("-- RUR'U' --");
-
-        for (int i = 0; i < 6; i++) {
-            cube.movePosi(Op.R);
-            cube.movePosi(Op.U);
-            cube.movePrime(Op.R);
-            cube.movePrime(Op.U);
-            System.out.println(cube.get(Face.F));
-            System.out.println();
-        }
-
-        //cube.move(Move.L_);
-
-        //System.out.println();
-        String after = cube.get();
-        //System.out.println(after);
-        //System.out.println(cube.history);
-
-        System.out.println("-- df --");
-        //System.out.println(df(org, after));
-        System.out.println(dfAfter(org, after));
-
     }
 
 }
