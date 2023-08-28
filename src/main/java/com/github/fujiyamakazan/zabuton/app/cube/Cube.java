@@ -7,18 +7,9 @@ import java.util.List;
 
 import org.apache.wicket.util.lang.Generics;
 
-import com.github.fujiyamakazan.zabuton.util.random.Roulette;
-
 public class Cube {
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(Cube.class);
-
-    //    /**
-    //     * 面を識別します。
-    //     */
-    //    public enum Face {
-    //        U, F, B, L, R, D
-    //    }
 
     /**
      * 色を識別します。
@@ -284,25 +275,37 @@ public class Cube {
         throw new RuntimeException("pos=" + pos);
     }
 
-    /**
-     * 面を軸に時計回りに回転させます。
-     */
-    private void rotatePosi(Face face) {
-        rotate(face, false);
-    }
-
-    /**
-     * 面を軸に反時計回りに回転させます。
-     */
-    private void rotatePrime(Face face) {
-        rotate(face, true);
-    }
-
     private List<String> history = Generics.newArrayList();
 
-    private void rotate(Face face, boolean prime) {
+    /**
+     * ある面を時計周りに回転させます。複数の操作をコマンドで指定します。
+     */
+    private void rotate(CubeCommand... commands) {
 
-        history.add(face.name() + (prime ? "'" : ""));
+        for (int i = 0; i < commands.length; i++) {
+
+            CubeCommand command = commands[i];
+
+            history.add(command.toString());
+
+            //Face face = Face.valueOf(String.valueOf(cmd));
+            //rotate_(face, o);
+
+            int dist = command.getDist();
+            Face face = command.getFace();
+            boolean prime = dist <= -1;
+            for (int j = 0; j < Math.abs(dist); j++) {
+                rotate_(face, prime);
+            }
+
+        }
+    }
+
+    /**
+     * ある面を時計周りに回転させます。移動量は1です。
+     * @param face 面
+     */
+    private void rotate_(Face face, boolean prime) {
 
         List<Pos> posCorners;
         List<Pos> posEdges;
@@ -352,22 +355,29 @@ public class Cube {
 
         final String org = viewer.getColorString();
 
+        String op = "RUR'U'";
+        System.out.println("-- " + op + " --");
+        for (int i = 0; i < 6; i++) {
+            cube.rotate(CubeCommand.of(op));
+            System.out.println(viewer.getColorString(Face.F));
+            System.out.println();
+        }
+        //cube.rotate(CubeCommand.of("R'"));
+
+        String after = viewer.getColorString();
+        System.out.println(dfAfter(org, after));
+        System.out.println(cube.history);
+
+        //sub2(cube, viewer, org);
+
         System.out.println("isGoal:" + cube.isGoal());
 
-        //        System.out.println("-- RUR'U' --");
-        //        for (int i = 0; i < 6; i++) {
-        //            cube.rotatePosi(Face.R);
-        //            cube.rotatePosi(Face.U);
-        //            cube.rotatePrime(Face.R);
-        //            cube.rotatePrime(Face.U);
-        //            System.out.println(viewer.getColorString(Face.F));
-        //            System.out.println();
-        //        }
+    }
 
+    private static void sub2(final Cube cube, final CubeViewer viewer, final String org) {
         /* シャッフル */
         for (int i = 0; i < 2; i++) {
-            Face f = Roulette.randomOne(Face.values());
-            cube.rotate(f, Roulette.getRandomTrueOrFalse());
+            cube.rotate(CubeCommand.ofRandome());
         }
         System.out.println(cube.history);
         String shuffle = viewer.getColorString();
@@ -400,7 +410,6 @@ public class Cube {
                 break;
             }
         }
-
     }
 
     /**
