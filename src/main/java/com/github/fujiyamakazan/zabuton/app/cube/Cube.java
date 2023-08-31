@@ -374,6 +374,7 @@ public class Cube {
 
     }
 
+    @SuppressWarnings("unused")
     private static void sub2(final Cube cube, final CubeViewer viewer, final String org) {
         /* シャッフル */
         for (int i = 0; i < 2; i++) {
