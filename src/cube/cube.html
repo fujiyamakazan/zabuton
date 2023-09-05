@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<script src="https://unpkg.com/three@0.131.3/build/three.min.js"></script>
+<script
+	src="https://unpkg.com/three@0.131.3/examples/js/controls/OrbitControls.js"></script>
+<script>
+	var materials = [ new THREE.MeshLambertMaterial({
+		color : 0xff0000
+	}), // R面赤
+	new THREE.MeshLambertMaterial({
+		color : 0xffa000
+	}), // L面橙
+	new THREE.MeshLambertMaterial({
+		color : 0xffdc00
+	}), // U面黄
+	new THREE.MeshLambertMaterial({
+		color : 0xffffff
+	}), // D面白
+	new THREE.MeshLambertMaterial({
+		color : 0x0000ff
+	}), // F面青
+	new THREE.MeshLambertMaterial({
+		color : 0x009944
+	}) // B面緑
+	];
+
+	window.addEventListener('DOMContentLoaded', init);
+
+	function init() {
+		const width = 300;
+		const height = 300;
+
+		const renderer = new THREE.WebGLRenderer({
+			canvas : document.querySelector('#canvasCube'),
+			alpha : true
+		});
+		renderer.setSize(width, height);
+		renderer.setPixelRatio(window.devicePixelRatio);
+
+		const scene = new THREE.Scene();
+
+		const camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
+		camera.position.set(500, 500, 1000); // カメラ初期座標 X,Y,Z
+		//camera.lookAt(scene.position);
+
+		function createPiece(p1, y, p3) {
+			var material = new THREE.MeshFaceMaterial(materials);
+			/*
+			for (var i = 0; i < material.length; ++i) {
+				var m = material[i];
+				//alert(m);
+				//m.opacity = OPACITY;
+				//m.transparent = TRANSPARENT;
+				//m.depthTest = DEPTH_TEST;
+			}
+			 */
+			var mesh = new THREE.Mesh(new THREE.BoxGeometry(100, 100, 100),
+					material);
+			mesh.position.set(p1, y, p3);
+			return mesh;
+		}
+
+		//scene.add(createPiece(-100, 100, -100)); // BUL
+		//scene.add(createPiece(0, 100, -100)); // BU
+		//scene.add(createPiece(100, 100, -100)); // BUR
+
+		//scene.add(createPiece(-100, 0, -100)); // BL
+		//scene.add(createPiece(0, 0, -100)); // B
+		var B = createPiece(0, 0, -100);
+		//scene.add(createPiece(100, 0, -100)); // BR
+
+		//scene.add(createPiece(-100, -100, -100)); // BDL
+		//scene.add(createPiece(0, -100, -100)); // BD
+		//scene.add(createPiece(100, -100, -100)); // BDR
+
+		//scene.add(createPiece(-100, 100, 0)); // UL
+		//scene.add(createPiece(0, 100, 0)); // U
+		//scene.add(createPiece(100, 100, 0)); // UR
+
+		//scene.add(createPiece(-100, 0, 0)); // L
+		//scene.add(createPiece(0, 0, 0));
+		//scene.add(createPiece(100, 0, 0)); // R
+
+		//scene.add(createPiece(-100, -100, 0)); // DL
+		//scene.add(createPiece(0, -100, 0)); // D
+		//scene.add(createPiece(100, -100, 0)); // DR
+
+		//scene.add(createPiece(-100, 100, 100)); // FUL
+		//scene.add(createPiece(0, 100, 100)); // FU
+		//scene.add(createPiece(100, 100, 100)); // FUR
+
+		//scene.add(createPiece(-100, 0, 100)); // FL
+		//scene.add(createPiece(0, 0, 100)); // F
+		//scene.add(createPiece(100, 0, 100)); // FR
+
+		//scene.add(createPiece(-100, -100, 100)); // FDL
+		//scene.add(createPiece(0, -100, 100)); // FD
+		//scene.add(createPiece(100, -100, 100)); // FDR
+		var FDR = createPiece(100, -100, 100);
+		//scene.add(FDR);
+
+		//const mesh = new THREE.Mesh(new THREE.SphereGeometry(80, 30, 30), new THREE.MeshNormalMaterial());
+		const box = new THREE.Mesh(new THREE.BoxGeometry(300, 300, 300),
+				new THREE.MeshBasicMaterial({
+					color : 0xFFFFCC
+				}));
+
+		/* 透過 */
+		box.material.opacity = 0.1;
+		box.material.transparent = true;
+		box.material.depthTest = false;
+
+		scene.add(box);
+		box.add(FDR);
+		box.add(B);
+
+		box.remove(B);
+		scene.add(B);
+
+
+		// オイラー角
+		//FDR.rotation.x += Math.PI/2 * -1; // 90度回転(x軸方向)
+
+		/*
+		// クォータニオン
+		FDR.useQuaternion = true;
+		//回転軸ベクトルの宣言・規格化
+		var axis = new THREE.Vector3(1, 1, 1).normalize();
+		//回転角度の指定(ラジアン)
+		var angle = Math.PI / 4;
+		//クォータニオンオブジェクトの宣言
+		var q = new THREE.Quaternion();
+		//回転軸と角度からクォータニオンを計算
+		q.setFromAxisAngle(axis, angle);
+		//直方体オブジェクトのquaternionプロパティに代入
+		FDR.quaternion.copy(q);
+		 */
+
+		// 平行光源
+		const light = new THREE.DirectionalLight(0xFFFFFF);
+		const light2 = new THREE.DirectionalLight(0xFFFFFF);
+		//light.intensity = 2; // 明るさ200%
+		//light2.intensity = 2; // 明るさ200%
+		light.position.set(100, 100, 100); // ライトの方向
+		light2.position.set(-100, -100, -100); // ライトの方向
+		scene.add(light);
+		scene.add(light2);
+
+		/* マウスのドラッグアンドドロップによるカメラ操作 */
+		const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+		controls.update();
+		renderer.render(scene, camera);
+
+		function animate() {
+			requestAnimationFrame(animate);
+			controls.update();
+			renderer.render(scene, camera);
+		}
+		animate();
+
+		setTimeout(function() {
+			//FDR.position.y += 200;
+			box.rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), THREE.Math
+					.degToRad(-90));
+		}, 1000);
+
+	}
+</script>
+</head>
+<body>
+	<canvas id="canvasCube"></canvas>
+</body>
+</html>
