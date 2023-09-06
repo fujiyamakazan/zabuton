@@ -2,9 +2,12 @@
 <html>
 <head>
 <meta charset="UTF-8" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://unpkg.com/three@0.131.3/build/three.min.js"></script>
 <script
 	src="https://unpkg.com/three@0.131.3/examples/js/controls/OrbitControls.js"></script>
+<script src="https://code.createjs.com/tweenjs-0.6.2.min.js"></script>
+
 <script>
 	var materials = [ new THREE.MeshLambertMaterial({
 		color : 0xff0000
@@ -28,7 +31,12 @@
 
 	window.addEventListener('DOMContentLoaded', init);
 
+	var existX = 0;
+	var existY = 0;
+	var existZ = 0;
+
 	function init() {
+
 		const width = 300;
 		const height = 300;
 
@@ -40,6 +48,14 @@
 		renderer.setPixelRatio(window.devicePixelRatio);
 
 		const scene = new THREE.Scene();
+
+		/* グリッド */
+		var cube_size = 100;
+		var grid_count = 10;
+		var grid_size = grid_count * cube_size;
+		var grid = new THREE.GridHelper(grid_size, grid_count);
+		grid.material.color = new THREE.Color(0xaaaaaa);
+		scene.add(grid);
 
 		const camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
 		camera.position.set(500, 500, 1000); // カメラ初期座標 X,Y,Z
@@ -102,23 +118,22 @@
 		//scene.add(FDR);
 
 		//const mesh = new THREE.Mesh(new THREE.SphereGeometry(80, 30, 30), new THREE.MeshNormalMaterial());
-		const box = new THREE.Mesh(new THREE.BoxGeometry(300, 300, 300),
+		var cube = new THREE.Mesh(new THREE.BoxGeometry(300, 300, 300),
 				new THREE.MeshBasicMaterial({
-					color : 0xFFFFCC
+					color : 0xFFFFFF
 				}));
 
 		/* 透過 */
-		box.material.opacity = 0.1;
-		box.material.transparent = true;
-		box.material.depthTest = false;
+		cube.material.opacity = 0.2;
+		cube.material.transparent = true;
+		cube.material.depthTest = false;
 
-		scene.add(box);
-		box.add(FDR);
-		box.add(B);
+		scene.add(cube);
+		cube.add(FDR);
+		cube.add(B);
 
-		box.remove(B);
+		cube.remove(B);
 		scene.add(B);
-
 
 		// オイラー角
 		//FDR.rotation.x += Math.PI/2 * -1; // 90度回転(x軸方向)
@@ -151,26 +166,98 @@
 		/* マウスのドラッグアンドドロップによるカメラ操作 */
 		const controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-		controls.update();
-		renderer.render(scene, camera);
+
+		/* 回転関連定数 */
+		const angle90 = Math.PI / -2; // 90度
+		const step = 0.05; // アニメーション単位の移動量
 
 		function animate() {
 			requestAnimationFrame(animate);
-			controls.update();
+
+			function workX(flg){
+				var i = flg ? 1 : -1;
+			    var next = angle90 * (existX + i);
+			    if (!flg && (cube.rotation.x < next) || flg && (cube.rotation.x > next)) {
+			        cube.rotation.x += (step * i * -1);
+			    } else {
+			    	existX += i;
+			        cube.rotation.x = next;
+			        $("#command").val("");
+			        $("#valX").text(cube.rotation.x);
+				}
+			}
+
+			function workY(flg){
+				  var i = flg ? 1 : -1;
+				  var next = angle90 * (existY + i);
+				  if (!flg && (cube.rotation.y < next) || flg && (cube.rotation.y > next)) {
+					  cube.rotation.y += (step * i * -1);
+				  } else {
+					  existY += i;
+					  cube.rotation.y = next;
+					  $("#command").val("");
+					  $("#valY").text(cube.rotation.y);
+				  }
+			}
+
+			function workZ(flg){
+				  var i = flg ? 1 : -1;
+				  var next = angle90 * (existZ + i);
+				  if (!flg && (cube.rotation.z < next)
+						  || flg && (cube.rotation.z > next)) {
+					  cube.rotation.z += (step * i * -1);
+				  } else {
+					  existZ += i;
+					  cube.rotation.z = next;
+					  $("#command").val("");
+					  $("#valZ").text(cube.rotation.z);
+				  }
+			}
+
+			/* X軸正回転(L'/R) */
+			if ($("#command").val() == 'x') {
+				workX(true);
+			}
+			/* X軸逆回転(L/R') */
+			if ($("#command").val() == 'X') {
+				workX(false);
+			}
+
+			/* Y軸正回転(U/D') */
+			if ($("#command").val() == 'y') {
+				workY(true);
+			}
+			/* Y軸逆回転(U'/D) */
+			if ($("#command").val() == 'Y') {
+				workY(false);
+			}
+
+			/* Z軸正回転(F/B') */
+			if ($("#command").val() == 'z') {
+				workZ(true);
+			}
+			/* Z軸逆回転(F'/B) */
+			if ($("#command").val() == 'Z') {
+				workZ(false);
+			}
+
+			/* レンダリング */
 			renderer.render(scene, camera);
-		}
+
+		} // animate
 		animate();
-
-		setTimeout(function() {
-			//FDR.position.y += 200;
-			box.rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), THREE.Math
-					.degToRad(-90));
-		}, 1000);
-
 	}
+
 </script>
 </head>
-<body>
+<body style="background-color: black;">
 	<canvas id="canvasCube"></canvas>
+	<input type="text" id="command" />
+	<p style="background-color: white;">
+		<span>X軸回転：</span><span id="valX"></span><br>
+		<span>Y軸回転：</span><span id="valY"></span><br>
+		<span>Z軸回転：</span><span id="valZ"></span><br>
+	</p>
+
 </body>
 </html>
