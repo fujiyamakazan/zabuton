@@ -219,9 +219,10 @@
                 	//cube.remove(piece);
                 	//scene.remove(piece);
                 	if (piece.position.x == 100) {
+                		scene.remove(piece);
                 		cube.add(piece);
                 	} else {
-                		//cube.remove(piece);
+                		cube.remove(piece);
                 		scene.add(piece);
                 	}
                 });
@@ -290,6 +291,13 @@
 			/* レンダリング */
 			renderer.render(scene, camera);
 
+			$("#infoCube").text("x=" + cube.position.x + " y=" + cube.position.y + " z=" + cube.position.z + " 回転x=" + cube.rotation.x);
+			$("#infoFdr").text("x=" + FDR.position.x + " y=" + FDR.position.y + " z=" + FDR.position.z + " 回転x=" + FDR.rotation.x);
+
+			const worldPos = FDR.getWorldPosition(new THREE.Vector3());
+			const worldRot = FDR.getWorldQuaternion (new THREE.Quaternion());
+			$("#infoWorld").text("x=" + worldPos.x + " y=" + worldPos.y + " z=" + worldPos.z + " 回転x=" + worldRot.x);
+
 		} // animate
 		animate();
 	}
@@ -303,6 +311,9 @@
 		<span>X軸回転：</span><span id="valX"></span><br>
 		<span>Y軸回転：</span><span id="valY"></span><br>
 		<span>Z軸回転：</span><span id="valZ"></span><br>
+		<span>cubeの状態：</span><span id="infoCube"></span><br>
+		<span>FDRの状態：</span><span id="infoFdr"></span><br>
+		<span>worldの状態：</span><span id="infoWorld"></span><br>
 	</p>
 
 </body>
