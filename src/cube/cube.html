@@ -7,19 +7,14 @@
 <script
 	src="https://unpkg.com/three@0.131.3/examples/js/controls/OrbitControls.js"></script>
 <script src="https://code.createjs.com/tweenjs-0.6.2.min.js"></script>
+<!--
+<script src="./TextGeometry.js"></script>
+<script src="./FontLoader.js"></script>
+ -->
 
 <script>
 
 window.addEventListener('DOMContentLoaded', init);
-
-var materials = [
-		new THREE.MeshLambertMaterial({color : 0xff0000}), // R面赤
-		new THREE.MeshLambertMaterial({color : 0xF58220}), // L面橙
-		new THREE.MeshLambertMaterial({color : 0xFFD800}), // U面黄
-		new THREE.MeshLambertMaterial({color : 0xffffff}), // D面白
-		new THREE.MeshLambertMaterial({color : 0x0000ff}), // F面青
-		new THREE.MeshLambertMaterial({color : 0x009944}) // B面緑
-	];
 
 var existX = 0;
 var existY = 0;
@@ -61,11 +56,95 @@ function init() {
 	camera.position.set(cameraX, cameraY, cameraZ);
 	camera.lookAt(new THREE.Vector3(0, 0, 0));
 
+    /* ガイド */
+    const loader = new THREE.FontLoader();
+    loader.load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/fonts/helvetiker_regular.typeface.json', (font) => {
+	    function CreateText(word, x, y, z){
+	        const textGeometry = new THREE.TextGeometry(word, {
+	            font: font,
+	            size: 100,
+	            height: 10,
+	            });
+	        const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+	        const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+	        textMesh.position.set(x, y, z);
+	        return textMesh;
+	    }
+
+	    scene.add(CreateText("U", 0, 300, 0));
+	    scene.add(CreateText("F", 0, 0, 300));
+	    scene.add(CreateText("L", -300, 0, 0));
+	    scene.add(CreateText("R", 300, 0, 0));
+	    scene.add(CreateText("B", 0, 0, -300));
+	    scene.add(CreateText("D", 0, -300, 0));
+    });
+
+    /* ライト */
+    const light = new THREE.DirectionalLight(0xFFFFFF);
+    const light2 = new THREE.DirectionalLight(0xFFFFFF);
+    light.position.set(100, 100, 100); // ライトの方向
+    light2.position.set(-100, -100, -100); // ライトの方向
+    scene.add(light);
+    scene.add(light2);
+    $('#lightUp').on('click', function() {
+        light.intensity = 2; // 明るさ200%
+        light2.intensity = 2; // 明るさ200%
+    });
+    $('#lightDown').on('click', function() {
+        light.intensity = 1;
+        light2.intensity = 1;
+    });
+
+    /* マウスのドラッグアンドドロップによるカメラ操作 */
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+    /* キューブ用透過素材 */
+    const basicMate = new THREE.MeshBasicMaterial({color : 0xFFFFFF});
+    basicMate.opacity = 0.1; // 透過設定
+    basicMate.transparent = true; // 透過設定
+    basicMate.depthTest = false; // 透過設定
+
+    /* キューブ(稼働部分) */
+    const basicBox = new THREE.BoxGeometry(400, 400, 400);
+    var cube = new THREE.Mesh(basicBox, basicMate);
+    scene.add(cube);
+
+    /* キューブ（固定部分）*/
+    var cubeFix = new THREE.Mesh(basicBox, basicMate);
+    scene.add(cubeFix);
+
 	/* ピース */
-	function createPiece(p1, y, p3) {
+	function createPiece(x, y, z) {
+		var materials = [
+	        new THREE.MeshLambertMaterial({color : 0x000000}), // R面
+	        new THREE.MeshLambertMaterial({color : 0x000000}), // L面
+	        new THREE.MeshLambertMaterial({color : 0x000000}), // U面
+	        new THREE.MeshLambertMaterial({color : 0x000000}), // D面
+	        new THREE.MeshLambertMaterial({color : 0x000000}), // F面
+	        new THREE.MeshLambertMaterial({color : 0x000000}) // B面
+	    ];
+		if (x == 100) {
+			materials[0] = new THREE.MeshLambertMaterial({color : 0xFF0000}); // R面赤
+		}
+        if (x == -100) {
+            materials[1] = new THREE.MeshLambertMaterial({color : 0xF58220}); // L面橙
+        }
+        if (y == 100) {
+            materials[2] = new THREE.MeshLambertMaterial({color : 0xFFD800}); // U面黄
+        }
+        if (y == -100) {
+            materials[3] = new THREE.MeshLambertMaterial({color : 0xFFFFFF}); // D面白
+        }
+        if (z == 100) {
+            materials[4] = new THREE.MeshLambertMaterial({color : 0x0000FF}); // F面青
+        }
+        if (z == -100) {
+            materials[5] = new THREE.MeshLambertMaterial({color : 0x009944}); //  B面緑
+        }
+
 		var material = new THREE.MeshFaceMaterial(materials);
 		var mesh = new THREE.Mesh(new THREE.BoxGeometry(95, 95, 95), material);
-		mesh.position.set(p1, y, p3);
+		mesh.position.set(x, y, z);
 		return mesh;
 	}
 
@@ -105,49 +184,11 @@ function init() {
 	pieces.push(createPiece(0, -100, 100)); // FD
 	pieces.push(createPiece(100, -100, 100)); // FDR
 
-
-	/* キューブ(稼働部分) */
-	var cube = new THREE.Mesh(new THREE.BoxGeometry(400, 400, 400),
-			new THREE.MeshBasicMaterial({
-				color : 0xFFFFFF
-			}));
-	cube.material.opacity = 0.2; // 透過設定
-	cube.material.transparent = true; // 透過設定
-	cube.material.depthTest = false; // 透過設定
-	scene.add(cube);
-
-	/* キューブ（固定部分）*/
-	var cubeFix = new THREE.Mesh(new THREE.BoxGeometry(500, 500, 500),
-			new THREE.MeshBasicMaterial({
-				color : 0xFFFFFF
-			}));
-	cubeFix.material.opacity = 0.2; // 透過設定
-	cubeFix.material.transparent = true; // 透過設定
-	cubeFix.material.depthTest = false; // 透過設定
-	scene.add(cubeFix);
-
 	pieces.forEach(function(piece, index) {
 		cubeFix.add(piece);
 	});
 
-	/* ライト */
-	const light = new THREE.DirectionalLight(0xFFFFFF);
-	const light2 = new THREE.DirectionalLight(0xFFFFFF);
-	light.position.set(100, 100, 100); // ライトの方向
-	light2.position.set(-100, -100, -100); // ライトの方向
-	scene.add(light);
-	scene.add(light2);
-	$('#lightUp').on('click', function() {
-	    light.intensity = 2; // 明るさ200%
-	    light2.intensity = 2; // 明るさ200%
-	});
-    $('#lightDown').on('click', function() {
-        light.intensity = 1;
-        light2.intensity = 1;
-    });
 
-	/* マウスのドラッグアンドドロップによるカメラ操作 */
-	const controls = new THREE.OrbitControls(camera, renderer.domElement);
 
 	/* 回転関連定数 */
 	const angle90 = Math.PI / -2; // 90度
@@ -547,16 +588,31 @@ function SetCommand(cmd){
     <button onclick="location.reload();">Reset</button>
     <button onclick="Shuffle();">Shuffle</button>
     <br>
-    <button onclick="SetCommand('r');">R</button><button onclick="SetCommand('R');">R'</button>
-    <button onclick="SetCommand('l');">L</button><button onclick="SetCommand('L');">L'</button><br>
-    <button onclick="SetCommand('u');">U</button><button onclick="SetCommand('U');">U'</button>
-    <button onclick="SetCommand('d');">D</button><button onclick="SetCommand('D');">D'</button><br>
-    <button onclick="SetCommand('f');">F</button><button onclick="SetCommand('F');">F'</button>
-    <button onclick="SetCommand('b');">B</button><button onclick="SetCommand('B');">B'</button><br>
+    <button onclick="SetCommand('x');">X</button><button onclick="SetCommand('X');">X'</button>
+    <button onclick="SetCommand('y');">Y</button><button onclick="SetCommand('Y');">Y'</button>
+    <button onclick="SetCommand('z');">Z</button><button onclick="SetCommand('Z');">Z'</button>
     <br>
-	<canvas id="canvasCube"></canvas><button id="lightUp">💡+</button><button id="lightDown">💡-</button>
+    <button onclick="SetCommand('r');">R</button><button onclick="SetCommand('R');">R'</button>
+    <button onclick="SetCommand('XrL');">M</button><button onclick="SetCommand('xRl');">M'</button>
+    <button onclick="SetCommand('l');">L</button><button onclick="SetCommand('L');">L'</button>
+    <br>
+    <button onclick="SetCommand('u');">U</button><button onclick="SetCommand('U');">U'</button>
+    <button onclick="SetCommand('YuD');">E</button><button onclick="SetCommand('yUd');">E'</button>
+    <button onclick="SetCommand('d');">D</button><button onclick="SetCommand('D');">D'</button>
+    <br>
+    <button onclick="SetCommand('f');">F</button><button onclick="SetCommand('F');">F'</button>
+    <button onclick="SetCommand('ZfB');">S</button><button onclick="SetCommand('ZFb');">S'</button>
+    <button onclick="SetCommand('b');">B</button><button onclick="SetCommand('B');">B'</button>
+    <br>
+    <button onclick="SetCommand('xl');">Rw</button><button onclick="SetCommand('XL');">R'w</button>
+    <button onclick="SetCommand('yd');">Uw</button><button onclick="SetCommand('YD');">U'w</button>
+    <button onclick="SetCommand('zb');">Fw</button><button onclick="SetCommand('ZB');">F'w</button>
+    <br>
+    <button id="lightUp">💡+</button><button id="lightDown">💡-</button><br>
+	<canvas id="canvasCube"></canvas>
+	<!--
 	<p style="background-color: white;">
-		<!--
+
 		<span>X軸回転：</span><span id="valX"></span><br>
 		<span>Y軸回転：</span><span id="valY"></span><br>
 		<span>Z軸回転：</span><span id="valZ"></span><br>
@@ -564,8 +620,9 @@ function SetCommand(cmd){
 		<span>cubeFixの状態：</span><span id="infoCubeFix"></span><br>
 		<span>FDRの状態：</span><span id="infoFdr"></span><br>
 		<span>worldの状態：</span><span id="infoWorld"></span><br>
-		 -->
+
 	</p>
+	-->
 
 </body>
 </html>
