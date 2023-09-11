@@ -13,10 +13,10 @@
 		color : 0xff0000
 	}), // R面赤
 	new THREE.MeshLambertMaterial({
-		color : 0xffa000
+		color : 0xF58220
 	}), // L面橙
 	new THREE.MeshLambertMaterial({
-		color : 0xffdc00
+		color : 0xFFD800
 	}), // U面黄
 	new THREE.MeshLambertMaterial({
 		color : 0xffffff
@@ -65,13 +65,12 @@
 
 		/* カメラ */
 		const camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
-		camera.position.set(500, 500, 1000); // カメラ初期座標 X,Y,Z
-		//camera.lookAt(scene.position);
+		camera.position.set(500, 500, 1000); // 初期座標 X,Y,Z
 
 		/* ピース */
 		function createPiece(p1, y, p3) {
 			var material = new THREE.MeshFaceMaterial(materials);
-			var mesh = new THREE.Mesh(new THREE.BoxGeometry(100, 100, 100), material);
+			var mesh = new THREE.Mesh(new THREE.BoxGeometry(95, 95, 95), material);
 			mesh.position.set(p1, y, p3);
 			return mesh;
 		}
@@ -81,9 +80,7 @@
 		pieces.push(createPiece(100, 100, -100)); // BUR
 
 		pieces.push(createPiece(-100, 0, -100)); // BL
-		//pieces.add(createPiece(0, 0, -100)); // B
-		var B = createPiece(0, 0, -100);
-		pieces.push(B);
+		pieces.push(createPiece(0, 0, -100)); // B
 		pieces.push(createPiece(100, 0, -100)); // BR
 
 		pieces.push(createPiece(-100, -100, -100)); // BDL
@@ -112,10 +109,8 @@
 
 		pieces.push(createPiece(-100, -100, 100)); // FDL
 		pieces.push(createPiece(0, -100, 100)); // FD
-		//scene.add(createPiece(100, -100, 100)); // FDR
-		var FDR = createPiece(100, -100, 100);
-		pieces.push(FDR);
-		//scene.add(FDR);
+		pieces.push(createPiece(100, -100, 100)); // FDR
+
 
 		/* キューブ(稼働部分) */
 		var cube = new THREE.Mesh(new THREE.BoxGeometry(400, 400, 400),
@@ -144,8 +139,8 @@
 		/* ライト */
 		const light = new THREE.DirectionalLight(0xFFFFFF);
 		const light2 = new THREE.DirectionalLight(0xFFFFFF);
-		//light.intensity = 2; // 明るさ200%
-		//light2.intensity = 2; // 明るさ200%
+		light.intensity = 2; // 明るさ200%
+		light2.intensity = 2; // 明るさ200%
 		light.position.set(100, 100, 100); // ライトの方向
 		light2.position.set(-100, -100, -100); // ライトの方向
 		scene.add(light);
@@ -170,16 +165,16 @@
 			 /* 関数定義 */
 			function workX(flg){
 				var i = flg ? 1 : -1;
-			    var next = angle90 * (existX + i);
-			    var tmp = cube.rotation.x;
-			    if (!flg && (tmp < next) || flg && (tmp > next)) {
-			        cube.rotation.x += (step * i * -1);
-			        return true; // つづきあり
-			    } else {
-			    	existX += i;
-			        cube.rotation.x = next;
-			        $("#valX").text(cube.rotation.x);
-			        return false; // 終了
+				var next = angle90 * (existX + i);
+				var tmp = cube.rotation.x;
+				if (!flg && (tmp < next) || flg && (tmp > next)) {
+					cube.rotation.x += (step * i * -1);
+					return true; // つづきあり
+				} else {
+					existX += i;
+					cube.rotation.x = next;
+					$("#valX").text(cube.rotation.x);
+					return false; // 終了
 				}
 			}
 
@@ -213,45 +208,86 @@
 				  }
 			}
 
-			function convert(piece, from, to){
-            	var worldPos = piece.getWorldPosition(new THREE.Vector3());
-            	var wPx = worldPos.x;
-            	var wPy = worldPos.y;
-            	var wPz = worldPos.z;
-            	var worldRot = getWorldEulerAngles(piece);
-            	var wRx = worldRot.x;
-            	var wRy = worldRot.y;
-            	var wRx = worldRot.z;
-
-        		from.remove(piece);
-        		to.add(piece);
-
-            	piece.position.x = wPx;
-            	piece.position.y = wPy;
-            	piece.position.z = wPz;
-            	piece.rotation.x = wRx;
-            	piece.rotation.y = wRy;
-            	piece.rotation.z = wRx;
+			function getWorldEulerAngles(object) {
+				const rotation = new THREE.Euler();
+				object.getWorldQuaternion(rotation); // オブジェクトのワールド座標系での回転クォータニオンを取得
+				return rotation.toVector3(); // オイラー角に変換
 			}
 
-            function combineALL(){
-                pieces.forEach(function(piece, index) {
-                	convert(piece, cubeFix, cube);
-                });
-            }
+			function convert(piece, from, to){
+				var worldPos = piece.getWorldPosition(new THREE.Vector3());
+				var wPx = worldPos.x;
+				var wPy = worldPos.y;
+				var wPz = worldPos.z;
+				var worldRot = getWorldEulerAngles(piece);
+				var wRx = worldRot.x;
+				var wRy = worldRot.y;
+				var wRz = worldRot.z;
 
-            function combineR(){
-                pieces.forEach(function(piece, index) {
-                	if (piece.position.x == 100) {
-                		convert(piece, cubeFix, cube);
-                	}
-                });
-            }
+				from.remove(piece);
+				to.add(piece);
 
-			function getWorldEulerAngles(object) {
-			    const rotation = new THREE.Euler();
-			    object.getWorldQuaternion(rotation); // オブジェクトのワールド座標系での回転クォータニオンを取得
-			    return rotation.toVector3(); // オイラー角に変換
+				piece.position.x = wPx;
+				piece.position.y = wPy;
+				piece.position.z = wPz;
+				piece.rotation.x = wRx;
+				piece.rotation.y = wRy;
+				piece.rotation.z = wRz;
+			}
+
+			function combineALL(){
+				pieces.forEach(function(piece, index) {
+					convert(piece, cubeFix, cube);
+				});
+			}
+
+			function combineR(){
+				pieces.forEach(function(piece, index) {
+					//console.log(piece.position.x);
+					if (piece.position.x > 90) {
+						convert(piece, cubeFix, cube);
+					}
+				});
+			}
+
+			function combineL(){
+				pieces.forEach(function(piece, index) {
+					if (piece.position.x < -90) {
+						convert(piece, cubeFix, cube);
+					}
+				});
+			}
+
+			function combineU(){
+				pieces.forEach(function(piece, index) {
+					if (piece.position.y > 90) {
+						convert(piece, cubeFix, cube);
+					}
+				});
+			}
+
+			function combineD(){
+				pieces.forEach(function(piece, index) {
+					if (piece.position.y < -90) {
+						convert(piece, cubeFix, cube);
+					}
+				});
+			}
+
+			function combineF(){
+				pieces.forEach(function(piece, index) {
+					if (piece.position.z > 90) {
+						convert(piece, cubeFix, cube);
+					}
+				});
+			}
+
+			function combineB(){
+				pieces.forEach(function(piece, index) {
+					if (piece.position.z < -90) {
+						convert(piece, cubeFix, cube);
+					}
+				});
 			}
 
 			/* コマンドの読取り */
@@ -283,13 +319,29 @@
 					combineALL();
 				}
 				/* R/R' */
-				if (command == 'r') {
+				if (command == 'r' || command  == 'R') {
 					combineR();
-	            }
-	            /* X軸逆回転(L/R') */
-	            if (command  == 'R') {
-	            	combineR();
-	            }
+				}
+				/* L/L' */
+				if (command == 'l' || command  == 'L') {
+					combineL();
+				}
+				/* U/U' */
+				if (command == 'u' || command  == 'U') {
+					combineU();
+				}
+				/* D/D' */
+				if (command == 'd' || command  == 'D') {
+					combineD();
+				}
+				/* F/F' */
+				if (command == 'f' || command  == 'F') {
+					combineF();
+				}
+				/* B/B' */
+				if (command == 'b' || command  == 'B') {
+					combineB();
+				}
 				return;
 			}
 			//alert(command);
@@ -325,28 +377,80 @@
 			}
 			/* R/R' */
 			if (command == 'r') {
-                hasNext = workX(true);
-            }
-            /* X軸逆回転(L/R') */
-            if (command  == 'R') {
-                hasNext = workX(false);
-            }
+				hasNext = workX(true);
+			}
+			if (command  == 'R') {
+				hasNext = workX(false);
+			}
+			/* L/L' */
+			if (command == 'l') {
+				hasNext = workX(false);
+			}
+			if (command  == 'L') {
+				hasNext = workX(true);
+			}
+			/* U/U' */
+			if (command == 'u') {
+				hasNext = workY(true);
+			}
+			if (command  == 'U') {
+				hasNext = workY(false);
+			}
+			/* D/D' */
+			if (command == 'd') {
+				hasNext = workY(false);
+			}
+			if (command  == 'D') {
+				hasNext = workY(true);
+			}
+			/* F/F' */
+			if (command == 'f') {
+				hasNext = workZ(true);
+			}
+			if (command  == 'F') {
+				hasNext = workZ(false);
+			}
+			/* B/B' */
+			if (command == 'b') {
+				hasNext = workZ(false);
+			}
+			if (command  == 'B') {
+				hasNext = workZ(true);
+			}
+
 
 			if(command != "" && hasNext == false){
 				command = ""; // コマンド初期化
 
-	            pieces.forEach(function(piece, index) {
-	            	convert(piece, cube, cubeFix);
-	            });
+				pieces.forEach(function(piece, index) {
+					convert(piece, cube, cubeFix);
+				});
+
+				cube.position.x = 0;
+				cube.position.y = 0;
+				cube.position.z = 0;
+				cube.rotation.x = 0;
+				cube.rotation.y = 0;
+				cube.rotation.z = 0;
+
+				existX = 0;
+				existY = 0;
+				existZ = 0;
+
+				/* レンダリング */
+				renderer.render(scene, camera);
+
 			}
 
 			$("#infoCube").text("x=" + cube.position.x + " y=" + cube.position.y + " z=" + cube.position.z + " 回転x=" + cube.rotation.x);
+			$("#infoCubeFix").text("x=" + cubeFix.position.x + " y=" + cubeFix.position.y + " z=" + cubeFix.position.z + " 回転x=" + cubeFix.rotation.x);
+
 			$("#infoFdr").text("x=" + FDR.position.x + " y=" + FDR.position.y + " z=" + FDR.position.z + " 回転x=" + FDR.rotation.x);
 
 			const worldPos = FDR.getWorldPosition(new THREE.Vector3());
-			//const worldRot = FDR.getWorldQuaternion (new THREE.Quaternion());
-
 			$("#infoWorld").text("x=" + worldPos.x + " y=" + worldPos.y + " z=" + worldPos.z + " 回転x=" + getWorldEulerAngles(FDR).x);
+
+
 
 		} // animate
 		animate();
@@ -362,9 +466,9 @@
 		<span>Y軸回転：</span><span id="valY"></span><br>
 		<span>Z軸回転：</span><span id="valZ"></span><br>
 		<span>cubeの状態：</span><span id="infoCube"></span><br>
+		<span>cubeFixの状態：</span><span id="infoCubeFix"></span><br>
 		<span>FDRの状態：</span><span id="infoFdr"></span><br>
 		<span>worldの状態：</span><span id="infoWorld"></span><br>
 	</p>
-
 </body>
 </html>
