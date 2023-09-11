@@ -65,7 +65,11 @@
 
 		/* カメラ */
 		const camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
-		camera.position.set(500, 500, 1000); // 初期座標 X,Y,Z
+		const cameraX = 500;
+		const cameraY = 500;
+		const cameraZ = 1000;
+		camera.position.set(cameraX, cameraY, cameraZ);
+		camera.lookAt(new THREE.Vector3(0, 0, 0));
 
 		/* ピース */
 		function createPiece(p1, y, p3) {
@@ -294,6 +298,11 @@
 			if (command == ''){
 				command = $("#command").val();
 
+				/* 視点リセット */
+				if (command == '0') {
+				    // 処理なし
+				}
+
 				/* X軸正回転(L'/R) */
 				if (command == 'x') {
 					combineALL();
@@ -418,6 +427,12 @@
 				hasNext = workZ(true);
 			}
 
+			/* 視点リセット */
+			if (command  == '0') {
+				camera.position.set(cameraX, cameraY, cameraZ);
+				camera.lookAt(new THREE.Vector3(0, 0, 0));
+			}
+
 
 			if(command != "" && hasNext == false){
 				command = ""; // コマンド初期化
@@ -441,19 +456,72 @@
 				renderer.render(scene, camera);
 
 			}
-
-			$("#infoCube").text("x=" + cube.position.x + " y=" + cube.position.y + " z=" + cube.position.z + " 回転x=" + cube.rotation.x);
-			$("#infoCubeFix").text("x=" + cubeFix.position.x + " y=" + cubeFix.position.y + " z=" + cubeFix.position.z + " 回転x=" + cubeFix.rotation.x);
-
-			$("#infoFdr").text("x=" + FDR.position.x + " y=" + FDR.position.y + " z=" + FDR.position.z + " 回転x=" + FDR.rotation.x);
-
-			const worldPos = FDR.getWorldPosition(new THREE.Vector3());
-			$("#infoWorld").text("x=" + worldPos.x + " y=" + worldPos.y + " z=" + worldPos.z + " 回転x=" + getWorldEulerAngles(FDR).x);
-
-
-
 		} // animate
 		animate();
+
+		/* ショートカットキー制御 */
+		$(window).keyup(function(e){
+		      if(e.keyCode == 48){ // 0
+		    	  $("#command").val("0");
+		      }
+
+		      if(e.keyCode == 37){ // ←
+		    	  $("#command").val("Z");
+		      }
+              if(e.keyCode == 38){ // ↑
+                  $("#command").val("x");
+              }
+		      if(e.keyCode == 39){ // →
+		    	  $("#command").val("z");
+		      }
+		      if(e.keyCode == 40){ // ↓
+                  $("#command").val("X");
+              }
+
+              if(e.keyCode == 100){ // テンキー4
+                  $("#command").val("y");
+              }
+              if(e.keyCode == 102){ // テンキー6
+                  $("#command").val("Y");
+              }
+
+              if(e.keyCode == 105){ // テンキー9
+                  $("#command").val("r");
+              }
+              if(e.keyCode == 99){ // テンキー3
+                  $("#command").val("R");
+              }
+
+              if(e.keyCode == 103){ // テンキー7
+                  $("#command").val("L");
+              }
+              if(e.keyCode == 97){ // テンキー1
+                  $("#command").val("l");
+              }
+
+              if(e.keyCode == 104){ // テンキー8
+                  $("#command").val("u");
+              }
+              if(e.keyCode == 101){ // テンキー5
+                  $("#command").val("U");
+              }
+
+              if(e.keyCode == 98){ // テンキー2
+                  $("#command").val("D");
+              }
+              if(e.keyCode == 96){ // テンキー0
+                  $("#command").val("d");
+              }
+
+              if(e.keyCode == 111){ // テンキー/
+                  $("#command").val("f");
+              }
+              if(e.keyCode == 106){ // テンキー*
+                  $("#command").val("F");
+              }
+
+
+		  });
 	}
 
 </script>
@@ -462,6 +530,7 @@
 	<canvas id="canvasCube"></canvas>
 	<input type="text" id="command" />
 	<p style="background-color: white;">
+	   <!--
 		<span>X軸回転：</span><span id="valX"></span><br>
 		<span>Y軸回転：</span><span id="valY"></span><br>
 		<span>Z軸回転：</span><span id="valZ"></span><br>
@@ -469,6 +538,7 @@
 		<span>cubeFixの状態：</span><span id="infoCubeFix"></span><br>
 		<span>FDRの状態：</span><span id="infoFdr"></span><br>
 		<span>worldの状態：</span><span id="infoWorld"></span><br>
+		 -->
 	</p>
 </body>
 </html>
