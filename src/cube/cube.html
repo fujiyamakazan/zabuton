@@ -4,26 +4,16 @@
 <meta charset="UTF-8" />
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://unpkg.com/three@0.131.3/build/three.min.js"></script>
-<script
-	src="https://unpkg.com/three@0.131.3/examples/js/controls/OrbitControls.js"></script>
+<script src="https://unpkg.com/three@0.131.3/examples/js/controls/OrbitControls.js"></script>
 <script src="https://code.createjs.com/tweenjs-0.6.2.min.js"></script>
-<!--
-<script src="./TextGeometry.js"></script>
-<script src="./FontLoader.js"></script>
- -->
 
 <script>
 
-window.addEventListener('DOMContentLoaded', init);
+/*
+ * オブジェクトクリックで操作可能とする
+ */
 
-var existX = 0;
-var existY = 0;
-var existZ = 0;
-var pieces = [];
-
-var command = ''
-
-function init() {
+$(function() {
 
 	$("#command").focus();
 
@@ -56,6 +46,9 @@ function init() {
 	camera.position.set(cameraX, cameraY, cameraZ);
 	camera.lookAt(new THREE.Vector3(0, 0, 0));
 
+    /* マウスのドラッグアンドドロップによるカメラ操作 */
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
     /* ガイド */
     const loader = new THREE.FontLoader();
     loader.load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/fonts/helvetiker_regular.typeface.json', (font) => {
@@ -70,7 +63,6 @@ function init() {
 	        textMesh.position.set(x, y, z);
 	        return textMesh;
 	    }
-
 	    scene.add(CreateText("U", 0, 300, 0));
 	    scene.add(CreateText("F", 0, 0, 300));
 	    scene.add(CreateText("L", -300, 0, 0));
@@ -80,23 +72,22 @@ function init() {
     });
 
     /* ライト */
-    const light = new THREE.DirectionalLight(0xFFFFFF);
+    const light1 = new THREE.DirectionalLight(0xFFFFFF);
     const light2 = new THREE.DirectionalLight(0xFFFFFF);
-    light.position.set(100, 100, 100); // ライトの方向
-    light2.position.set(-100, -100, -100); // ライトの方向
-    scene.add(light);
+    light1.position.set(1, 1, 1);
+    light2.position.set(-1, -1, -1); // ライトの方向
+    scene.add(light1);
     scene.add(light2);
     $('#lightUp').on('click', function() {
-        light.intensity = 2; // 明るさ200%
+        light1.intensity = 2; // 明るさ200%
         light2.intensity = 2; // 明るさ200%
     });
     $('#lightDown').on('click', function() {
-        light.intensity = 1;
+        light1.intensity = 1;
         light2.intensity = 1;
     });
 
-    /* マウスのドラッグアンドドロップによるカメラ操作 */
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
 
     /* キューブ用透過素材 */
     const basicMate = new THREE.MeshBasicMaterial({color : 0xFFFFFF});
@@ -147,6 +138,7 @@ function init() {
 		mesh.position.set(x, y, z);
 		return mesh;
 	}
+	var pieces = [];
 
 	pieces.push(createPiece(-100, 100, -100)); // BUL
 	pieces.push(createPiece(0, 100, -100)); // BU
@@ -188,14 +180,17 @@ function init() {
 		cubeFix.add(piece);
 	});
 
-
+    /* レンダリング */
+    renderer.render(scene, camera);
 
 	/* 回転関連定数 */
 	const angle90 = Math.PI / -2; // 90度
 	const step = 0.08; // アニメーション単位の移動量
 
-	/* レンダリング */
-	renderer.render(scene, camera);
+	var existX = 0;
+	var existY = 0;
+	var existZ = 0;
+	var command = '';
 
 	function animate() {
 
@@ -566,7 +561,7 @@ function init() {
              }
 
 	  });
-}
+});
 
 function Shuffle(){
     const characters = 'rRlLuUdDfFbB';
