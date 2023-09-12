@@ -63,12 +63,12 @@ $(function() {
 	        textMesh.position.set(x, y, z);
 	        return textMesh;
 	    }
-	    scene.add(CreateText("U", 0, 300, 0));
-	    scene.add(CreateText("F", 0, 0, 300));
-	    scene.add(CreateText("L", -300, 0, 0));
-	    scene.add(CreateText("R", 300, 0, 0));
-	    scene.add(CreateText("B", 0, 0, -300));
-	    scene.add(CreateText("D", 0, -300, 0));
+	    scene.add(CreateText("U", 0, 400, 0));
+	    scene.add(CreateText("F", 0, 0, 400));
+	    scene.add(CreateText("L", -400, 0, 0));
+	    scene.add(CreateText("R", 400, 0, 0));
+	    scene.add(CreateText("B", 0, 0, -400));
+	    scene.add(CreateText("D", 0, -400, 0));
     });
 
     /* ライト */
@@ -86,8 +86,6 @@ $(function() {
         light1.intensity = 1;
         light2.intensity = 1;
     });
-
-
 
     /* キューブ用透過素材 */
     const basicMate = new THREE.MeshBasicMaterial({color : 0xFFFFFF});
@@ -187,63 +185,20 @@ $(function() {
 	const angle90 = Math.PI / -2; // 90度
 	const step = 0.08; // アニメーション単位の移動量
 
-	var existX = 0;
-	var existY = 0;
-	var existZ = 0;
-	var command = '';
+	var cursor = 0;
+	var command = "";
+	var commandOption = "";
+	var opDouble = false;
+	var opPrime = false;
 
 	function animate() {
 
 		requestAnimationFrame(animate);
 
+		$("#tmpCommand").text(command + commandOption);
+
 		/* レンダリング */
 		renderer.render(scene, camera);
-
-		 /* 関数定義 */
-		function workX(flg){
-			var i = flg ? 1 : -1;
-			var next = angle90 * (existX + i);
-			var tmp = cube.rotation.x;
-			if (!flg && (tmp < next) || flg && (tmp > next)) {
-				cube.rotation.x += (step * i * -1);
-				return true; // つづきあり
-			} else {
-				existX += i;
-				cube.rotation.x = next;
-				$("#valX").text(cube.rotation.x);
-				return false; // 終了
-			}
-		}
-
-		function workY(flg){
-			  var i = flg ? 1 : -1;
-			  var next = angle90 * (existY + i);
-			  var tmp = cube.rotation.y;
-			  if (!flg && (tmp < next) || flg && (tmp > next)) {
-				  cube.rotation.y += (step * i * -1);
-				  return true; // つづきあり
-			  } else {
-				  existY += i;
-				  cube.rotation.y = next;
-				  $("#valY").text(cube.rotation.y);
-				  return false; // 終了
-			  }
-		}
-
-		function workZ(flg){
-			  var i = flg ? 1 : -1;
-			  var next = angle90 * (existZ + i);
-			  var tmp = cube.rotation.z;
-			  if (!flg && (tmp < next) || flg && (tmp > next)) {
-				  cube.rotation.z += (step * i * -1);
-				  return true; // つづきあり
-			  } else {
-				  existZ += i;
-				  cube.rotation.z = next;
-				  $("#valZ").text(cube.rotation.z);
-				  return false; // 終了
-			  }
-		}
 
 		function getWorldEulerAngles(object) {
 			const rotation = new THREE.Euler();
@@ -251,11 +206,16 @@ $(function() {
 			return rotation.toVector3(); // オイラー角に変換
 		}
 
+		function round100(number) {
+			return Math.round(number / 100) * 100;
+		}
+
 		function convert(piece, from, to){
 			var worldPos = piece.getWorldPosition(new THREE.Vector3());
-			var wPx = worldPos.x;
-			var wPy = worldPos.y;
-			var wPz = worldPos.z;
+
+			var wPx = round100(worldPos.x);
+			var wPy = round100(worldPos.y);
+			var wPz = round100(worldPos.z);
 			var worldRot = getWorldEulerAngles(piece);
 			var wRx = worldRot.x;
 			var wRy = worldRot.y;
@@ -272,67 +232,27 @@ $(function() {
 			piece.rotation.z = wRz;
 		}
 
-		function combineALL(){
-			pieces.forEach(function(piece, index) {
-				convert(piece, cubeFix, cube);
-			});
-		}
-
-		function combineR(){
-			pieces.forEach(function(piece, index) {
-				//console.log(piece.position.x);
-				if (piece.position.x > 90) {
-					convert(piece, cubeFix, cube);
-				}
-			});
-		}
-
-		function combineL(){
-			pieces.forEach(function(piece, index) {
-				if (piece.position.x < -90) {
-					convert(piece, cubeFix, cube);
-				}
-			});
-		}
-
-		function combineU(){
-			pieces.forEach(function(piece, index) {
-				if (piece.position.y > 90) {
-					convert(piece, cubeFix, cube);
-				}
-			});
-		}
-
-		function combineD(){
-			pieces.forEach(function(piece, index) {
-				if (piece.position.y < -90) {
-					convert(piece, cubeFix, cube);
-				}
-			});
-		}
-
-		function combineF(){
-			pieces.forEach(function(piece, index) {
-				if (piece.position.z > 90) {
-					convert(piece, cubeFix, cube);
-				}
-			});
-		}
-
-		function combineB(){
-			pieces.forEach(function(piece, index) {
-				if (piece.position.z < -90) {
-					convert(piece, cubeFix, cube);
-				}
-			});
-		}
-
 		/* コマンドの読取り */
 		if (command == ''){
 
 			/* 1文字分のコマンドを取得する */
-			if ($("#command").val().length > 0) {
-				command = $("#command").val().charAt(0);
+			var inputCommand = $("#command").val();
+			if (inputCommand.length > 0) {
+				command = inputCommand.charAt(0);
+
+				/* オプション対応 */
+				if (inputCommand.length > 1 && (inputCommand.charAt(1) === 'w' || inputCommand.charAt(1) === '\'')) {
+					if (inputCommand.length > 2 && (inputCommand.charAt(2) === 'w' || inputCommand.charAt(2) === '\'')) {
+						commandOption = inputCommand.charAt(1) + inputCommand.charAt(2);
+					} else {
+						commandOption = inputCommand.charAt(1);
+					}
+				} else {
+					commandOption = "";
+				}
+				opDouble = commandOption.includes('w');
+				opPrime = commandOption.includes('\'');
+
 			}
 
 			/* 視点リセット */
@@ -340,142 +260,204 @@ $(function() {
 			    // 処理なし
 			}
 
-			/* X軸正回転(L'/R) */
-			if (command == 'x') {
-				combineALL();
+			/* X/X'/Y/Y'/Z/Z' */
+			if (command === 'X' || command === 'Y' || command == 'Z' ) {
+	            pieces.forEach(function(piece, index) {
+	                convert(piece, cubeFix, cube);
+	            });
 			}
-			/* X軸逆回転(L/R') */
-			if (command == 'X') {
-				combineALL();
-			}
-			/* Y軸正回転(U/D') */
-			if (command == 'y') {
-				combineALL();
-			}
-			/* Y軸逆回転(U'/D) */
-			if (command == 'Y') {
-				combineALL();
-			}
-			/* Z軸正回転(F/B') */
-			if (command == 'z') {
-				combineALL();
-			}
-			/* Z軸逆回転(F'/B) */
-			if (command == 'Z') {
-				combineALL();
-			}
+
 			/* R/R' */
-			if (command == 'r' || command  == 'R') {
-				combineR();
+			if (command === 'R') {
+	            pieces.forEach(function(piece, index) {
+	                if (piece.position.x === 100) {
+	                    convert(piece, cubeFix, cube);
+	                }
+	                if (opDouble && piece.position.x === 0) { // 2層回し
+	                	convert(piece, cubeFix, cube);
+	                }
+	            });
 			}
+
+            /* M/M' */
+            if (command === 'M') {
+                pieces.forEach(function(piece, index) {
+                    if (piece.position.x === 0) {
+                        convert(piece, cubeFix, cube);
+                    }
+                });
+            }
+
 			/* L/L' */
-			if (command == 'l' || command  == 'L') {
-				combineL();
+			if (command === 'L') {
+	            pieces.forEach(function(piece, index) {
+	                if (piece.position.x === -100) {
+	                    convert(piece, cubeFix, cube);
+	                }
+	            });
 			}
+
 			/* U/U' */
-			if (command == 'u' || command  == 'U') {
-				combineU();
+			if (command === 'U') {
+	            pieces.forEach(function(piece, index) {
+	                if (piece.position.y === 100) {
+	                    convert(piece, cubeFix, cube);
+	                }
+                    if (opDouble && piece.position.y === 0) { // 2層回し
+                        convert(piece, cubeFix, cube);
+                    }
+	            });
 			}
+
+            /* E/E' */
+            if (command === 'E') {
+                pieces.forEach(function(piece, index) {
+                    if (piece.position.y === 0) {
+                        convert(piece, cubeFix, cube);
+                    }
+                });
+            }
+
 			/* D/D' */
-			if (command == 'd' || command  == 'D') {
-				combineD();
+			if (command === 'D') {
+	            pieces.forEach(function(piece, index) {
+	                if (piece.position.y === -100) {
+	                    convert(piece, cubeFix, cube);
+	                }
+	            });
 			}
+
 			/* F/F' */
-			if (command == 'f' || command  == 'F') {
-				combineF();
+			if (command === 'F') {
+	            pieces.forEach(function(piece, index) {
+	                if (piece.position.z === 100) {
+	                    convert(piece, cubeFix, cube);
+	                }
+                    if (opDouble && piece.position.z === 0) { // 2層回し
+                        convert(piece, cubeFix, cube);
+                    }
+	            });
 			}
+
+            /* S/S' */
+            if (command === 'S') {
+                pieces.forEach(function(piece, index) {
+                    if (piece.position.z == 0) {
+                        convert(piece, cubeFix, cube);
+                    }
+                });
+            }
+
 			/* B/B' */
-			if (command == 'b' || command  == 'B') {
-				combineB();
+			if (command === 'B') {
+	            pieces.forEach(function(piece, index) {
+	                if (piece.position.z === -100) {
+	                    convert(piece, cubeFix, cube);
+	                }
+	            });
 			}
 
 			/* 1文字分のコマンドを消す */
-		    if ($("#command").val().length > 0) {
-		        var tmp = $("#command").val().slice(1);
+		    if (inputCommand.length > 0) {
+		        var tmp = inputCommand.slice(1 + commandOption.length);
 		        $("#command").val(tmp);
 		    }
 			return;
 		}
-		//alert(command);ruRU
 
 		var hasNext = false;
 
-		/* X軸正回転(L'/R) */
-		if (command == 'x') {
-			hasNext = workX(true);
+        function workX(flg){
+            var i = flg ? 1 : -1;
+            var next = angle90 * (cursor + i);
+            var tmp = cube.rotation.x;
+            if (!flg && (tmp < next) || flg && (tmp > next)) {
+                cube.rotation.x += (step * i * -1);
+                return true; // つづきあり
+            } else {
+                cursor += i;
+                cube.rotation.x = next;
+                return false; // 終了
+            }
+        }
+
+        function workY(flg){
+              var i = flg ? 1 : -1;
+              var next = angle90 * (cursor + i);
+              var tmp = cube.rotation.y;
+              if (!flg && (tmp < next) || flg && (tmp > next)) {
+                  cube.rotation.y += (step * i * -1);
+                  return true; // つづきあり
+              } else {
+                  cursor += i;
+                  cube.rotation.y = next;
+                  return false; // 終了
+              }
+        }
+
+        function workZ(flg){
+              var i = flg ? 1 : -1;
+              var next = angle90 * (cursor + i);
+              var tmp = cube.rotation.z;
+              if (!flg && (tmp < next) || flg && (tmp > next)) {
+                  cube.rotation.z += (step * i * -1);
+                  return true; // つづきあり
+              } else {
+                  cursor += i;
+                  cube.rotation.z = next;
+                  return false; // 終了
+              }
+        }
+
+		/* X軸回転(L/R) */
+		if (command === 'X') {
+			hasNext = workX(!opPrime);
 		}
-		/* X軸逆回転(L/R') */
-		if (command == 'X') {
-			hasNext = workX(false);
+		/* Y軸回転(U/D) */
+		if (command === 'Y') {
+			hasNext = workY(!opPrime);
 		}
-		/* Y軸正回転(U/D') */
-		if (command == 'y') {
-			hasNext = workY(true);
+		/* Z軸回転(F/B) */
+		if (command === 'Z') {
+			hasNext = workZ(!opPrime);
 		}
-		/* Y軸逆回転(U'/D) */
-		if (command == 'Y') {
-			hasNext = workY(false);
+		/* R */
+		if (command === 'R') {
+			hasNext = workX(!opPrime);
 		}
-		/* Z軸正回転(F/B') */
-		if (command == 'z') {
-			hasNext = workZ(true);
+		/* L/M */
+		if (command === 'L' || command === 'M') {
+			hasNext = workX(opPrime);
 		}
-		/* Z軸逆回転(F'/B) */
-		if (command == 'Z') {
-			hasNext = workZ(false);
+		/* U */
+		if (command === 'U') {
+			hasNext = workY(!opPrime);
 		}
-		/* R/R' */
-		if (command == 'r') {
-			hasNext = workX(true);
+		/* D/E */
+		if (command === 'D' || command === 'E') {
+			hasNext = workY(opPrime);
 		}
-		if (command  == 'R') {
-			hasNext = workX(false);
+		/* F */
+		if (command === 'F') {
+			hasNext = workZ(!opPrime);
 		}
-		/* L/L' */
-		if (command == 'l') {
-			hasNext = workX(false);
-		}
-		if (command  == 'L') {
-			hasNext = workX(true);
-		}
-		/* U/U' */
-		if (command == 'u') {
-			hasNext = workY(true);
-		}
-		if (command  == 'U') {
-			hasNext = workY(false);
-		}
-		/* D/D' */
-		if (command == 'd') {
-			hasNext = workY(false);
-		}
-		if (command  == 'D') {
-			hasNext = workY(true);
-		}
-		/* F/F' */
-		if (command == 'f') {
-			hasNext = workZ(true);
-		}
-		if (command  == 'F') {
-			hasNext = workZ(false);
-		}
-		/* B/B' */
-		if (command == 'b') {
-			hasNext = workZ(false);
-		}
-		if (command  == 'B') {
-			hasNext = workZ(true);
+		/* B/S */
+		if (command === 'B' || command === 'S') {
+			hasNext = workZ(opPrime);
 		}
 
 		/* 視点リセット */
-		if (command  == '0') {
+		if (command === '0') {
 			camera.position.set(cameraX, cameraY, cameraZ);
 			camera.lookAt(new THREE.Vector3(0, 0, 0));
 		}
 
-
 		if(command != "" && hasNext == false){
+
 			command = ""; // コマンド初期化
+			commandOption = "";
+			opDouble = false;
+			opPrime = false;
 
 			pieces.forEach(function(piece, index) {
 				convert(piece, cube, cubeFix);
@@ -488,9 +470,7 @@ $(function() {
 			cube.rotation.y = 0;
 			cube.rotation.z = 0;
 
-			existX = 0;
-			existY = 0;
-			existZ = 0;
+			cursor = 0;
 
 			/* レンダリング */
 			renderer.render(scene, camera);
@@ -501,6 +481,14 @@ $(function() {
 
 	/* ショートカットキー制御 */
 	$(window).keyup(function(e){
+		if(e.keyCode === 82) { // R
+			if(event.shiftKey) {
+				$("#command").val($("#command").val() + "R'");
+			} else {
+				$("#command").val($("#command").val() + "R");
+			}
+		}
+		/*
 	      if(e.keyCode == 48){ // 0
 	    	  $("#command").val("0");
 	      }
@@ -559,8 +547,9 @@ $(function() {
              if(e.keyCode == 106){ // テンキー*
                  $("#command").val("F");
              }
-
+		   */
 	  });
+
 });
 
 function Shuffle(){
@@ -579,45 +568,34 @@ function SetCommand(cmd){
 </script>
 </head>
 <body style="background-color: black;">
-	<input type="text" id="command" /><br>
     <button onclick="location.reload();">Reset</button>
     <button onclick="Shuffle();">Shuffle</button>
     <br>
-    <button onclick="SetCommand('x');">X</button><button onclick="SetCommand('X');">X'</button>
-    <button onclick="SetCommand('y');">Y</button><button onclick="SetCommand('Y');">Y'</button>
-    <button onclick="SetCommand('z');">Z</button><button onclick="SetCommand('Z');">Z'</button>
+    <button onclick="SetCommand('X');">X</button><button onclick="SetCommand('X\'');">X'</button>
+    <button onclick="SetCommand('X');">Y</button><button onclick="SetCommand('X\'');">Y'</button>
+    <button onclick="SetCommand('X');">Z</button><button onclick="SetCommand('X\'');">Z'</button>
     <br>
-    <button onclick="SetCommand('r');">R</button><button onclick="SetCommand('R');">R'</button>
-    <button onclick="SetCommand('XrL');">M</button><button onclick="SetCommand('xRl');">M'</button>
-    <button onclick="SetCommand('l');">L</button><button onclick="SetCommand('L');">L'</button>
+    <button onclick="SetCommand('R');">R</button><button onclick="SetCommand('R\'');">R'</button>
+    <button onclick="SetCommand('M');">M</button><button onclick="SetCommand('M\'');">M'</button>
+    <button onclick="SetCommand('L');">L</button><button onclick="SetCommand('L\'');">L'</button>
     <br>
-    <button onclick="SetCommand('u');">U</button><button onclick="SetCommand('U');">U'</button>
-    <button onclick="SetCommand('YuD');">E</button><button onclick="SetCommand('yUd');">E'</button>
-    <button onclick="SetCommand('d');">D</button><button onclick="SetCommand('D');">D'</button>
+    <button onclick="SetCommand('U');">U</button><button onclick="SetCommand('U\'');">U'</button>
+    <button onclick="SetCommand('E');">E</button><button onclick="SetCommand('E\'');">E'</button>
+    <button onclick="SetCommand('D');">D</button><button onclick="SetCommand('D\'');">D'</button>
     <br>
-    <button onclick="SetCommand('f');">F</button><button onclick="SetCommand('F');">F'</button>
-    <button onclick="SetCommand('ZfB');">S</button><button onclick="SetCommand('ZFb');">S'</button>
-    <button onclick="SetCommand('b');">B</button><button onclick="SetCommand('B');">B'</button>
+    <button onclick="SetCommand('F');">F</button><button onclick="SetCommand('F\'');">F'</button>
+    <button onclick="SetCommand('S');">S</button><button onclick="SetCommand('S\'');">S'</button>
+    <button onclick="SetCommand('B');">B</button><button onclick="SetCommand('B\'');">B'</button>
     <br>
-    <button onclick="SetCommand('xl');">Rw</button><button onclick="SetCommand('XL');">R'w</button>
-    <button onclick="SetCommand('yd');">Uw</button><button onclick="SetCommand('YD');">U'w</button>
-    <button onclick="SetCommand('zb');">Fw</button><button onclick="SetCommand('ZB');">F'w</button>
+    <button onclick="SetCommand('Rw');">Rw</button><button onclick="SetCommand('R\'w');">R'w</button>
+    <button onclick="SetCommand('Uw');">Uw</button><button onclick="SetCommand('U\'w');">U'w</button>
+    <button onclick="SetCommand('Fw');">Fw</button><button onclick="SetCommand('F\'w');">F'w</button>
+    <br>
+    <span style="background-color: white;">
+       コマンドで指定：<span id="tmpCommand">X</span><input type="text" id="command" style="ime-mode: disabled" /><br>
+    </span>
     <br>
     <button id="lightUp">💡+</button><button id="lightDown">💡-</button><br>
 	<canvas id="canvasCube"></canvas>
-	<!--
-	<p style="background-color: white;">
-
-		<span>X軸回転：</span><span id="valX"></span><br>
-		<span>Y軸回転：</span><span id="valY"></span><br>
-		<span>Z軸回転：</span><span id="valZ"></span><br>
-		<span>cubeの状態：</span><span id="infoCube"></span><br>
-		<span>cubeFixの状態：</span><span id="infoCubeFix"></span><br>
-		<span>FDRの状態：</span><span id="infoFdr"></span><br>
-		<span>worldの状態：</span><span id="infoWorld"></span><br>
-
-	</p>
-	-->
-
 </body>
 </html>
