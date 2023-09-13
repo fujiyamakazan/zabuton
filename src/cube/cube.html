@@ -13,6 +13,12 @@
  * オブジェクトクリックで操作可能とする
  */
 
+var pieces = [];
+const white = new THREE.MeshLambertMaterial({color : 0xFFFFFF});
+const yellow = new THREE.MeshLambertMaterial({color : 0xFFD800});
+const red = new THREE.MeshLambertMaterial({color : 0xFF0000});
+const blue = new THREE.MeshLambertMaterial({color : 0x0000FF});
+
 $(function() {
 
 	$("#command").focus();
@@ -21,7 +27,7 @@ $(function() {
 	const width = 300;
 	const height = 300;
 	const renderer = new THREE.WebGLRenderer({
-		canvas : document.querySelector('#canvasCube'),
+		canvas : document.querySelector("canvas"),
 		alpha : true
 	});
 	renderer.setSize(width, height);
@@ -104,28 +110,22 @@ $(function() {
 
 	/* ピース */
 	function createPiece(x, y, z) {
-		var materials = [
-	        new THREE.MeshLambertMaterial({color : 0x000000}), // R面
-	        new THREE.MeshLambertMaterial({color : 0x000000}), // L面
-	        new THREE.MeshLambertMaterial({color : 0x000000}), // U面
-	        new THREE.MeshLambertMaterial({color : 0x000000}), // D面
-	        new THREE.MeshLambertMaterial({color : 0x000000}), // F面
-	        new THREE.MeshLambertMaterial({color : 0x000000}) // B面
-	    ];
+		const black = new THREE.MeshLambertMaterial({color : 0x000000});
+		var materials = [black, black, black, black, black, black];
 		if (x == 100) {
-			materials[0] = new THREE.MeshLambertMaterial({color : 0xFF0000}); // R面赤
+			materials[0] = red; // R面赤
 		}
         if (x == -100) {
             materials[1] = new THREE.MeshLambertMaterial({color : 0xF58220}); // L面橙
         }
         if (y == 100) {
-            materials[2] = new THREE.MeshLambertMaterial({color : 0xFFD800}); // U面黄
+            materials[2] = yellow; // U面黄
         }
         if (y == -100) {
-            materials[3] = new THREE.MeshLambertMaterial({color : 0xFFFFFF}); // D面白
+            materials[3] = white; // D面白
         }
         if (z == 100) {
-            materials[4] = new THREE.MeshLambertMaterial({color : 0x0000FF}); // F面青
+            materials[4] = blue; // F面青
         }
         if (z == -100) {
             materials[5] = new THREE.MeshLambertMaterial({color : 0x009944}); //  B面緑
@@ -136,7 +136,6 @@ $(function() {
 		mesh.position.set(x, y, z);
 		return mesh;
 	}
-	var pieces = [];
 
 	pieces.push(createPiece(-100, 100, -100)); // BUL
 	pieces.push(createPiece(0, 100, -100)); // BU
@@ -188,12 +187,14 @@ $(function() {
 	var cursor = 0;
 	var command = "";
 	var commandOption = "";
-	var opDouble = false;
+	var opTowLayer = false;
 	var opPrime = false;
+	var opDouble = false;
 
 	function animate() {
 
 		requestAnimationFrame(animate);
+
 
 		$("#tmpCommand").text(command + commandOption);
 
@@ -233,16 +234,17 @@ $(function() {
 		}
 
 		/* コマンドの読取り */
-		if (command == ''){
+
+		if (command == '' && !$("#wait").is(':checked')){
 
 			/* 1文字分のコマンドを取得する */
 			var inputCommand = $("#command").val();
 			if (inputCommand.length > 0) {
-				command = inputCommand.charAt(0);
+				command = inputCommand.charAt(0).toUpperCase();
 
 				/* オプション対応 */
-				if (inputCommand.length > 1 && (inputCommand.charAt(1) === 'w' || inputCommand.charAt(1) === '\'')) {
-					if (inputCommand.length > 2 && (inputCommand.charAt(2) === 'w' || inputCommand.charAt(2) === '\'')) {
+				if (inputCommand.length > 1 && (inputCommand.charAt(1) === "w" || inputCommand.charAt(1) === "'"|| inputCommand.charAt(1) === "2")) {
+					if (inputCommand.length > 2 && (inputCommand.charAt(2) === "w" || inputCommand.charAt(2) === "'"|| inputCommand.charAt(1) === "2")) {
 						commandOption = inputCommand.charAt(1) + inputCommand.charAt(2);
 					} else {
 						commandOption = inputCommand.charAt(1);
@@ -250,18 +252,18 @@ $(function() {
 				} else {
 					commandOption = "";
 				}
-				opDouble = commandOption.includes('w');
-				opPrime = commandOption.includes('\'');
-
+				opTowLayer = commandOption.includes("w");
+				opPrime = commandOption.includes("'");
+				opDouble = commandOption.includes("2");
 			}
 
 			/* 視点リセット */
-			if (command == '0') {
+			if (command == "0") {
 			    // 処理なし
 			}
 
 			/* X/X'/Y/Y'/Z/Z' */
-			if (command === 'X' || command === 'Y' || command == 'Z' ) {
+			if (command === "X" || command === "Y" || command == "Z" ) {
 	            pieces.forEach(function(piece, index) {
 	                convert(piece, cubeFix, cube);
 	            });
@@ -273,7 +275,7 @@ $(function() {
 	                if (piece.position.x === 100) {
 	                    convert(piece, cubeFix, cube);
 	                }
-	                if (opDouble && piece.position.x === 0) { // 2層回し
+	                if (opTowLayer && piece.position.x === 0) { // 2層回し
 	                	convert(piece, cubeFix, cube);
 	                }
 	            });
@@ -294,6 +296,9 @@ $(function() {
 	                if (piece.position.x === -100) {
 	                    convert(piece, cubeFix, cube);
 	                }
+                    if (opTowLayer && piece.position.x === 0) { // 2層回し
+                        convert(piece, cubeFix, cube);
+                    }
 	            });
 			}
 
@@ -303,7 +308,7 @@ $(function() {
 	                if (piece.position.y === 100) {
 	                    convert(piece, cubeFix, cube);
 	                }
-                    if (opDouble && piece.position.y === 0) { // 2層回し
+                    if (opTowLayer && piece.position.y === 0) { // 2層回し
                         convert(piece, cubeFix, cube);
                     }
 	            });
@@ -324,6 +329,9 @@ $(function() {
 	                if (piece.position.y === -100) {
 	                    convert(piece, cubeFix, cube);
 	                }
+                    if (opTowLayer && piece.position.y === 0) { // 2層回し
+                        convert(piece, cubeFix, cube);
+                    }
 	            });
 			}
 
@@ -333,7 +341,7 @@ $(function() {
 	                if (piece.position.z === 100) {
 	                    convert(piece, cubeFix, cube);
 	                }
-                    if (opDouble && piece.position.z === 0) { // 2層回し
+                    if (opTowLayer && piece.position.z === 0) { // 2層回し
                         convert(piece, cubeFix, cube);
                     }
 	            });
@@ -354,6 +362,9 @@ $(function() {
 	                if (piece.position.z === -100) {
 	                    convert(piece, cubeFix, cube);
 	                }
+                    if (opTowLayer && piece.position.z === 0) { // 2層回し
+                        convert(piece, cubeFix, cube);
+                    }
 	            });
 			}
 
@@ -370,6 +381,9 @@ $(function() {
         function workX(flg){
             var i = flg ? 1 : -1;
             var next = angle90 * (cursor + i);
+            if (opDouble) {
+            	next = next * 2;
+            }
             var tmp = cube.rotation.x;
             if (!flg && (tmp < next) || flg && (tmp > next)) {
                 cube.rotation.x += (step * i * -1);
@@ -384,6 +398,9 @@ $(function() {
         function workY(flg){
               var i = flg ? 1 : -1;
               var next = angle90 * (cursor + i);
+              if (opDouble) {
+                  next = next * 2;
+              }
               var tmp = cube.rotation.y;
               if (!flg && (tmp < next) || flg && (tmp > next)) {
                   cube.rotation.y += (step * i * -1);
@@ -398,6 +415,9 @@ $(function() {
         function workZ(flg){
               var i = flg ? 1 : -1;
               var next = angle90 * (cursor + i);
+              if (opDouble) {
+                  next = next * 2;
+              }
               var tmp = cube.rotation.z;
               if (!flg && (tmp < next) || flg && (tmp > next)) {
                   cube.rotation.z += (step * i * -1);
@@ -456,8 +476,9 @@ $(function() {
 
 			command = ""; // コマンド初期化
 			commandOption = "";
-			opDouble = false;
+			opTowLayer = false;
 			opPrime = false;
+			opDouble = false;
 
 			pieces.forEach(function(piece, index) {
 				convert(piece, cube, cubeFix);
@@ -479,91 +500,136 @@ $(function() {
 	} // animate
 	animate();
 
-	/* ショートカットキー制御 */
-	$(window).keyup(function(e){
-		if(e.keyCode === 82) { // R
-			if(event.shiftKey) {
-				$("#command").val($("#command").val() + "R'");
-			} else {
-				$("#command").val($("#command").val() + "R");
-			}
-		}
-		/*
-	      if(e.keyCode == 48){ // 0
-	    	  $("#command").val("0");
-	      }
-
-	      if(e.keyCode == 37){ // ←
-	    	  $("#command").val("Z");
-	      }
-             if(e.keyCode == 38){ // ↑
-                 $("#command").val("x");
-             }
-	      if(e.keyCode == 39){ // →
-	    	  $("#command").val("z");
-	      }
-	      if(e.keyCode == 40){ // ↓
-                 $("#command").val("X");
-             }
-
-             if(e.keyCode == 100){ // テンキー4
-                 $("#command").val("y");
-             }
-             if(e.keyCode == 102){ // テンキー6
-                 $("#command").val("Y");
-             }
-
-             if(e.keyCode == 105){ // テンキー9
-                 $("#command").val("r");
-             }
-             if(e.keyCode == 99){ // テンキー3
-                 $("#command").val("R");
-             }
-
-             if(e.keyCode == 103){ // テンキー7
-                 $("#command").val("L");
-             }
-             if(e.keyCode == 97){ // テンキー1
-                 $("#command").val("l");
-             }
-
-             if(e.keyCode == 104){ // テンキー8
-                 $("#command").val("u");
-             }
-             if(e.keyCode == 101){ // テンキー5
-                 $("#command").val("U");
-             }
-
-             if(e.keyCode == 98){ // テンキー2
-                 $("#command").val("D");
-             }
-             if(e.keyCode == 96){ // テンキー0
-                 $("#command").val("d");
-             }
-
-             if(e.keyCode == 111){ // テンキー/
-                 $("#command").val("f");
-             }
-             if(e.keyCode == 106){ // テンキー*
-                 $("#command").val("F");
-             }
-		   */
-	  });
-
 });
 
 function Shuffle(){
-    const characters = 'rRlLuUdDfFbB';
-    let randomString = '';
-    for (let i = 0; i < 10; i++) {
-        const randomIndex = Math.floor(Math.random() * characters.length);
-        randomString += characters.charAt(randomIndex);
+    const charsCommand = "RLUDFB";
+    const charsOp = " '2w"; // オプション無し/プライム/ダブル
+    let randomString = "";
+    for (let i = 0; i < 5; i++) {
+        const r1 = Math.floor(Math.random() * charsCommand.length);
+        randomString += charsCommand.charAt(r1);
+
+        const r2 = Math.floor(Math.random() * charsOp.length);
+        randomString += charsOp.charAt(r2);
+
     }
     $("#command").val(randomString);
 }
+
 function SetCommand(cmd){
     $("#command").val(cmd);
 }
+
+function GetColor(str){
+    var target;
+    if (str === "white") {
+        target = white;
+    } else if (str === "yellow") {
+        target = yellow;
+    } else if (str === "red") {
+        target = red;
+    } else if (str === "blue") {
+        target = blue;
+    }
+    return target;
+}
+
+function GetCenter(color) {
+    var target;
+    pieces.forEach(function(piece, index) {
+        var isCenter =
+        	(piece.position.x == 0 && piece.position.y == 0 && Math.abs(piece.position.z) == 100) // F/D面
+           || (Math.abs(piece.position.x) == 100 && piece.position.y == 0 && piece.position.z == 0) // R/L面
+           || (piece.position.x == 0 && Math.abs(piece.position.y) == 100 && piece.position.z == 0); // U/D面
+        if (isCenter) {
+            piece.material.forEach(function(material, index) {
+                if (color === material) {
+                	target = piece;
+                }
+            });
+        }
+    });
+    return target;
+}
+
+function GetEdge(color1, color2) {
+    var target;
+    pieces.forEach(function(piece, index) {
+        var isEdge =
+        	(piece.position.x == 0 && Math.abs(piece.position.y) == 100 && Math.abs(piece.position.z) == 100) // F/D面
+           || (Math.abs(piece.position.x) == 100 && piece.position.y == 0 && Math.abs(piece.position.z == 100)) // R/L面
+           || (Math.abs(piece.position.x == 100) && Math.abs(piece.position.y) == 100 && piece.position.z == 0); // U/D面
+        if (isEdge) {
+            piece.material.forEach(function(material1, index) {
+                if (color1 === material1) {
+                	piece.material.forEach(function(material2, index) {
+                        if (color2 === material2) {
+                            target = piece;
+                        }
+                    });
+                }
+            });
+        }
+    });
+    return target;
+}
+
+function SetAlgorithmUp(str){
+	var color = GetColor(str);
+    var center = GetCenter(color)
+    if (center.position.y == 100){ // U面
+        SetCommand("");
+    } else if (center.position.y == -100){ // D面
+    	SetCommand("X2");
+    } else if (center.position.x == 100) { // R面
+        SetCommand("Z'");
+    } else if (center.position.x == -100) { // L面
+    	SetCommand("Z");
+    } else if (center.position.z == 100) { // F面
+        SetCommand("X");
+    } else if (center.position.z == -100) { // B面
+        SetCommand("X'");
+    }
+}
+
+function SetAlgorithmFront(str){
+    var color = GetColor(str);
+    var center = GetCenter(color)
+    if (center.position.y == 100){ // U面
+        SetCommand("X'");
+    } else if (center.position.y == -100){ // D面
+        SetCommand("X");
+    } else if (center.position.x == 100) { // R面
+        SetCommand("Y");
+    } else if (center.position.x == -100) { // L面
+        SetCommand("Y'");
+    } else if (center.position.z == 100) { // F面
+        SetCommand("");
+    } else if (center.position.z == -100) { // B面
+        SetCommand("Y2");
+    }
+}
+
+function SetAlgorithmCross(){
+    var edge = GetEdge(white, blue);
+    console.log(edge.position);
+
+    if (edge.position.y == 100){ // U面
+        SetCommand("X'");
+    } else if (edge.position.y == -100){ // D面
+        SetCommand("X");
+    } else if (edge.position.x == 100) { // R面
+        SetCommand("Y");
+    } else if (edge.position.x == -100) { // L面
+        SetCommand("Y'");
+    } else if (edge.position.z == 100) { // F面
+        SetCommand("");
+    } else if (edge.position.z == -100) { // B面
+        SetCommand("Y2");
+    }
+}
+
 
 </script>
 </head>
@@ -572,8 +638,8 @@ function SetCommand(cmd){
     <button onclick="Shuffle();">Shuffle</button>
     <br>
     <button onclick="SetCommand('X');">X</button><button onclick="SetCommand('X\'');">X'</button>
-    <button onclick="SetCommand('X');">Y</button><button onclick="SetCommand('X\'');">Y'</button>
-    <button onclick="SetCommand('X');">Z</button><button onclick="SetCommand('X\'');">Z'</button>
+    <button onclick="SetCommand('Y');">Y</button><button onclick="SetCommand('Y\'');">Y'</button>
+    <button onclick="SetCommand('Z');">Z</button><button onclick="SetCommand('Z\'');">Z'</button>
     <br>
     <button onclick="SetCommand('R');">R</button><button onclick="SetCommand('R\'');">R'</button>
     <button onclick="SetCommand('M');">M</button><button onclick="SetCommand('M\'');">M'</button>
@@ -588,14 +654,25 @@ function SetCommand(cmd){
     <button onclick="SetCommand('B');">B</button><button onclick="SetCommand('B\'');">B'</button>
     <br>
     <button onclick="SetCommand('Rw');">Rw</button><button onclick="SetCommand('R\'w');">R'w</button>
+    <button onclick="SetCommand('Lw');">Lw</button><button onclick="SetCommand('L\'w');">L'w</button>
+    <br>
     <button onclick="SetCommand('Uw');">Uw</button><button onclick="SetCommand('U\'w');">U'w</button>
+    <button onclick="SetCommand('Dw');">Dw</button><button onclick="SetCommand('D\'w');">D'w</button>
+    <br>
     <button onclick="SetCommand('Fw');">Fw</button><button onclick="SetCommand('F\'w');">F'w</button>
+    <button onclick="SetCommand('Bw');">Bw</button><button onclick="SetCommand('B\'w');">B'w</button>
     <br>
     <span style="background-color: white;">
        コマンドで指定：<span id="tmpCommand">X</span><input type="text" id="command" style="ime-mode: disabled" /><br>
+       <label><input type="checkbox" id="wait"/>wait</label>
     </span>
     <br>
     <button id="lightUp">💡+</button><button id="lightDown">💡-</button><br>
-	<canvas id="canvasCube"></canvas>
+	<canvas></canvas><br>
+	<button onclick="SetAlgorithmUp('white');">白面を上へ</button>
+	<button onclick="SetAlgorithmUp('yellow');">黄面を上へ</button>
+	<button onclick="SetAlgorithmFront('blue');">青面を前へ</button>
+	<button onclick="SetAlgorithmFront('red');">赤面を前へ</button>
+	<button onclick="SetAlgorithmCross();">上面にクロス</button>
 </body>
 </html>
