@@ -19,6 +19,22 @@ const yellow = new THREE.MeshLambertMaterial({color : 0xFFD800});
 const red = new THREE.MeshLambertMaterial({color : 0xFF0000});
 const blue = new THREE.MeshLambertMaterial({color : 0x0000FF});
 
+const materialIndexR = 0;
+const materialIndexL = 1;
+const materialIndexU = 2;
+const materialIndexD = 3;
+const materialIndexF = 4;
+const materialIndexB = 5;
+
+function materialIndexToFace(materialIndex) {
+	if (materialIndex === materialIndexR) return "R";
+	if (materialIndex === materialIndexL) return "L";
+	if (materialIndex === materialIndexU) return "U";
+	if (materialIndex === materialIndexD) return "D";
+	if (materialIndex === materialIndexF) return "F";
+	if (materialIndex === materialIndexB) return "B";
+}
+
 $(function() {
 
 	$("#command").focus();
@@ -113,22 +129,22 @@ $(function() {
 		const black = new THREE.MeshLambertMaterial({color : 0x000000});
 		var materials = [black, black, black, black, black, black];
 		if (x == 100) {
-			materials[0] = red; // R面赤
+			materials[materialIndexR] = red; // 0=R面赤
 		}
         if (x == -100) {
-            materials[1] = new THREE.MeshLambertMaterial({color : 0xF58220}); // L面橙
+            materials[materialIndexL] = new THREE.MeshLambertMaterial({color : 0xF58220}); //1= L面橙
         }
         if (y == 100) {
-            materials[2] = yellow; // U面黄
+            materials[materialIndexU] = yellow; // 2=U面黄
         }
         if (y == -100) {
-            materials[3] = white; // D面白
+            materials[materialIndexD] = white; // 3=D面白
         }
         if (z == 100) {
-            materials[4] = blue; // F面青
+            materials[materialIndexF] = blue; // 4=F面青
         }
         if (z == -100) {
-            materials[5] = new THREE.MeshLambertMaterial({color : 0x009944}); //  B面緑
+            materials[materialIndexB] = new THREE.MeshLambertMaterial({color : 0x009944}); //  5=B面緑
         }
 
 		var material = new THREE.MeshFaceMaterial(materials);
@@ -613,7 +629,19 @@ function SetAlgorithmFront(str){
 
 function SetAlgorithmCross(){
     var edge = GetEdge(white, blue);
+
     console.log(edge.position);
+    console.log(edge.rotation);
+
+    edge.material.forEach(function(material, index) {
+    	if (material === white) {
+    		console.log("white:" + materialIndexToFace(index));
+    	}
+    	if (material === blue) {
+            console.log("blue:" + materialIndexToFace(index));
+        }
+    });
+
 
     /*
     if (edge.position.y == 100){ // U面
