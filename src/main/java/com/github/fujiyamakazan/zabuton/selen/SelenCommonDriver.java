@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -100,7 +101,7 @@ public abstract class SelenCommonDriver implements Serializable {
      */
     private class ChoromeDriverFactory extends DriverFactory {
         private static final long serialVersionUID = 1L;
-        private static final String DRIVER_EXE = "chromedriver-win64/chromedriver.exe";
+        private static final String DRIVER_EXE = "chromedriver.exe";
 
         public ChoromeDriverFactory(File driverDir) {
             super(driverDir);
@@ -108,7 +109,7 @@ public abstract class SelenCommonDriver implements Serializable {
 
         @Override
         public String getDriverFileName() {
-            return DRIVER_EXE;
+            return "" + DRIVER_EXE;
         }
 
         @Override
@@ -125,9 +126,8 @@ public abstract class SelenCommonDriver implements Serializable {
             Document doc = Jsoup.parse(html);
             Elements trs = doc.getElementsByTag("tr");
 
-
             String url = "";
-            for (Element tr: trs) {
+            for (Element tr : trs) {
                 Elements ths = tr.getElementsByTag("th");
                 if (ths.size() >= 2) {
                     if (ths.get(0).text().equals("chromedriver")
@@ -136,41 +136,9 @@ public abstract class SelenCommonDriver implements Serializable {
                         break;
                     }
                 }
-
             }
-//
-//
-//
-//
-//            String ver = null;
-//            for (Iterator<Element> ite = links.listIterator(); ite.hasNext();) {
-//                Element link = ite.next();
-//                String text = link.text();
-//                if (StringUtils.startsWith(text, "ChromeDriver")) {
-//                    Matcher m = Pattern.compile("[^0-9.]+([0-9.]+)").matcher(text);
-//                    if (m.find()) {
-//                        ver = m.group(1);
-//                        break;
-//                    }
-//                }
-//            }
-//
-//            //            int count = 0;
-//            //            for (String line : html.split("\n")) {
-//            //                if (StringUtils.startsWith(line, "If you are using Chrome version ")) {
-//            //                    if (count == 0) { // 1行目は飛ばす（現行バージョンではない可能性が高い。）
-//            //                        count++;
-//            //                        continue;
-//            //                    }
-//            //                    String keyword = "ChromeDriver ";
-//            //                    String ver = line.substring(line.lastIndexOf(keyword) + keyword.length());
-//            String url = String.format("https://chromedriver.storage.googleapis.com/"
-//                + "%s/chromedriver_win32.zip", ver);
-//
-//            ver = "114.0.5735.90";
 
             File zip = new File(driverFile.getAbsolutePath() + ".zip");
-            //new HttpAccessObject().download(url, zip);
             hao.download(url, zip);
             LOGGER.debug(url);
             new ZipUtils.UnzipTask(zip) {
@@ -179,15 +147,19 @@ public abstract class SelenCommonDriver implements Serializable {
                 @Override
                 protected void runByEntry(String name, File file) {
                     try {
-                        FileUtils.copyFile(file, new File(driverFile.getParentFile(), name));
+                        if (StringUtils.contains(name, DRIVER_EXE)) {
+                            if (StringUtils.contains(name, "/")) {
+                                name = name.substring(name.indexOf('/') + 1);
+                            }
+                            File unpackfile = new File(driverFile.getParentFile(), name);
+                            FileUtils.copyFile(file, unpackfile);
+                        }
+
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
                 }
             }.start();
-            //                    break;
-            //                }
-            //            }
 
         }
 
@@ -674,7 +646,6 @@ public abstract class SelenCommonDriver implements Serializable {
         throw new RuntimeException("未実装");
     }
 
-
     /**
      * Do Test.
      */
@@ -694,7 +665,6 @@ public abstract class SelenCommonDriver implements Serializable {
                 return null;
             }
         };
-
 
         cmd.get("http://google.co.jp");
 
