@@ -9,7 +9,6 @@ import org.apache.commons.lang3.tuple.Pair;
  * KeyとValueをペアで保持するオブジェクト。
  *
  * Pair&lt;Object, Object&gt;へ移行します。
- * @author k_inaba
  */
 public class KeyValueObj<K, V> implements Serializable {
     private static final long serialVersionUID = 1L;

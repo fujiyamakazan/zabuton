@@ -6,8 +6,6 @@ import java.io.Serializable;
  * KeyとValueをペアで保持するオブジェクト。保持する値はStringに限定します。
  *
  * Pair&lt;String, String&gt;へ移行します。
- *
- * @author k_inaba
  */
 public class KeyValue extends KeyValueObj<String, String> implements Serializable {
     private static final long serialVersionUID = 1L;

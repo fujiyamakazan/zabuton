@@ -6,15 +6,11 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -104,7 +100,7 @@ public abstract class SelenCommonDriver implements Serializable {
      */
     private class ChoromeDriverFactory extends DriverFactory {
         private static final long serialVersionUID = 1L;
-        private static final String DRIVER_EXE = "chromedriver.exe";
+        private static final String DRIVER_EXE = "chromedriver-win64/chromedriver.exe";
 
         public ChoromeDriverFactory(File driverDir) {
             super(driverDir);
@@ -117,7 +113,8 @@ public abstract class SelenCommonDriver implements Serializable {
 
         @Override
         public String getDriverUrl() {
-            return "https://chromedriver.chromium.org/downloads";
+            //return "https://chromedriver.chromium.org/downloads";
+            return "https://googlechromelabs.github.io/chrome-for-testing/";
         }
 
         @Override
@@ -126,34 +123,51 @@ public abstract class SelenCommonDriver implements Serializable {
             String html = hao.get(getDriverUrl());
 
             Document doc = Jsoup.parse(html);
-            Elements links = doc.getElementsByTag("a");
+            Elements trs = doc.getElementsByTag("tr");
 
-            String ver = null;
-            for (Iterator<Element> ite = links.listIterator(); ite.hasNext();) {
-                Element link = ite.next();
-                String text = link.text();
-                if (StringUtils.startsWith(text, "ChromeDriver")) {
-                    Matcher m = Pattern.compile("[^0-9.]+([0-9.]+)").matcher(text);
-                    if (m.find()) {
-                        ver = m.group(1);
+
+            String url = "";
+            for (Element tr: trs) {
+                Elements ths = tr.getElementsByTag("th");
+                if (ths.size() >= 2) {
+                    if (ths.get(0).text().equals("chromedriver")
+                        && ths.get(1).text().equals("win64")) {
+                        url = tr.getElementsByTag("td").get(0).getElementsByTag("code").text();
                         break;
                     }
                 }
+
             }
-
-            //            int count = 0;
-            //            for (String line : html.split("\n")) {
-            //                if (StringUtils.startsWith(line, "If you are using Chrome version ")) {
-            //                    if (count == 0) { // 1行目は飛ばす（現行バージョンではない可能性が高い。）
-            //                        count++;
-            //                        continue;
-            //                    }
-            //                    String keyword = "ChromeDriver ";
-            //                    String ver = line.substring(line.lastIndexOf(keyword) + keyword.length());
-            String url = String.format("https://chromedriver.storage.googleapis.com/"
-                + "%s/chromedriver_win32.zip", ver);
-
-            ver = "114.0.5735.90";
+//
+//
+//
+//
+//            String ver = null;
+//            for (Iterator<Element> ite = links.listIterator(); ite.hasNext();) {
+//                Element link = ite.next();
+//                String text = link.text();
+//                if (StringUtils.startsWith(text, "ChromeDriver")) {
+//                    Matcher m = Pattern.compile("[^0-9.]+([0-9.]+)").matcher(text);
+//                    if (m.find()) {
+//                        ver = m.group(1);
+//                        break;
+//                    }
+//                }
+//            }
+//
+//            //            int count = 0;
+//            //            for (String line : html.split("\n")) {
+//            //                if (StringUtils.startsWith(line, "If you are using Chrome version ")) {
+//            //                    if (count == 0) { // 1行目は飛ばす（現行バージョンではない可能性が高い。）
+//            //                        count++;
+//            //                        continue;
+//            //                    }
+//            //                    String keyword = "ChromeDriver ";
+//            //                    String ver = line.substring(line.lastIndexOf(keyword) + keyword.length());
+//            String url = String.format("https://chromedriver.storage.googleapis.com/"
+//                + "%s/chromedriver_win32.zip", ver);
+//
+//            ver = "114.0.5735.90";
 
             File zip = new File(driverFile.getAbsolutePath() + ".zip");
             //new HttpAccessObject().download(url, zip);
@@ -186,7 +200,10 @@ public abstract class SelenCommonDriver implements Serializable {
             /* ダウンロードフォルダを指定します。 */
             HashMap<String, Object> prefes = new HashMap<String, Object>();
             prefes.put("profile.default_content_settings.popups", 0);
-            prefes.put("download.default_directory", downloadDefaultDir.getAbsolutePath());
+            if (downloadDefaultDir != null) {
+                prefes.put("download.default_directory", downloadDefaultDir.getAbsolutePath());
+            }
+
             ChromeOptions options = new ChromeOptions();
             options.setExperimentalOption("prefs", prefes);
 
@@ -655,6 +672,32 @@ public abstract class SelenCommonDriver implements Serializable {
 
     protected CookieManager createCookieManager() {
         throw new RuntimeException("未実装");
+    }
+
+
+    /**
+     * Do Test.
+     */
+
+    public static void main(String[] args) {
+        SelenCommonDriver cmd = new SelenCommonDriver() {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected File getDriverDir() {
+                return null;
+            }
+
+            @Override
+            protected File getDownloadDir() {
+                return null;
+            }
+        };
+
+
+        cmd.get("http://google.co.jp");
+
     }
 
 }
