@@ -569,10 +569,14 @@ public abstract class SelenCommonDriver implements Serializable {
      * タイトルの検査をします。
      */
     public void assertTitleContains(String partialTitle) {
-        String title = this.originalDriver.getTitle();
+        String title = getTitle();
         if (title.contains(partialTitle) == false) {
             throw new RuntimeException("タイトル不正：title=" + title + " expect=" + partialTitle);
         }
+    }
+
+    public String getTitle() {
+        return this.originalDriver.getTitle();
     }
 
     /**
