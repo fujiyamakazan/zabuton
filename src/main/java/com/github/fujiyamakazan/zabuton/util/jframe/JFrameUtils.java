@@ -1,6 +1,7 @@
 package com.github.fujiyamakazan.zabuton.util.jframe;
 
 import java.awt.Component;
+import java.io.Serializable;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -69,7 +70,19 @@ public class JFrameUtils {
      * @param message メッセージ
      */
     public static void showDialog(String message) {
-        showDialogCore(null, message, JOptionPane.INFORMATION_MESSAGE);
+        //showDialogCore(null, message, JOptionPane.INFORMATION_MESSAGE);
+        showDialogCore(null, new JFrameDialogParams().message(message));
+    }
+
+    /**
+     * JFrameでメッセージをダイアログ表示します。
+     * ダイアログなので、呼出し元のスレッドを中断します。
+     * @param message メッセージ
+     */
+    public static void showDialog(JFrameDialogParams params) {
+        //showDialogCore(null, message, JOptionPane.INFORMATION_MESSAGE);
+        showDialogCore(null, params);
+
     }
 
     /**
@@ -79,7 +92,8 @@ public class JFrameUtils {
      * @param message メッセージ
     */
     public static void showDialog(Component parent, String message) {
-        showDialogCore(parent, message, JOptionPane.INFORMATION_MESSAGE);
+        //showDialogCore(parent, message, JOptionPane.INFORMATION_MESSAGE);
+        showDialogCore(parent, new JFrameDialogParams().message(message));
     }
 
     /**
@@ -88,7 +102,8 @@ public class JFrameUtils {
      * @param message メッセージ
      */
     public static void showErrorDialog(String message) {
-        showDialogCore(null, message, JOptionPane.ERROR_MESSAGE);
+        //showDialogCore(null, message, JOptionPane.ERROR_MESSAGE);
+        showDialogCore(null, new JFrameDialogParams().message(message).iconType(JOptionPane.ERROR_MESSAGE));
     }
 
     /**
@@ -112,7 +127,29 @@ public class JFrameUtils {
         return showConfirmDialogCore(parent, message, JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private static void showDialogCore(Component parent, String message, int iconType) {
+    public static class JFrameDialogParams implements Serializable {
+        private static final long serialVersionUID = 1L;
+        private String message;
+        private String title = "";
+        private int iconType = JOptionPane.INFORMATION_MESSAGE;
+
+        public JFrameDialogParams message(String message) {
+            this.message = message;
+            return this;
+        }
+
+        public JFrameDialogParams title(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public JFrameDialogParams iconType(int iconType) {
+            this.iconType = iconType;
+            return this;
+        }
+    }
+
+    private static void showDialogCore(Component parent, JFrameDialogParams params) {
         JFrame tmpForm = null;
         if (parent == null) {
             tmpForm = new JFrame();
@@ -122,14 +159,33 @@ public class JFrameUtils {
 
         JOptionPane.showMessageDialog(
             parent,
-            message,
-            "",
-            iconType);
+            params.message,
+            params.title,
+            params.iconType);
 
         if (tmpForm != null) {
             tmpForm.dispose();
         }
     }
+
+//    private static void showDialogCore(Component parent, String message, int iconType) {
+//        JFrame tmpForm = null;
+//        if (parent == null) {
+//            tmpForm = new JFrame();
+//            tmpForm.setAlwaysOnTop(true); // 最前面
+//            parent = tmpForm;
+//        }
+//
+//        JOptionPane.showMessageDialog(
+//            parent,
+//            message,
+//            "",
+//            iconType);
+//
+//        if (tmpForm != null) {
+//            tmpForm.dispose();
+//        }
+//    }
 
     private static boolean showConfirmDialogCore(Component parent, String message, int iconType) {
         JFrame tmpForm = null;
