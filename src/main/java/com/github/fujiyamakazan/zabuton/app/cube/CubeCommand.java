@@ -41,6 +41,9 @@ public class CubeCommand implements Serializable {
         return str;
     }
 
+    /**
+     * ランダムな値を返します。
+     */
     public static CubeCommand ofRandome() {
         Face f = Roulette.randomOne(Face.values());
         //int dist = Roulette.getRandomTrueOrFalse() ? 1 : -1;

@@ -77,7 +77,6 @@ public class JFrameUtils {
     /**
      * JFrameでメッセージをダイアログ表示します。
      * ダイアログなので、呼出し元のスレッドを中断します。
-     * @param message メッセージ
      */
     public static void showDialog(JFrameDialogParams params) {
         //showDialogCore(null, message, JOptionPane.INFORMATION_MESSAGE);
@@ -167,25 +166,6 @@ public class JFrameUtils {
             tmpForm.dispose();
         }
     }
-
-//    private static void showDialogCore(Component parent, String message, int iconType) {
-//        JFrame tmpForm = null;
-//        if (parent == null) {
-//            tmpForm = new JFrame();
-//            tmpForm.setAlwaysOnTop(true); // 最前面
-//            parent = tmpForm;
-//        }
-//
-//        JOptionPane.showMessageDialog(
-//            parent,
-//            message,
-//            "",
-//            iconType);
-//
-//        if (tmpForm != null) {
-//            tmpForm.dispose();
-//        }
-//    }
 
     private static boolean showConfirmDialogCore(Component parent, String message, int iconType) {
         JFrame tmpForm = null;

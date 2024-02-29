@@ -651,9 +651,8 @@ public abstract class SelenCommonDriver implements Serializable {
     }
 
     /**
-     * Do Test.
+     * Do Test.テストをします。
      */
-
     public static void main(String[] args) {
         SelenCommonDriver cmd = new SelenCommonDriver() {
 
