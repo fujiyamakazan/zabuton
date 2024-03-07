@@ -235,7 +235,16 @@ public abstract class SelenCommonDriver implements Serializable {
                 try {
                     killTask();
                     Thread.sleep(1000);
+
+                    // TODO 何度も失敗するのは解凍したときにサブフォルダがあるのが問題？
+
+                    LOGGER.info("削除対象：" + driverFile.getAbsolutePath());
+
                     Files.deleteIfExists(Path.of(driverFile.getAbsolutePath())); // ファイル削除
+
+
+
+
                 } catch (Exception deleteException) {
                     throw new RuntimeException("削除失敗", deleteException);
                 }
@@ -304,12 +313,56 @@ public abstract class SelenCommonDriver implements Serializable {
         }
     }
 
+    public void click(By by) {
+        clickAndWait(by, false);
+    }
+
+    /**
+     * 画面要素を指定してクリックします。
+     */
+    public void click(By by, boolean withAlert) {
+        WebDriverWait wait = new WebDriverWait(this.originalDriver, DEFAULT_TIMEOUT);
+
+        /* 要素が、ページのDOMに存在して可視となるまで待つ */
+        wait.until(ExpectedConditions.visibilityOfElementLocated(by));
+
+        WebElement element = findElement(by);
+
+        click(element);
+    }
+
+    /**
+     * 画面要素を指定してクリックします。
+     */
+    public void click(WebElement element) {
+        WebDriverWait wait = new WebDriverWait(this.originalDriver, DEFAULT_TIMEOUT);
+
+        /* 要素の位置までスクロールします。 */
+        new Actions(this.originalDriver).moveToElement(element).perform();
+
+        /*
+         * クリックします。
+         * 別の要素が重なっている場合は、少しずつ位置をずらしながらリトライします。
+         */
+        new RetryWorker() {
+            private static final long serialVersionUID = 1L;
+            @Override
+            protected void run() {
+                wait.until(ExpectedConditions.elementToBeClickable(element)); // クリック可能になるまで待ちます。
+                element.click();
+            }
+            @Override
+            protected void recovery() {
+                down(1);
+            }
+        }.start();
+    }
+
     /**
      * 画面要素を指定してクリックします。
      */
     public void clickAndWait(By by) {
         clickAndWait(by, false);
-
     }
 
     /**
@@ -651,8 +704,9 @@ public abstract class SelenCommonDriver implements Serializable {
     }
 
     /**
-     * Do Test.テストをします。
+     * Do Test.
      */
+
     public static void main(String[] args) {
         SelenCommonDriver cmd = new SelenCommonDriver() {
 
