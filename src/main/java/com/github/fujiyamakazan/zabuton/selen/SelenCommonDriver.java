@@ -704,7 +704,7 @@ public abstract class SelenCommonDriver implements Serializable {
     }
 
     /**
-     * Do Test.
+     * テストをします。
      */
 
     public static void main(String[] args) {
@@ -714,7 +714,8 @@ public abstract class SelenCommonDriver implements Serializable {
 
             @Override
             protected File getDriverDir() {
-                return null;
+                //return null;
+                return new File("C:\\tmp");
             }
 
             @Override
