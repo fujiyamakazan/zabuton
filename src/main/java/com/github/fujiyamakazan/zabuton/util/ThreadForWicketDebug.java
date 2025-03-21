@@ -4,10 +4,6 @@ import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.Locale;
 
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
 import org.apache.wicket.ThreadContext;
@@ -27,6 +23,11 @@ import org.apache.wicket.request.Response;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.cycle.RequestCycleContext;
+
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+
 
 /**
  * WicketのComponentをインスタンス化できるスレッドを作成します。

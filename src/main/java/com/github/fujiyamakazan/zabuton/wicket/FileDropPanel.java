@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload2.core.FileUploadException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.AjaxFileDropBehavior;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -103,7 +103,11 @@ public class FileDropPanel extends Panel {
                     @Override
                     public void onClick() {
                         FileUpload targetUpload = FileDropPanel.this.fileUploads.get(index);
-                        targetUpload.delete();
+                        try {
+                            targetUpload.delete();
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
                         FileDropPanel.this.fileUploads.remove(index);
                     }
                 });

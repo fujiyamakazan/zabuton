@@ -2,11 +2,11 @@ package com.github.fujiyamakazan.zabuton.util;
 
 import java.io.Serializable;
 
-import javax.servlet.ServletContext;
-
 import org.apache.wicket.protocol.http.WebApplication;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import jakarta.servlet.ServletContext;
 
 public class BeanGetter implements Serializable {
     private static final long serialVersionUID = 1L;
