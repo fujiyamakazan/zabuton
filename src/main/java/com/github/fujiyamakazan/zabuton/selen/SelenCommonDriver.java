@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -321,7 +322,7 @@ public abstract class SelenCommonDriver implements Serializable {
      * 画面要素を指定してクリックします。
      */
     public void click(By by, boolean withAlert) {
-        WebDriverWait wait = new WebDriverWait(this.originalDriver, DEFAULT_TIMEOUT);
+        WebDriverWait wait = newWebDriverWait(this.originalDriver, DEFAULT_TIMEOUT);
 
         /* 要素が、ページのDOMに存在して可視となるまで待つ */
         wait.until(ExpectedConditions.visibilityOfElementLocated(by));
@@ -331,11 +332,15 @@ public abstract class SelenCommonDriver implements Serializable {
         click(element);
     }
 
+    private WebDriverWait newWebDriverWait(WebDriver driver, int timeout) {
+        return new WebDriverWait(this.originalDriver, Duration.ofSeconds(DEFAULT_TIMEOUT));
+    }
+
     /**
      * 画面要素を指定してクリックします。
      */
     public void click(WebElement element) {
-        WebDriverWait wait = new WebDriverWait(this.originalDriver, DEFAULT_TIMEOUT);
+        WebDriverWait wait = newWebDriverWait(this.originalDriver, DEFAULT_TIMEOUT);
 
         /* 要素の位置までスクロールします。 */
         new Actions(this.originalDriver).moveToElement(element).perform();
@@ -377,7 +382,7 @@ public abstract class SelenCommonDriver implements Serializable {
      * 画面要素を指定してクリックします。
      */
     public void clickAndWait(By by, boolean withAlert) {
-        WebDriverWait wait = new WebDriverWait(this.originalDriver, DEFAULT_TIMEOUT);
+        WebDriverWait wait = newWebDriverWait(this.originalDriver, DEFAULT_TIMEOUT);
 
         /* 要素が、ページのDOMに存在して可視となるまで待つ */
         wait.until(ExpectedConditions.visibilityOfElementLocated(by));
@@ -391,7 +396,7 @@ public abstract class SelenCommonDriver implements Serializable {
      * 画面要素を指定してクリックします。
      */
     public void clickAndWait(WebElement element, boolean withAlert) {
-        WebDriverWait wait = new WebDriverWait(this.originalDriver, DEFAULT_TIMEOUT);
+        WebDriverWait wait = newWebDriverWait(this.originalDriver, DEFAULT_TIMEOUT);
 
         /* 要素の位置までスクロールします。 */
         new Actions(this.originalDriver).moveToElement(element).perform();
@@ -426,7 +431,7 @@ public abstract class SelenCommonDriver implements Serializable {
         }
 
         /* 待機処理。次のHTMLが表示されるのを待ちます。 */
-        new WebDriverWait(this.originalDriver, DEFAULT_TIMEOUT)
+        newWebDriverWait(this.originalDriver, DEFAULT_TIMEOUT)
             .until(ExpectedConditions.visibilityOfElementLocated(By.tagName("body")));
     }
 
@@ -649,7 +654,7 @@ public abstract class SelenCommonDriver implements Serializable {
     }
 
     public void until(ExpectedCondition<WebElement> condition) {
-        new WebDriverWait(this.originalDriver, DEFAULT_TIMEOUT).until(condition);
+        newWebDriverWait(this.originalDriver, DEFAULT_TIMEOUT).until(condition);
     }
 
     public WebDriver getDriver() {
