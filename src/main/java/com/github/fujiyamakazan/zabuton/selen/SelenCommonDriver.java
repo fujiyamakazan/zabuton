@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -26,6 +27,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -201,62 +204,128 @@ public abstract class SelenCommonDriver implements Serializable {
     }
 
     /**
-     * コンストラクタです。Webドライバを生成ます。
+     * MS Edge用のWebドライバのファクトリです。
      */
-    public SelenCommonDriver() {
+    private class EdgeDriverFactory extends DriverFactory {
+        private static final long serialVersionUID = 1L;
+        private static final String DRIVER_EXE = "msedgedriver.exe";
 
-        /* デフォルトではGoogleChromeのWebドライバを生成します。 */
-        DriverFactory factory = new ChoromeDriverFactory(getDriverDir());
+        public EdgeDriverFactory(File driverDir) {
+            super(driverDir);
+        }
 
-        final File driverFile = factory.getDriverFile();
+        @Override
+        public String getDriverFileName() {
+            return DRIVER_EXE;
+        }
 
-        if (driverFile.exists() == false) {
+        @Override
+        public String getDriverUrl() {
+            return "https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/";
+            //throw new UnsupportedOperationException("この仕組みでは自動ダウンロードを目指しています");
+        }
 
-            /* ドライバのファイルをダウンロードします。 */
-            factory.download();
+        @Override
+        public void download() {
+            throw new UnsupportedOperationException("未実装です");
+            //throw new UnsupportedOperationException("この仕組みでは自動ダウンロードを目指しています");
+        }
 
-            /* ダウンロードが失敗したら例外情報として返します。 */
-            if (driverFile.exists() == false) {
-                throw new RuntimeException(
-                    "ドライバのファイルが" + driverFile.getAbsolutePath() + "にありません。"
-                        + " [" + factory.getDriverUrl() + "]からダウンロードしてください。");
-            }
+        @Override
+        public WebDriver create(File downloadFilepath) {
+
+            //WebDriverManager.edgedriver().setup();
+            System.setProperty("webdriver.edge.driver",  driverFile.getAbsolutePath());
+
+            Map<String, Object> prefs = new HashMap<>();
+            prefs.put("download.default_directory", downloadFilepath); // ダウンロード先の指定
+            prefs.put("download.prompt_for_download", false); // ダウンロード確認ダイアログを無効化
+            prefs.put("profile.default_content_settings.popups", 0); // ポップアップを無効化
+
+            EdgeOptions options = new EdgeOptions();
+            //options.addArguments("--start-maximized");
+
+            return new EdgeDriver(options);
 
         }
 
+        @Override
+        public boolean occurredIllegalVersionDetected(Exception e) {
+            return e instanceof SessionNotCreatedException
+                && e.getMessage().contains("This version of ChromeDriver only supports Chrome version");
+        }
+
+    }
+
+    /**
+     * コンストラクタです。Webドライバを生成ます。
+     */
+    public SelenCommonDriver() {
+        this(null);
+    }
+    public SelenCommonDriver(String opt) {
+
+        ///* デフォルトではGoogleChromeのWebドライバを生成します。 */
+        //DriverFactory factory = new ChoromeDriverFactory(getDriverDir());
+
         WebDriver driver;
-        try {
-            driver = factory.create(getDownloadDir());
+        if (opt == null) {
+            /* デフォルトではGoogleChromeのWebドライバを生成します。 */
+            final DriverFactory factory;
+            factory = new ChoromeDriverFactory(getDriverDir());
 
-        } catch (Exception e) {
-            LOGGER.error(Stringul.ofException(e));
-
-            if (factory.occurredIllegalVersionDetected(e)) {
-                /* ドライバファイルのバージョン不正を検知したときの処理 */
-                try {
-                    killTask();
-                    Thread.sleep(1000);
-
-                    // TODO 何度も失敗するのは解凍したときにサブフォルダがあるのが問題？
-
-                    LOGGER.info("削除対象：" + driverFile.getAbsolutePath());
-
-                    Files.deleteIfExists(Path.of(driverFile.getAbsolutePath())); // ファイル削除
-
-
-
-
-                } catch (Exception deleteException) {
-                    throw new RuntimeException("削除失敗", deleteException);
+            final File driverFile = factory.getDriverFile();
+            if (driverFile.exists() == false) {
+                factory.download(); // ドライバのファイルをダウンロード
+                /* ダウンロードが失敗したら例外情報として返します。 */
+                if (driverFile.exists() == false) {
+                    throw new RuntimeException(
+                        "ドライバのファイルが" + driverFile.getAbsolutePath() + "にありません。"
+                            + " [" + factory.getDriverUrl() + "]からダウンロードしてください。");
                 }
-                throw new RuntimeException(
-                    "ドライバのファイルがバージョンが不正のため削除しました。"
-                        + "再度実行すると、新しいファイルをダウンロードします。",
-                    e);
-
-            } else {
-                throw new RuntimeException(e);
             }
+
+            try {
+                driver = factory.create(getDownloadDir());
+
+            } catch (Exception e) {
+                LOGGER.error(Stringul.ofException(e));
+
+                if (factory.occurredIllegalVersionDetected(e)) {
+                    /* ドライバファイルのバージョン不正を検知したときの処理 */
+                    try {
+                        killTask();
+                        Thread.sleep(1000);
+
+                        // TODO 何度も失敗するのは解凍したときにサブフォルダがあるのが問題？
+
+                        LOGGER.info("削除対象：" + driverFile.getAbsolutePath());
+
+                        Files.deleteIfExists(Path.of(driverFile.getAbsolutePath())); // ファイル削除
+
+
+
+
+                    } catch (Exception deleteException) {
+                        throw new RuntimeException("削除失敗", deleteException);
+                    }
+                    throw new RuntimeException(
+                        "ドライバのファイルがバージョンが不正のため削除しました。"
+                            + "再度実行すると、新しいファイルをダウンロードします。",
+                        e);
+
+                } else {
+                    throw new RuntimeException(e);
+                }
+            }
+
+        } else if(StringUtils.equals(opt, "edge")) {
+            final DriverFactory factory;
+            factory = new EdgeDriverFactory(getDriverDir());
+            driver = factory.create(null);
+
+        } else {
+            throw new IllegalArgumentException(String.format("opt:%s", opt));
         }
 
         onInitialize(driver);
@@ -322,7 +391,7 @@ public abstract class SelenCommonDriver implements Serializable {
      * 画面要素を指定してクリックします。
      */
     public void click(By by, boolean withAlert) {
-        WebDriverWait wait = newWebDriverWait(this.originalDriver, DEFAULT_TIMEOUT);
+        WebDriverWait wait = createWebDriverWait(this.originalDriver, DEFAULT_TIMEOUT);
 
         /* 要素が、ページのDOMに存在して可視となるまで待つ */
         wait.until(ExpectedConditions.visibilityOfElementLocated(by));
@@ -332,15 +401,15 @@ public abstract class SelenCommonDriver implements Serializable {
         click(element);
     }
 
-    private WebDriverWait newWebDriverWait(WebDriver driver, int timeout) {
-        return new WebDriverWait(this.originalDriver, Duration.ofSeconds(DEFAULT_TIMEOUT));
+    private WebDriverWait createWebDriverWait(WebDriver originalDriver, int timeout) {
+        //return new WebDriverWait(this.originalDriver, timeout);
+        return new WebDriverWait(this.originalDriver, Duration.ofSeconds(timeout));
     }
-
     /**
      * 画面要素を指定してクリックします。
      */
     public void click(WebElement element) {
-        WebDriverWait wait = newWebDriverWait(this.originalDriver, DEFAULT_TIMEOUT);
+        WebDriverWait wait = createWebDriverWait(this.originalDriver, DEFAULT_TIMEOUT);
 
         /* 要素の位置までスクロールします。 */
         new Actions(this.originalDriver).moveToElement(element).perform();
@@ -382,7 +451,7 @@ public abstract class SelenCommonDriver implements Serializable {
      * 画面要素を指定してクリックします。
      */
     public void clickAndWait(By by, boolean withAlert) {
-        WebDriverWait wait = newWebDriverWait(this.originalDriver, DEFAULT_TIMEOUT);
+        WebDriverWait wait = createWebDriverWait(this.originalDriver, DEFAULT_TIMEOUT);
 
         /* 要素が、ページのDOMに存在して可視となるまで待つ */
         wait.until(ExpectedConditions.visibilityOfElementLocated(by));
@@ -396,7 +465,7 @@ public abstract class SelenCommonDriver implements Serializable {
      * 画面要素を指定してクリックします。
      */
     public void clickAndWait(WebElement element, boolean withAlert) {
-        WebDriverWait wait = newWebDriverWait(this.originalDriver, DEFAULT_TIMEOUT);
+        WebDriverWait wait = createWebDriverWait(this.originalDriver, DEFAULT_TIMEOUT);
 
         /* 要素の位置までスクロールします。 */
         new Actions(this.originalDriver).moveToElement(element).perform();
@@ -431,7 +500,7 @@ public abstract class SelenCommonDriver implements Serializable {
         }
 
         /* 待機処理。次のHTMLが表示されるのを待ちます。 */
-        newWebDriverWait(this.originalDriver, DEFAULT_TIMEOUT)
+        createWebDriverWait(this.originalDriver, DEFAULT_TIMEOUT)
             .until(ExpectedConditions.visibilityOfElementLocated(By.tagName("body")));
     }
 
@@ -654,7 +723,7 @@ public abstract class SelenCommonDriver implements Serializable {
     }
 
     public void until(ExpectedCondition<WebElement> condition) {
-        newWebDriverWait(this.originalDriver, DEFAULT_TIMEOUT).until(condition);
+        createWebDriverWait(this.originalDriver, DEFAULT_TIMEOUT).until(condition);
     }
 
     public WebDriver getDriver() {
@@ -708,10 +777,31 @@ public abstract class SelenCommonDriver implements Serializable {
         throw new RuntimeException("未実装");
     }
 
+
+    /**
+     * Edgeでドライバを作成します。
+     */
+    public static SelenCommonDriver createEdgeDriver(File work) {
+        return new SelenCommonDriver("edge") {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected File getDriverDir() {
+                return work;
+            }
+
+            @Override
+            protected File getDownloadDir() {
+                return work;
+            }
+
+        };
+    }
+
     /**
      * テストをします。
      */
-
     public static void main(String[] args) {
         SelenCommonDriver cmd = new SelenCommonDriver() {
 
@@ -732,5 +822,7 @@ public abstract class SelenCommonDriver implements Serializable {
         cmd.get("http://google.co.jp");
 
     }
+
+
 
 }

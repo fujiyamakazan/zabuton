@@ -6,3 +6,4 @@
 /tomcat.*
 /.checkstyle
 
+/bin/
