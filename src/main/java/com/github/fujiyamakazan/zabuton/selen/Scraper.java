@@ -33,7 +33,7 @@ public abstract class Scraper implements Serializable {
     public Scraper() {
         String name = getName();
         this.driverDir = new File(getAppDir(), "selen");
-        this.dir = Path.of(getAppDir().getAbsolutePath(), "selen", "sights", name).toFile();
+        this.dir = Path.of(getAppDir().getAbsolutePath(), "selen", "Scraper-sights", name).toFile();
         if (this.dir.exists() == false) {
             Files.mkdirs(this.dir);
         }

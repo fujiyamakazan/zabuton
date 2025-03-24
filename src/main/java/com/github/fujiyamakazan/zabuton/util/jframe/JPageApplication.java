@@ -146,4 +146,8 @@ public class JPageApplication implements Serializable {
         System.out.println(str);
     }
 
+    public static void showDialog(String message) {
+        JFrameUtils.showDialog(message);
+    }
+
 }

@@ -8,8 +8,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * 「時」を司ります。
@@ -100,6 +102,14 @@ public class Chronus implements Serializable {
     }
 
     /**
+     * LocalDate指定してDateを生成します。
+     */
+    public static Date dateOf(LocalDate ld) {
+        LocalDateTime ldt = ld.atStartOfDay();
+        return Date.from(ZonedDateTime.of(ldt, ZoneId.systemDefault()).toInstant());
+    }
+
+    /**
      * Date から LocaleDate へ変換します。
      */
     public static LocalDate localDateOf(Date date) {
@@ -118,6 +128,13 @@ public class Chronus implements Serializable {
      */
     public static LocalDateTime localDateTimeOf(Date date) {
         return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+    }
+
+    /**
+     * String から フォーマットを指定して LocaleDateTime へ変換します。
+     */
+    public static LocalDate localDateOf(String date, String pattern) {
+        return LocalDate.parse(date, DateTimeFormatter.ofPattern(pattern, Locale.JAPAN));
     }
 
     /**
@@ -161,6 +178,8 @@ public class Chronus implements Serializable {
             System.out.println("現在が指定期限を過ぎていない");
         }
     }
+
+
 
 
 

@@ -48,6 +48,10 @@ public class JournalsTerm implements Serializable {
         return inCore(value, pattern, this.start, this.next);
     }
 
+    public Boolean in(Date date) {
+        return inCore(date, this.start, this.next);
+    }
+
     public TermAction createTermAction(String pattern) {
         TermAction action = new TermAction(pattern, this.start, this.next);
         return action;

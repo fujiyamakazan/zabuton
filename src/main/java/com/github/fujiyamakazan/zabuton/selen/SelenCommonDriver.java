@@ -235,7 +235,7 @@ public abstract class SelenCommonDriver implements Serializable {
         public WebDriver create(File downloadFilepath) {
 
             //WebDriverManager.edgedriver().setup();
-            System.setProperty("webdriver.edge.driver",  driverFile.getAbsolutePath());
+            System.setProperty("webdriver.edge.driver", driverFile.getAbsolutePath());
 
             Map<String, Object> prefs = new HashMap<>();
             prefs.put("download.default_directory", downloadFilepath); // ダウンロード先の指定
@@ -243,7 +243,7 @@ public abstract class SelenCommonDriver implements Serializable {
             prefs.put("profile.default_content_settings.popups", 0); // ポップアップを無効化
 
             EdgeOptions options = new EdgeOptions();
-            //options.addArguments("--start-maximized");
+            options.addArguments("--start-maximized");
 
             return new EdgeDriver(options);
 
@@ -263,6 +263,7 @@ public abstract class SelenCommonDriver implements Serializable {
     public SelenCommonDriver() {
         this(null);
     }
+
     public SelenCommonDriver(String opt) {
 
         ///* デフォルトではGoogleChromeのWebドライバを生成します。 */
@@ -303,9 +304,6 @@ public abstract class SelenCommonDriver implements Serializable {
 
                         Files.deleteIfExists(Path.of(driverFile.getAbsolutePath())); // ファイル削除
 
-
-
-
                     } catch (Exception deleteException) {
                         throw new RuntimeException("削除失敗", deleteException);
                     }
@@ -319,7 +317,7 @@ public abstract class SelenCommonDriver implements Serializable {
                 }
             }
 
-        } else if(StringUtils.equals(opt, "edge")) {
+        } else if (StringUtils.equals(opt, "edge")) {
             final DriverFactory factory;
             factory = new EdgeDriverFactory(getDriverDir());
             driver = factory.create(null);
@@ -405,6 +403,7 @@ public abstract class SelenCommonDriver implements Serializable {
         //return new WebDriverWait(this.originalDriver, timeout);
         return new WebDriverWait(this.originalDriver, Duration.ofSeconds(timeout));
     }
+
     /**
      * 画面要素を指定してクリックします。
      */
@@ -420,11 +419,13 @@ public abstract class SelenCommonDriver implements Serializable {
          */
         new RetryWorker() {
             private static final long serialVersionUID = 1L;
+
             @Override
             protected void run() {
                 wait.until(ExpectedConditions.elementToBeClickable(element)); // クリック可能になるまで待ちます。
                 element.click();
             }
+
             @Override
             protected void recovery() {
                 down(1);
@@ -777,7 +778,6 @@ public abstract class SelenCommonDriver implements Serializable {
         throw new RuntimeException("未実装");
     }
 
-
     /**
      * Edgeでドライバを作成します。
      */
@@ -822,7 +822,5 @@ public abstract class SelenCommonDriver implements Serializable {
         cmd.get("http://google.co.jp");
 
     }
-
-
 
 }

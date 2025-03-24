@@ -40,11 +40,11 @@ public abstract class JournalFactory implements Serializable {
     protected final PasswordManager pm;
     protected final JournalsTerm term;
     /** 記録元名です。 */
-    private final String sourceName;
+    protected final String sourceName;
     //private final String assetName;
-    private final File crawlerDir;
-    private final File cache;
-    private final File appDir;
+    protected final File crawlerDir;
+    private File cache;
+    protected final File appDir;
     private Exception downloadException;
     private Exception createJurnalsException;
 
@@ -64,8 +64,8 @@ public abstract class JournalFactory implements Serializable {
         this.appDir = appDir;
         this.crawlerDir = new File(appDir, getCrawlerName());
         this.crawlerDir.mkdirs();
-        this.cache = new File(this.crawlerDir, "cache");
-        this.cache.mkdirs();
+
+        createCashe();
 
         String[] cols = getHeaders();
         if (cols != null) {
@@ -73,24 +73,24 @@ public abstract class JournalFactory implements Serializable {
         } else {
             this.master = null;
         }
+
         this.pm = new PasswordManager(appDir);
         onInitialize();
     }
 
-    //    /**
-    //     * コンストラクタです。
-    //     * ク@param name 名称です。「記録元」に使われます。
-    //     */
-    //    public JournalFactory(String name, String assetName, JournalsTerm term, File dir) {
-    //        this(name, new String[] { assetName }, term, dir);
-    //    }
+    protected void createCashe() {
+        this.cache = new File(this.crawlerDir, "cache");
+        this.cache.mkdirs();
+    }
 
     /**
      * 明細の元となる情報をダウンロードします。
+     *
+     * 既定の実装ではGoogleChromeを使用します。
      * 本日ダウンロード分があればスキップします。
      */
     public void download() {
-        doDownloadOnce();
+        doDownloadOnceByChrome();
     }
 
     /**
@@ -98,46 +98,125 @@ public abstract class JournalFactory implements Serializable {
      */
     public List<Journal> createJurnals(List<Journal> existDatas, List<Journal> templates) {
 
-        /* マスターを更新します。 */
+        /* マスターを更新します */
         doUpdateMaster();
 
-        List<Journal> journals = doCreateJournal(existDatas, templates);
+        /* MasterCsvからジャーナル形式のデータを作成します */
+        List<Journal> journals = masterToJournals(this.master);
+
+        /* テンプレート適用し、
+         * 借方、貸方、活動科目、メモを登録します。
+         */
+        if (templates != null) {
+            for (Journal journal : journals) {
+                for (Journal template : templates) {
+                    if (journal.getSource().equals(template.getSource()) == false) {
+                        continue;
+                    }
+                    String source = journal.getKeywordOnSource();
+                    String templateSource = template.getKeywordOnSource();
+                    if (templateSource == null) {
+                        templateSource = "";
+                    }
+
+                    final boolean hit;
+                    if (templateSource.equals("*")) {
+                        hit = true;
+                    } else if (templateSource.startsWith("*") && templateSource.endsWith("*")) {
+                        hit = source.contains(templateSource.substring(1, templateSource.length() - 1));
+                    } else if (templateSource.startsWith("*")) {
+                        hit = source.endsWith(templateSource.substring(1));
+                    } else if (templateSource.endsWith("*")) {
+                        hit = source.startsWith(templateSource.substring(0, templateSource.length() - 1));
+                    } else {
+                        hit = source.equals(templateSource);
+                    }
+
+                    if (hit) {
+                        journal.setLeft(template.getLeft());
+                        journal.setRight((template.getRight()));
+                        journal.setActivity(template.getActivity());
+                        if (StringUtils.isNotEmpty(template.getMemo())) {
+                            if (StringUtils.isNotEmpty(journal.getMemo())) {
+                                journal.setMemo(journal.getMemo() + " " + template.getMemo());
+                            } else {
+                                journal.setMemo(template.getMemo());
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+
+        /* 仕訳済みを除外する */
+        for (Iterator<Journal> iterator = journals.iterator(); iterator.hasNext();) {
+            Journal journal = iterator.next();
+            if (existDatas != null) {
+                for (Journal exist : existDatas) {
+                    String sourceOfExixt = exist.getSource();
+                    String sourceOfJournal = journal.getSource();
+                    if (StringUtils.equals(sourceOfExixt, sourceOfJournal)
+                        && StringUtils.equals(exist.getRowIndex(), journal.getRowIndex())) {
+                        iterator.remove();
+                        break;
+                    }
+                }
+            }
+        }
+
         return journals;
     }
-
-    //    /**
-    //     * 記録されている資産の金額を返します。現在の金額と差があれば、その情報を付与します。
-    //     */
-    //    public String[] getSummary(Map<String, Integer> existAssets) {
-    //        Integer asset = getAssetText();
-    //        if (asset == null) {
-    //            return null;
-    //        }
-    //        //assetText = assetText.replaceAll(",", ""); // カンマ除去
-    //        //if (StringUtils.isEmpty(nowAsset)) {
-    //        //    return new String[] { "", "" };
-    //        //}
-    //        //for (String assetName : this.assetNames) {
-    //        //String existAsset = String.valueOf(existAssets.get(assetName));
-    //        int existAsset = existAssets.get(assetName);
-    //        String assetNote = assetName;
-    //        //if (assetText.contains(existAsset) == false) {
-    //        if (asset != existAsset) {
-    //            assetNote += "★更新前の値:[" + existAsset + "]★";
-    //        }
-    //        //}
-    //        return new String[] {String.valueOf(asset), assetNote};
-    //    }
-
-    //    /**
-    //     * 記録されている資産の金額を返します。
-    //     */
-    //    public abstract Integer getAssetText();
 
     /*
      * TODO パブリックなメソッドはこれまで。
      * これ以降は、クラス構成の整理の後、protected以下になるはずです。
      */
+
+    /**
+     * CSVから仕訳レコードを作成します。
+     *
+     * 仕訳.記録元 ← JournalFactory.記録元名(インスタンス化時に指定)
+     * 仕訳.生データ ← 一行のテキスト
+     * 仕訳.Index(ID) ← CSVの行番号
+     * 仕訳.日付 ← CSVの日付
+     * 仕訳.キーワード ← キーワード情報（規定はJournalFactory#pickupMemo()の実装による）
+     * 仕訳.メモ ← キーワード情報（JournalFactory#pickupMemo()の実装による）
+     * 仕訳.金額 ← CSVの金額
+     *
+     * 日付が対象期間外のデータのみ作成します。
+     *
+     */
+    protected List<Journal> masterToJournals(JournalCsv masterCsv) {
+        List<Journal> journals = Generics.newArrayList();
+        for (JournalCsv.Row row : masterCsv.getRrows()) {
+
+            Journal journal = new Journal();
+            journal.setSource(this.sourceName);
+            journal.setRawOnSource(row.getData());
+            journal.setRowIndex(String.valueOf(row.getIndex()));
+
+            String strDate = pickupDate(row);
+            if (StringUtils.length(strDate) == 5) {
+                throw new RuntimeException("不正日付:" + row);
+            }
+
+            final Date date = getDateFromCsv(strDate);
+
+            if (date == null) {
+                continue;
+            }
+            journal.setDate(date);
+            journal.setKeywordOnSource(pickupKeywordOnsource(row));
+            journal.setMemo(pickupMemo(row));
+            journal.setAmount(MoneyUtils.toInt(pickupAmount(row)));
+
+            journals.add(journal);
+
+        }
+        return journals;
+    }
 
     /**
      * 初期化時の処理を実装します。
@@ -157,8 +236,9 @@ public abstract class JournalFactory implements Serializable {
 
     /**
      * 明細の元となる情報をダウンロードします。
+     * この仕組みではGoogleChromeを使用します。
      */
-    private void doDownloadOnce() {
+    private void doDownloadOnceByChrome() {
         if (isSkipDownload()) {
             return;
         }
@@ -195,7 +275,7 @@ public abstract class JournalFactory implements Serializable {
 
             };
 
-            doDownload(cmd);
+            doDownloadByChrome(cmd);
 
             cmd.quit();
 
@@ -229,27 +309,13 @@ public abstract class JournalFactory implements Serializable {
         return isSkip;
     }
 
-    //    /**
-    //     * 明細の元となる情報をダウンロードします。
-    //     *
-    //     * 既定の処理：
-    //     * ・明細の元となる情報を表示します。
-    //     * ・HTMLをファイルとしてDailyフォルダに書き出します。
-    //     */
-    //    protected void doDownload(SelenCommonDriver cmd) {
-    //        downloadAction(cmd, crawlerDir);
-    //        saveDaily("daily.html", cmd.getPageSource());
-    //    }
-    //
-    //    /**
-    //     * 明細の元となる情報を表示します。
-    //     */
-    //    protected void downloadAction(SelenCommonDriver cmd, File crawlerDir) {
-    //        // 既定の処理なし
-    //    }
-
-    /** 明細の元となる情報をダウンロードします。 */
-    protected abstract void doDownload(SelenCommonDriver cmd);
+    /**
+     * 明細の元となる情報をGoogleChoromeでダウンロードするように
+     * サブクラスで実装します。
+     */
+    protected void doDownloadByChrome(SelenCommonDriver cmd) {
+        // 規定は処理なし。
+    }
 
     /**
      * 仕訳データを作成する処理の準備としてマスターをアップデートします。
@@ -279,54 +345,7 @@ public abstract class JournalFactory implements Serializable {
         return file;
     }
 
-    private List<Journal> doCreateJournal(List<Journal> existDatas, List<Journal> templates) {
-        List<Journal> journals = Generics.newArrayList();
-        for (JournalCsv.Row row : master.getRrows()) {
 
-            Journal journal = new Journal();
-            journal.setSource(this.sourceName);
-            journal.setRawOnSource(row.getData());
-            journal.setRowIndex(String.valueOf(row.getIndex()));
-
-            String strDate = pickupDate(row);
-            if (StringUtils.length(strDate) == 5) {
-                throw new RuntimeException("不正日付:" + row);
-            }
-
-            final Date date = getDateFromCsv(strDate);
-
-            if (date == null) {
-                continue;
-            }
-            journal.setDate(date);
-            journal.setKeywordOnSource(pickupKeywordOnsource(row));
-            journal.setMemo(pickupMemo(row));
-            journal.setAmount(MoneyUtils.toInt(pickupAmount(row)));
-
-            journals.add(journal);
-
-        }
-
-        /* テンプレート適用 */
-        fullupTemplate(templates, journals);
-
-        /* 仕訳済みを除外する */
-        for (Iterator<Journal> iterator = journals.iterator(); iterator.hasNext();) {
-            Journal journal = iterator.next();
-            if (existDatas != null) {
-                for (Journal exist : existDatas) {
-                    String sourceOfExixt = exist.getSource();
-                    String sourceOfJournal = journal.getSource();
-                    if (StringUtils.equals(sourceOfExixt, sourceOfJournal)
-                        && StringUtils.equals(exist.getRowIndex(), journal.getRowIndex())) {
-                        iterator.remove();
-                        break;
-                    }
-                }
-            }
-        }
-        return journals;
-    }
 
     protected Date getDateFromCsv(String strDate) {
         final Date date;
@@ -417,28 +436,43 @@ public abstract class JournalFactory implements Serializable {
 
     /**
      * 列名を定義します。
+     * JournalCsvを使用するときにサブクラスで上書き実装します。
      */
-    protected abstract String[] getHeaders();
+    protected String[] getHeaders() {
+        return null;
+    }
 
     /**
      * 行データから日付情報を取り出します。
+     * JournalCsvを使用するときにサブクラスで上書き実装します。
      */
-    protected abstract String pickupDate(JournalCsv.Row row);
+    protected String pickupDate(JournalCsv.Row row){
+        return null;
+    }
 
     /**
      * 日付情報のフォーマットを返します。
+     * JournalCsvを使用するときにサブクラスで上書き実装します。
      */
-    protected abstract String getDateFormat();
+    protected String getDateFormat(){
+        return null;
+    }
 
     /**
      * 行データから金額情報を取り出します。
+     * JournalCsvを使用するときにサブクラスで上書き実装します。
      */
-    protected abstract String pickupAmount(JournalCsv.Row row);
+    protected String pickupAmount(JournalCsv.Row row){
+        return null;
+    }
 
     /**
      * 行データからメモ情報を取り出します。
+     * JournalCsvを使用するときにサブクラスで上書き実装します。
      */
-    protected abstract String pickupMemo(JournalCsv.Row row);
+    protected String pickupMemo(JournalCsv.Row row){
+        return null;
+    }
 
     /**
      * 行データからキーワード情報を抽出します。
@@ -448,50 +482,7 @@ public abstract class JournalFactory implements Serializable {
         return pickupMemo(row);
     }
 
-    private static void fullupTemplate(List<Journal> templates, List<Journal> journals) {
-        if (templates == null) {
-            return;
-        }
-        for (Journal journal : journals) {
-            for (Journal template : templates) {
-                if (journal.getSource().equals(template.getSource()) == false) {
-                    continue;
-                }
-                String source = journal.getKeywordOnSource();
-                String templateSource = template.getKeywordOnSource();
-                if (templateSource == null) {
-                    templateSource = "";
-                }
 
-                final boolean hit;
-                if (templateSource.equals("*")) {
-                    hit = true;
-                } else if (templateSource.startsWith("*") && templateSource.endsWith("*")) {
-                    hit = source.contains(templateSource.substring(1, templateSource.length() - 1));
-                } else if (templateSource.startsWith("*")) {
-                    hit = source.endsWith(templateSource.substring(1));
-                } else if (templateSource.endsWith("*")) {
-                    hit = source.startsWith(templateSource.substring(0, templateSource.length() - 1));
-                } else {
-                    hit = source.equals(templateSource);
-                }
-
-                if (hit) {
-                    journal.setLeft(template.getLeft());
-                    journal.setRight((template.getRight()));
-                    journal.setActivity(template.getActivity());
-                    if (StringUtils.isNotEmpty(template.getMemo())) {
-                        if (StringUtils.isNotEmpty(journal.getMemo())) {
-                            journal.setMemo(journal.getMemo() + " " + template.getMemo());
-                        } else {
-                            journal.setMemo(template.getMemo());
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-    }
 
     protected static Journal createTemplate(
         String source, String activity, String left, String right, String memo, String key) {
@@ -596,56 +587,9 @@ public abstract class JournalFactory implements Serializable {
      */
     protected final void downloadFile(DownloadFileWorker downloadFileWorker) {
         SelenUtils.downloadFile(downloadFileWorker, cache);
-
-        //        int iniSize = getDownloadFiles().size();
-        //
-        //        downloadFileWorker.action();
-        //
-        //        /*
-        //         * ダウンロードが終わるのを待ちます。
-        //         * 3秒に一度最新のファイルをチェックし、ファイルが増えていること、
-        //         * そのファイルが一時ファイルでないことをもって、終了判定をします。
-        //         */
-        //        new RetryWorker() {
-        //            private static final long serialVersionUID = 1L;
-        //
-        //            @Override
-        //            protected void run() {
-        //                int count = getDownloadFiles().size();
-        //                if (count <= iniSize) {
-        //                    throw new RuntimeException("ダウンロード未完了");
-        //                } else {
-        //                    String name = getDownloadFileLastOne().getName();
-        //                    if (name.endsWith(".tmp") || name.endsWith(".crdownload")) {
-        //                        throw new RuntimeException("ダウンロード実行中");
-        //                    }
-        //                }
-        //            }
-        //
-        //            @Override
-        //            protected void recovery() {
-        //                try {
-        //                    Thread.sleep(3_000);
-        //                } catch (InterruptedException e) {
-        //                    throw new RuntimeException(e);
-        //                }
-        //            }
-        //        }.start();
     }
 
-    //    /**
-    //     * ダウンロードしたファイルを削除します。
-    //     */
-    //    protected void deletePreFile() {
-    //
-    //        File f = getDownloadFileLastOne();
-    //        if (getDownloadFileLastOne() != null) {
-    //            f.delete();
-    //        }
-    //        if (getDownloadFileLastOne() != null) {
-    //            throw new RuntimeException();
-    //        }
-    //    }
+
 
     /**
      * 文字列が金額として有効な値でない時にTrueを返します。
