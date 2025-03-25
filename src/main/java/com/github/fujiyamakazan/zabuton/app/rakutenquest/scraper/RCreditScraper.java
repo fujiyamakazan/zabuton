@@ -23,7 +23,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.openqa.selenium.By;
 import org.slf4j.LoggerFactory;
 
 import com.github.fujiyamakazan.zabuton.app.rakutenquest.scraper.RCreditScraper.RCreditDto;
@@ -156,31 +155,15 @@ public class RCreditScraper extends JournalScraper<RCreditDto> {
     @Override
     protected void doDownload(final SelenCommonDriver cmd) {
 
-        /* ログイン */
-        cmd.get(
-            "https://login.account.rakuten.com/sso/authorize"
-                + "?client_id=rakuten_card_enavi_web"
-                + "&redirect_uri=https://www.rakuten-card.co.jp/e-navi/auth/login.xhtml"
-                + "&scope=openid%20profile&response_type=code&prompt=login#/sign_in");
-
+        /* ログインします。 */
         final PasswordManager pm = createPasswordManager();
-        pm.executeBySightKey("rakuten");
-        cmd.type(By.name("username"), pm.getId());
-        cmd.clickAndWait(By.xpath("(//body//div[text() = '次へ'])[1]"));
-        cmd.type(By.name("password"), pm.getPassword());
-        cmd.clickAndWait(By.xpath("(//body//div[text() = '次へ'])[2]"));
+        new RCardLogin() {
+            @Override
+            protected String selectCardType() {
+                return RCreditScraper.this.selectCardType();
+            }
+        }.login(pm, cmd);
 
-        // 更にもう一回
-        cmd.sleep(3000);
-        cmd.type(By.name("password"), pm.getPassword());
-        cmd.sleep(3000);
-        cmd.clickAndWait(By.xpath("//body//div[text() = '次へ']"));
-
-        // カード切替え
-        String type = selectCardType();
-        if (StringUtils.isNotEmpty(type)) {
-            cmd.choiceByText(By.xpath("//select[@id='cardChangeForm:cardtype']"), "楽天カード（ＪＣＢ）");
-        }
 
         /* ダウンロード */
 
