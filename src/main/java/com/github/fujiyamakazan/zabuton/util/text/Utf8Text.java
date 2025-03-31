@@ -13,6 +13,9 @@ import org.apache.commons.io.FileUtils;
  */
 public class Utf8Text extends TextFile {
     private static final long serialVersionUID = 1L;
+    @SuppressWarnings("unused")
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
+        .getLogger(java.lang.invoke.MethodHandles.lookup().lookupClass());
     public static final Charset CHARSET = StandardCharsets.UTF_8;
 
     public Utf8Text(File file) {
@@ -40,7 +43,7 @@ public class Utf8Text extends TextFile {
     }
 
     /**
-     * UTF8でテキストデータを読み出します。
+     * UTF8でテキストデータを読み出します。Apache Commonsを利用
      */
     public static String readData(File file) {
         try {
@@ -48,6 +51,14 @@ public class Utf8Text extends TextFile {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+    }
+
+    /**
+     * UTF8でテキストデータを読み出します。Java標準APIを使用。
+     */
+    public static String readString(File file) {
+        return readString(file, CHARSET);
     }
 
 }

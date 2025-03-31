@@ -60,7 +60,16 @@ public class EnvUtils implements Serializable {
         return new File(System.getProperty("java.home"));
     }
 
-    // TODO
-    //LOGGER.debug(System.getProperty("user.dir")); // \workspaceJava\zabuton
+    /**
+     * カレントディレクトリ（実行時のパス）を取得します。
+     * 例：workspace\zabuton
+     */
+    public static File getCurrentDir() {
+        return new File(System.getProperty("user.dir"));
+    }
 
+    public static void main(String[] args) {
+        LOGGER.debug(getCurrentDir().getAbsolutePath());
+    }
 }
+

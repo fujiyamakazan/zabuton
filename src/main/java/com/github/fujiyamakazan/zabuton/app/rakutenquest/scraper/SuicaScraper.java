@@ -31,7 +31,6 @@ import com.github.fujiyamakazan.zabuton.util.jframe.JFrameUtils.JFrameDialogPara
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
 import com.github.fujiyamakazan.zabuton.util.string.StringCutter;
-import com.opencsv.CSVReaderHeaderAware;
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvDate;
 import com.opencsv.bean.CsvToBean;
@@ -40,6 +39,7 @@ import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 
 public class SuicaScraper extends JournalScraper<SuicaDto> {
+    @SuppressWarnings("unused")
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
         .getLogger(MethodHandles.lookup().lookupClass());
 
@@ -194,36 +194,35 @@ public class SuicaScraper extends JournalScraper<SuicaDto> {
         int nextId = 1; // IDの初期値
 
         final List<SuicaDto> meisais = Generics.newArrayList();
-        /*
-         * 旧バージョンのマスターデータ収集
-         */
-        List<SuicaDto> oldDatas = Generics.newArrayList();
-        final String oldFileName = "master.old001.csv";
-        try (CSVReaderHeaderAware reader = new CSVReaderHeaderAware(
-            new FileReader(new File(masterCsv.getParentFile(), oldFileName)))) {
-            String[] row;
-            while ((row = reader.readNext()) != null) {
-                SuicaDto o = new SuicaDto();
-                int i = 0;
-                o.id = Integer.parseInt(row[i++]);
-                String dateStr = row[i++];
-                //LOGGER.debug(dateStr);
-                o.月日 = Chronus.localDateOf(dateStr, "yyyy/MM/dd");
-                o.種別 = row[i++];
-                o.利用場所 = row[i++];
-                o.種別2 = row[i++];
-                o.利用場所2 = row[i++];
-                o.残高 = MoneyUtils.toInt(row[i++]);
-                o.入金利用額 = MoneyUtils.toInt(row[i++]);
-                oldDatas.add(o);
-                if (o.id >= nextId) {
-                    nextId = (o.id + 1); // カーソル更新
-                }
-                meisais.add(o);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+//        /*
+//         * 旧バージョンのマスターデータ収集
+//         */
+//        List<SuicaDto> oldDatas = Generics.newArrayList();
+//        final String oldFileName = "master.old001.csv";
+//        try (CSVReaderHeaderAware reader = new CSVReaderHeaderAware(
+//            new FileReader(new File(masterCsv.getParentFile(), oldFileName)))) {
+//            String[] row;
+//            while ((row = reader.readNext()) != null) {
+//                SuicaDto o = new SuicaDto();
+//                int i = 0;
+//                o.id = Integer.parseInt(row[i++]);
+//                String dateStr = row[i++];
+//                //LOGGER.debug(dateStr);
+//                o.月日 = Chronus.localDateOf(dateStr, "yyyy/MM/dd");
+//                o.種別 = row[i++];
+//                o.利用場所 = row[i++];
+//                o.種別2 = row[i++];
+//                o.利用場所2 = row[i++];
+//                o.残高 = MoneyUtils.toInt(row[i++]);
+//                o.入金利用額 = MoneyUtils.toInt(row[i++]);
+//                oldDatas.add(o);
+//                if (o.id >= nextId) {
+//                    nextId = (o.id + 1); // カーソル更新
+//                }
+//            }
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
 
         /*
          * 保存済みのマスターデータ収集
@@ -315,11 +314,11 @@ public class SuicaScraper extends JournalScraper<SuicaDto> {
 
             // 登録済みのマスターデータに同一データがあればスキップ
             if (containsWithoutId(meisais, dto)) {
-                LOGGER.debug("明細スキップ");
+                //LOGGER.debug("明細スキップ");
                 continue;
             }
 
-            LOGGER.debug("明細追加");
+            //LOGGER.debug("明細追加");
             dto.setId(nextId++);
             meisais.add(dto);
 
@@ -329,7 +328,7 @@ public class SuicaScraper extends JournalScraper<SuicaDto> {
 
         }
 
-        meisais.forEach(m -> LOGGER.debug(m.toString()));
+        //meisais.forEach(m -> LOGGER.debug(m.toString()));
 
         /*
          * マスター作成
@@ -362,7 +361,13 @@ public class SuicaScraper extends JournalScraper<SuicaDto> {
                     if (field.getName().equals("id"))
                         continue; // IDを無視
                     Object value1 = field.get(obj1);
+                    if (value1==null) {
+                        value1="";
+                    }
                     Object value2 = field.get(dto);
+                    if (value2==null) {
+                        value2="";
+                    }
                     if (value1 == null ? value2 != null : !value1.equals(value2)) {
                         return false;
                     }
@@ -394,7 +399,7 @@ public class SuicaScraper extends JournalScraper<SuicaDto> {
                 }
             }
         }
-        LOGGER.debug("残高：" + asset);
+        //LOGGER.debug("残高：" + asset);
         return asset;
     }
 

@@ -16,7 +16,7 @@ import com.github.fujiyamakazan.zabuton.util.text.TextFile;
 /**
  * String型のユーティリティです。
  *
- * [String]-[U]ti[l]
+ * [String]-[U]ti[l]s
  *
  * ・正規表現を使用した処理は {@link RegexUtils} に集約します。
  * ・キーワードを指定し、その前後で文字列を分割する処理は {@link StringCutter} に集約します。

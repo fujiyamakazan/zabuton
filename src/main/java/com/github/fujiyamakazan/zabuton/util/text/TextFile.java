@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -15,6 +16,9 @@ import org.apache.wicket.util.lang.Generics;
  * @author fujiyama
  */
 public abstract class TextFile implements Serializable {
+    @SuppressWarnings("unused")
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
+        .getLogger(java.lang.invoke.MethodHandles.lookup().lookupClass());
 
     private static final long serialVersionUID = 1L;
 
@@ -173,5 +177,19 @@ public abstract class TextFile implements Serializable {
             text = text.substring(lastLn + 1);
         }
         return text;
+    }
+
+    /**
+     * 標準APIを使用して読み取ります。
+     */
+    public static String readString(File file, Charset charset) {
+        String str;
+        try {
+            str = Files.readString(file.toPath(), charset);
+        } catch (IOException e) {
+            LOGGER.error(file.getAbsolutePath() + "の読取りに失敗しました。");
+            throw new RuntimeException(e);
+        }
+        return str;
     }
 }

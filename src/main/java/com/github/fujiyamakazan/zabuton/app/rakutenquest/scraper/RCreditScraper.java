@@ -23,6 +23,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.openqa.selenium.By;
 import org.slf4j.LoggerFactory;
 
 import com.github.fujiyamakazan.zabuton.app.rakutenquest.scraper.RCreditScraper.RCreditDto;
@@ -37,6 +38,7 @@ import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 
 public class RCreditScraper extends JournalScraper<RCreditDto> {
+    @SuppressWarnings("unused")
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final String CACHE1 = "cache1.html";
@@ -157,12 +159,13 @@ public class RCreditScraper extends JournalScraper<RCreditDto> {
 
         /* ログインします。 */
         final PasswordManager pm = createPasswordManager();
-        new RCardLogin() {
-            @Override
-            protected String selectCardType() {
-                return RCreditScraper.this.selectCardType();
-            }
-        }.login(pm, cmd);
+        new RCardLogin().login(pm, cmd);
+
+        // カード切替え
+        String type = selectCardType();
+        if (StringUtils.isNotEmpty(type)) {
+            cmd.choiceByText(By.xpath("//select[@id='cardChangeForm:cardtype']"), type);
+        }
 
 
         /* ダウンロード */
@@ -295,7 +298,7 @@ public class RCreditScraper extends JournalScraper<RCreditDto> {
 
                 /* 保存済みマスターに同一のデータがあれば追加しない */
                 if (meisainos.contains(meisai.getMeisaino())) {
-                    LOGGER.debug("明細" + meisai.getMeisaino() + "はmasterに登録済み");
+                    //LOGGER.debug("明細" + meisai.getMeisaino() + "はmasterに登録済み");
                     continue;
                 }
 
@@ -361,7 +364,7 @@ public class RCreditScraper extends JournalScraper<RCreditDto> {
                     Matcher matcher2 = pattern2.matcher(text);
                     if (matcher2.find()) {
                         String strKingaku = matcher2.group(1);
-                        LOGGER.debug("金額：" + strKingaku);
+                        //LOGGER.debug("金額：" + strKingaku);
                         kingaku = MoneyUtils.toInt(strKingaku);
                     } else {
                         throw new RuntimeException("金額解析失敗：" + text);
@@ -384,9 +387,9 @@ public class RCreditScraper extends JournalScraper<RCreditDto> {
 
                         // 過去の日付か判定
                         if (extractedDate.isBefore(today)) {
-                            LOGGER.debug("この日付は過去の日付です。" + extractedDate);
+                            //LOGGER.debug("この日付は過去の日付です。" + extractedDate);
                         } else {
-                            LOGGER.debug("この日付は未来または今日です。" + extractedDate);
+                            //LOGGER.debug("この日付は未来または今日です。" + extractedDate);
                             zandaka += kingaku;
                         }
                     } else {
@@ -397,9 +400,11 @@ public class RCreditScraper extends JournalScraper<RCreditDto> {
             }
         }
 
-        LOGGER.debug("残高：" + zandaka);
+        //LOGGER.debug("残高：" + zandaka);
         return zandaka;
     }
+
+
 
 
     //    public static void main(String[] args) throws IOException {

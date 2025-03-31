@@ -7,7 +7,6 @@ import org.apache.wicket.util.lang.Generics;
 
 /**
  * ハイフンに関するユーティリティです。
- * TODO StringSetと役割分担を検討
  * @author fujiyama
  */
 public class HyphenUtils implements Serializable {

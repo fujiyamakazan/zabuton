@@ -513,7 +513,7 @@ public abstract class JournalFactory implements Serializable {
     /**
      * ダウンロードされたファイルを返します。ファイル名順です。
      */
-    public final List<File> getDownloadFiles() { // TODO 一時的にpublic
+    private final List<File> getDownloadFiles() {
         List<File> list = new ArrayList<File>(Arrays.asList(cache.listFiles()));
         Collections.sort(list, new NameFileComparator());
         return list;

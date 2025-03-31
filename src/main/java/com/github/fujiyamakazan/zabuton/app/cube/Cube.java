@@ -1,5 +1,6 @@
 package com.github.fujiyamakazan.zabuton.app.cube;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -7,7 +8,7 @@ import java.util.List;
 
 import org.apache.wicket.util.lang.Generics;
 
-public class Cube {
+public class Cube implements Serializable {
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(Cube.class);
 
@@ -120,7 +121,8 @@ public class Cube {
      * ピースです。
      * 位置情報と配色情報を持ちます。
      */
-    private class Piece {
+    private class Piece implements Serializable {
+        private static final long serialVersionUID = 1L;
         private Pos pos;
         protected final List<Fc> fcs;
 

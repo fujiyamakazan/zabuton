@@ -43,8 +43,17 @@ import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 public class ALine implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private static SimpleDateFormat dfYyyyMMdd = new SimpleDateFormat(Chronus.POPULAR_JP);
-    private static SimpleDateFormat dfYyyyMMddHHmmss = new SimpleDateFormat(dfYyyyMMdd.toPattern() + " HH:mm:ss");
+    // staticなDateFormatのメソッド呼び出しはバグの可能性がある
+    //private static SimpleDateFormat dfYyyyMMdd = new SimpleDateFormat(Chronus.POPULAR_JP);
+    private static SimpleDateFormat getDfYyyyMMdd() {
+        return new SimpleDateFormat(Chronus.POPULAR_JP);
+    }
+
+    // staticなDateFormatのメソッド呼び出しはバグの可能性がある
+    //private static SimpleDateFormat dfYyyyMMddHHmmss = new SimpleDateFormat(dfYyyyMMdd.toPattern() + " HH:mm:ss");
+    private static SimpleDateFormat getDfYyyyMMddHHmmss() {
+        return new SimpleDateFormat(getDfYyyyMMdd().toPattern() + " HH:mm:ss");
+    }
 
     private File setting;
     private File aliveLog;
@@ -473,11 +482,11 @@ public class ALine implements Serializable {
     }
 
     private static String getToday() {
-        return dfYyyyMMdd.format(new Date());
+        return getDfYyyyMMdd().format(new Date());
     }
 
     private static String getNow() {
-        return dfYyyyMMddHHmmss.format(new Date());
+        return getDfYyyyMMddHHmmss().format(new Date());
     }
 
     protected String proxyHost() {

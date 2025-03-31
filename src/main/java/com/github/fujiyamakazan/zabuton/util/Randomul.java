@@ -1,4 +1,4 @@
-package com.github.fujiyamakazan.zabuton.util.random;
+package com.github.fujiyamakazan.zabuton.util;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -11,10 +11,12 @@ import java.util.Random;
  * 「無作為」のユーティリティです。
  * @author fujiyama
  */
-public class Roulette implements Serializable {
+public class Randomul implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(Roulette.class);
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(Randomul.class);
+
+    private static Random random = new Random();
 
     /**
      * 無作為に１つの要素を抽出します。
@@ -44,7 +46,7 @@ public class Roulette implements Serializable {
     }
 
     public static boolean getRandomTrueOrFalse() {
-        Random random = new Random();
+
         return random.nextBoolean();  // trueかfalseをランダムに生成
     }
 
@@ -56,9 +58,5 @@ public class Roulette implements Serializable {
         String one = randomOne(c);
         LOGGER.debug(one);
     }
-
-
-
-
 
 }

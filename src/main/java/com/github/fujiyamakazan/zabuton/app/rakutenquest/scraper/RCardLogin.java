@@ -1,6 +1,5 @@
 package com.github.fujiyamakazan.zabuton.app.rakutenquest.scraper;
 
-import java.lang.invoke.MethodHandles;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
@@ -11,7 +10,7 @@ import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 public class RCardLogin {
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
-        .getLogger(MethodHandles.lookup().lookupClass());
+        .getLogger(java.lang.invoke.MethodHandles.lookup().lookupClass());
 
     public void login(PasswordManager pm, SelenCommonDriver cmd) {
         String url = "https://www.rakuten-card.co.jp/e-navi/members/";
@@ -37,16 +36,5 @@ public class RCardLogin {
 //            cmd.sleep(3000);
 //            cmd.clickAndWait(By.xpath("//body//div[text() = '次へ']"));
         }
-
-        // カード切替え
-        String type = selectCardType();
-        if (StringUtils.isNotEmpty(type)) {
-            cmd.choiceByText(By.xpath("//select[@id='cardChangeForm:cardtype']"), "楽天カード（ＪＣＢ）");
-        }
     }
-
-    protected String selectCardType() {
-        return null;
-    }
-
 }

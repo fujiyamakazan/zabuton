@@ -6,8 +6,6 @@ import java.util.regex.Pattern;
 /**
  * 日本円の文字列表現に関するユーティリティです。
  *
- * TODO これ以上メソッドが増えないようなら、Stringulへの移行を検討
- *
  * @author fujiyama
  */
 public class MoneyUtils implements Serializable {
@@ -22,7 +20,7 @@ public class MoneyUtils implements Serializable {
         if (text == null) {
             text = "";
         }
-        text.trim();
+        text = text.trim();
         text = text.replaceAll(Pattern.quote("\\"), "");
         text = text.replaceAll("￥", "");
         text = text.replaceAll("¥", ""); // 文字コードが特殊な記号

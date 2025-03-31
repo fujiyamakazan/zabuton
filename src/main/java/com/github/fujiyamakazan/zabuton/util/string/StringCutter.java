@@ -1,34 +1,25 @@
 package com.github.fujiyamakazan.zabuton.util.string;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * キーワードを指定し、その前後で文字列を分割します。
  *
  * @author fuijyama
  */
 public class StringCutter {
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
+        .getLogger(java.lang.invoke.MethodHandles.lookup().lookupClass());
 
     /**
      * startWordとendWordに挟まれた文字列を返します。
-     * @return startWordとendWordに挟まれた文字列。引数が不正であればnullを返す。
+     *
+     * StringUtilsのメソッドで代替できるため、実装を差し替え。
+     *
+     * @return startWordとendWordに挟まれた文字列。
      */
     public static String between(String str, String startWord, String endWord) {
-        if (str == null) {
-            return null;
-        }
-        int start = str.indexOf(startWord);
-        int end;
-        if (endWord != null) {
-            end = str.indexOf(endWord, start + startWord.length());
-        } else {
-            end = str.length();
-        }
-        if (start >= end) {
-            return null;
-        }
-        if (start == -1 || end == -1) {
-            return null;
-        }
-        return str.substring(start + startWord.length(), end);
+        return StringUtils.substringBetween(str, startWord, endWord);
     }
 
     /**
@@ -45,74 +36,100 @@ public class StringCutter {
             return src;
         }
         int idxTail = -1;
-        if (idxStart == -1) {
-            return src;
-        }
+        //if (idxStart == -1) {
+        //    return src;
+        //}
         idxTail = src.indexOf(tailMark, idxStart) + tailMark.length();
         if (idxStart >= idxTail) {
             return src;
         }
 
         String str = "";
-        try {
-            str += src.substring(0, idxStart);
-            str += repStr;
-            str += src.substring(idxTail);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return src;
-        }
+        str += src.substring(0, idxStart);
+        str += repStr;
+        str += src.substring(idxTail);
+
         return str;
     }
 
+//    public static void main(String[] args) {
+//        LOGGER.debug(StringUtils.substringBefore("abdceabcde", "d"));
+//        LOGGER.debug(StringUtils.substringBeforeLast("abdceabcde", "d"));
+//        LOGGER.debug(left("abdceabcde", "d"));
+//        LOGGER.debug(leftOfLast("abdceabcde", "d"));
+//    }
+
     /**
      * delimiterより左側の部分を返します。
+     * StringUtilsのメソッドで代替できるため、実装を差し替え。
+     *
      * @return delimiterより左側の部分
      */
     public static String left(String src, String delimiter) {
-        return leftCore(src, src.indexOf(delimiter));
+//        return leftCore(src, src.indexOf(delimiter));
+        return StringUtils.substringBefore(src, delimiter);
     }
 
     /**
      * delimiterより左側の部分を返します。
+     *
+     * StringUtilsのメソッドで代替できるため、実装を差し替え。
+     *
      * @return delimiterより左側の部分 (区切り文字は後方一致とする)
      */
     public static String leftOfLast(String src, String delimiter) {
-        return leftCore(src, src.lastIndexOf(delimiter));
+//        return leftCore(src, src.lastIndexOf(delimiter));
+        return StringUtils.substringBeforeLast(src, delimiter);
     }
 
-    private static String leftCore(String src, final int index) {
-        try {
-            return src.substring(0, index);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    private static String leftCore(String src, final int index) {
+//        try {
+//            return src.substring(0, index);
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
+
+
+public static void main(String[] args) {
+    //LOGGER.debug(StringUtils.substringBefore("abdceabcde", "d"));
+    //LOGGER.debug(StringUtils.substringBeforeLast("abdceabcde", "d"));
+    LOGGER.debug(right("abdceabcde", "d"));
+    LOGGER.debug(rightOfFirst("abdceabcde", "d"));
+}
 
     /**
      * delimiterより右側の部分を返します。
+     *
+     * StringUtilsのメソッドで代替できるため、実装を差し替え。
+     *
      * @return delimiterより右側の部分
      */
     public static String right(String src, String delimiter) {
-        final int index = src.lastIndexOf(delimiter);
-        return rightCore(src, delimiter, index);
+        //final int index = src.lastIndexOf(delimiter);
+        //return rightCore(src, delimiter, index);
+        return StringUtils.substringAfterLast(src, delimiter);
     }
 
     /**
      * delimiterより右側の部分を返します。
+     *
+     * StringUtilsのメソッドで代替できるため、実装を差し替え。
+     *
      * @return delimiterより右側の部分(区切り文字は前方一致とする)
      */
     public static String rightOfFirst(String src, String delimiter) {
-        final int index = src.indexOf(delimiter);
-        return rightCore(src, delimiter, index);
+        //final int index = src.indexOf(delimiter);
+        //return rightCore(src, delimiter, index);
+        return StringUtils.substringAfter(src, delimiter);
     }
 
-    private static String rightCore(String src, String delimiter, final int index) {
-        try {
-            return src.substring(index + delimiter.length());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    private static String rightCore(String src, String delimiter, final int index) {
+//        try {
+//            return src.substring(index + delimiter.length());
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
 }

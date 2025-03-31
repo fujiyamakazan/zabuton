@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.wicket.util.lang.Generics;
 
 import com.github.fujiyamakazan.zabuton.app.cube.Cube.Face;
-import com.github.fujiyamakazan.zabuton.util.random.Roulette;
+import com.github.fujiyamakazan.zabuton.util.Randomul;
 
 public class CubeCommand implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -45,9 +45,9 @@ public class CubeCommand implements Serializable {
      * ランダムな値を返します。
      */
     public static CubeCommand ofRandome() {
-        Face f = Roulette.randomOne(Face.values());
+        Face f = Randomul.randomOne(Face.values());
         //int dist = Roulette.getRandomTrueOrFalse() ? 1 : -1;
-        int dist = Roulette.randomOne(new Integer[] { -1, 1, 2 });
+        int dist = Randomul.randomOne(new Integer[] { -1, 1, 2 });
         return new CubeCommand(f, dist);
     }
 

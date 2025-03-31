@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PushbackInputStream;
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
@@ -26,8 +25,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class PoiUtils {
 
-    public static class PoiBook implements Serializable {
-        private static final long serialVersionUID = 1L;
+    public static class PoiBook {
 
         private FileInputStream fis;
         private PushbackInputStream pis = null;

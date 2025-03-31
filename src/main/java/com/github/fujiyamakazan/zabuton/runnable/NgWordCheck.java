@@ -82,7 +82,8 @@ public class NgWordCheck implements Serializable {
             public boolean accept(File file) {
 
                 if (file.getName().endsWith(".jar")
-                    || file.getName().endsWith(".zip")) {
+                    || file.getName().endsWith(".zip")
+                    ) {
                     return false;
                 }
 
