@@ -44,7 +44,9 @@ public class Utf8Text extends TextFile {
 
     /**
      * UTF8でテキストデータを読み出します。Apache Commonsを利用
+     * @deprecated readStringの利用を検討してください。（Charsetの検査が厳密になります。）
      */
+    @Deprecated
     public static String readData(File file) {
         try {
             return FileUtils.readFileToString(file, CHARSET);

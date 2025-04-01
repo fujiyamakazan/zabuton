@@ -40,49 +40,42 @@ public class MaxQuantityListAdder {
     }
 
     public static void main(String[] args) {
-        List<MassObjectSample> sourceList = new ArrayList<>();
-        sourceList.add(new MassObjectSample("Object1", 2));
-        sourceList.add(new MassObjectSample("Object2", 1));
-        sourceList.add(new MassObjectSample("Object3", 1));
-        sourceList.add(new MassObjectSample("Object4", 1));
 
-        sub(sourceList);
-        sub(sourceList);
-        sub(sourceList);
-        sub(sourceList);
-        sub(sourceList);
-        sub(sourceList);
-        sub(sourceList);
-        sub(sourceList);
-        sub(sourceList);
-        sub(sourceList);
-    }
+        class MassObj implements IMassObject {
+            private final String name;
+            private final int mass;
 
-    protected static void sub(List<MassObjectSample> sourceList) {
-        Collections.shuffle(sourceList);
-        int maxMass = 3;
-        List<MassObjectSample> transferredList = MaxQuantityListAdder.extecute(sourceList, maxMass);
-        int sum = transferredList.stream().mapToInt(MassObjectSample::getMass).sum();
-        System.out.println(sum + " : " + transferredList);
-    }
+            public MassObj(String name, int mass) {
+                this.name = name;
+                this.mass = mass;
+            }
 
-    private static class MassObjectSample implements IMassObject {
-        private final String name;
-        private final int mass;
+            @Override
+            public int getMass() {
+                return mass;
+            }
 
-        public MassObjectSample(String name, int mass) {
-            this.name = name;
-            this.mass = mass;
+            @Override
+            public String toString() {
+                return name + "(" + mass + "kg)";
+            }
         }
 
-        @Override
-        public int getMass() {
-            return mass;
+        List<MassObj> list = new ArrayList<>();
+        list.add(new MassObj("①", 2));
+        list.add(new MassObj("②", 1));
+        list.add(new MassObj("③", 1));
+        list.add(new MassObj("④", 1));
+
+        for (int i = 0; i < 10; i++) {
+            Collections.shuffle(list);
+            List<MassObj> results = MaxQuantityListAdder.extecute(list, 3);
+            LOGGER.debug(results.toString() + " 合計："+ results.stream().mapToInt(MassObj::getMass).sum());
+
         }
 
-        @Override
-        public String toString() {
-            return name + "(" + mass + "kg)";
-        }
+
+
     }
+
 }

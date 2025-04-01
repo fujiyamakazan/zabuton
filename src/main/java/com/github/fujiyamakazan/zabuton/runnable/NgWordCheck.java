@@ -12,6 +12,7 @@ import org.apache.wicket.util.lang.Generics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.fujiyamakazan.zabuton.Zabuton;
 import com.github.fujiyamakazan.zabuton.util.KeyValue;
 import com.github.fujiyamakazan.zabuton.util.ListToStringer;
 import com.github.fujiyamakazan.zabuton.util.text.KeyValuesText;
@@ -31,7 +32,8 @@ public class NgWordCheck implements Serializable {
      * 動作確認をします。
      */
     public static void main(String[] args) {
-        execute(new File("."));
+        //execute(new File("."));
+        execute(Zabuton.getDir());
     }
 
     /**
@@ -81,14 +83,16 @@ public class NgWordCheck implements Serializable {
             @Override
             public boolean accept(File file) {
 
-                if (file.getName().endsWith(".jar")
-                    || file.getName().endsWith(".zip")
+                final String name = file.getName();
+                if (name.endsWith(".jar")
+                    || name.endsWith(".zip")
+                    || underGit(file)
                     ) {
                     return false;
                 }
 
                 for (String o : fileOmits) {
-                    if (file.getName().matches(o)) {
+                    if (name.matches(o)) {
                         return false;
                     }
                 }
@@ -138,7 +142,8 @@ public class NgWordCheck implements Serializable {
         List<FileWord> errors = Generics.newArrayList();
         for (File f : FileUtils.listFiles(new File("./"), fileFilter, dirFilter)) {
             //LOGGER.debug(f.getAbsolutePath());
-            String text = Utf8Text.readData(f);
+            //String text = Utf8Text.readData(f);
+            String text = Utf8Text.readString(f);
             for (String word : words) {
                 if (StringUtils.containsIgnoreCase(text, word)) {
                     errors.add(new FileWord(f, word));
@@ -173,5 +178,14 @@ public class NgWordCheck implements Serializable {
             }
         }
         LOGGER.debug("禁則文字のチェックを終了します。");
+    }
+
+    private static boolean underGit(File file) {
+        while ((file = file.getParentFile()) != null) { // 親フォルダを順にたどる
+            if (file.getName().equals(".git")) {
+                return true; // キーワードが含まれていたら終了
+            }
+        }
+        return false;
     }
 }
