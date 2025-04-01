@@ -7,6 +7,7 @@ public class Listul {
 
     /*
      * 【Sream API 実装例】
-     * リストから集計する実装
+     * ■ リストから集計する実装
+     * int totalCount = list.stream().mapToInt(Object::getCount).sum();
      */
 }

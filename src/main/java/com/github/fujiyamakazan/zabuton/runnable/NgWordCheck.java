@@ -9,8 +9,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.lang.Generics;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.github.fujiyamakazan.zabuton.Zabuton;
 import com.github.fujiyamakazan.zabuton.util.KeyValue;
@@ -25,8 +23,8 @@ import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
  */
 public class NgWordCheck implements Serializable {
     private static final long serialVersionUID = 1L;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(NgWordCheck.class);
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
+        .getLogger(java.lang.invoke.MethodHandles.lookup().lookupClass());
 
     /**
      * 動作確認をします。
@@ -86,7 +84,6 @@ public class NgWordCheck implements Serializable {
                 final String name = file.getName();
                 if (name.endsWith(".jar")
                     || name.endsWith(".zip")
-                    || underGit(file)
                     ) {
                     return false;
                 }
@@ -99,6 +96,7 @@ public class NgWordCheck implements Serializable {
                 return true;
             }
         };
+
 
         IOFileFilter dirFilter = new IOFileFilter() {
 
@@ -122,6 +120,8 @@ public class NgWordCheck implements Serializable {
             }
         };
 
+
+
         class FileWord implements Serializable {
             private static final long serialVersionUID = 1L;
             File file;
@@ -143,7 +143,8 @@ public class NgWordCheck implements Serializable {
         for (File f : FileUtils.listFiles(new File("./"), fileFilter, dirFilter)) {
             //LOGGER.debug(f.getAbsolutePath());
             //String text = Utf8Text.readData(f);
-            String text = Utf8Text.readString(f);
+            LOGGER.debug(f.getAbsolutePath());
+            String text = Utf8Text.readData(f);
             for (String word : words) {
                 if (StringUtils.containsIgnoreCase(text, word)) {
                     errors.add(new FileWord(f, word));
@@ -180,12 +181,5 @@ public class NgWordCheck implements Serializable {
         LOGGER.debug("禁則文字のチェックを終了します。");
     }
 
-    private static boolean underGit(File file) {
-        while ((file = file.getParentFile()) != null) { // 親フォルダを順にたどる
-            if (file.getName().equals(".git")) {
-                return true; // キーワードが含まれていたら終了
-            }
-        }
-        return false;
-    }
+
 }
