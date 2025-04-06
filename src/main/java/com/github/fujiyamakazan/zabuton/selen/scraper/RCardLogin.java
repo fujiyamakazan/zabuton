@@ -1,4 +1,4 @@
-package com.github.fujiyamakazan.zabuton.app.rakutenquest.scraper;
+package com.github.fujiyamakazan.zabuton.selen.scraper;
 
 
 import org.apache.commons.lang3.StringUtils;

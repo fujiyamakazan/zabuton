@@ -1,4 +1,4 @@
-package com.github.fujiyamakazan.zabuton.app.rakutenquest.scraper;
+package com.github.fujiyamakazan.zabuton.selen.scraper;
 
 import java.io.File;
 import java.io.FileReader;
@@ -26,8 +26,8 @@ import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 import org.slf4j.LoggerFactory;
 
-import com.github.fujiyamakazan.zabuton.app.rakutenquest.scraper.RCreditScraper.RCreditDto;
 import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
+import com.github.fujiyamakazan.zabuton.selen.scraper.RCreditScraper.RCreditDto;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
 import com.opencsv.bean.CsvBindByName;
@@ -402,6 +402,18 @@ public class RCreditScraper extends JournalScraper<RCreditDto> {
 
         //LOGGER.debug("残高：" + zandaka);
         return zandaka;
+    }
+
+    @Override
+    protected File getAppDir() {
+        // TODO 自動生成されたメソッド・スタブ
+        return null;
+    }
+
+    @Override
+    public void execute() {
+        // TODO 自動生成されたメソッド・スタブ
+
     }
 
 

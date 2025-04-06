@@ -1,1 +1,0 @@
-package com.github.fujiyamakazan.zabuton.app.rakutenquest.scraper;

@@ -1,4 +1,4 @@
-package com.github.fujiyamakazan.zabuton.app.rakutenquest.scraper;
+package com.github.fujiyamakazan.zabuton.selen.scraper;
 
 import java.io.File;
 import java.io.FileReader;
@@ -22,8 +22,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 
-import com.github.fujiyamakazan.zabuton.app.rakutenquest.scraper.SuicaScraper.SuicaDto;
 import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
+import com.github.fujiyamakazan.zabuton.selen.scraper.SuicaScraper.SuicaDto;
 import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.date.Chronus;
 import com.github.fujiyamakazan.zabuton.util.jframe.JFrameUtils;
@@ -39,6 +39,8 @@ import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 
 public class SuicaScraper extends JournalScraper<SuicaDto> {
+    private static final long serialVersionUID = 1L;
+
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
         .getLogger(MethodHandles.lookup().lookupClass());
@@ -411,5 +413,17 @@ public class SuicaScraper extends JournalScraper<SuicaDto> {
             .download()
             .updateMaster(new File(work, "master.csv"))
             .getAsset();
+    }
+
+    @Override
+    protected File getAppDir() {
+        // TODO 自動生成されたメソッド・スタブ
+        return null;
+    }
+
+    @Override
+    public void execute() {
+        // TODO 自動生成されたメソッド・スタブ
+        
     }
 }

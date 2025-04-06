@@ -1,12 +1,15 @@
-package com.github.fujiyamakazan.zabuton.selen;
+package com.github.fujiyamakazan.zabuton.selen.scraper;
 
 import java.io.File;
 import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 import java.nio.file.Path;
 
 import org.apache.wicket.util.file.Files;
 
 import com.github.fujiyamakazan.zabuton.app.rakutenquest.DownloadFileWorker;
+import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
+import com.github.fujiyamakazan.zabuton.selen.SelenUtils;
 import com.github.fujiyamakazan.zabuton.util.security.CookieManager;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
@@ -19,7 +22,8 @@ public abstract class Scraper implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(Scraper.class);
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
+        .getLogger(MethodHandles.lookup().lookupClass());
 
     protected SelenCommonDriver cmd;
 

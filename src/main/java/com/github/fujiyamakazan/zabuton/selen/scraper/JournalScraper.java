@@ -1,4 +1,4 @@
-package com.github.fujiyamakazan.zabuton.app.rakutenquest.scraper;
+package com.github.fujiyamakazan.zabuton.selen.scraper;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +15,9 @@ import org.apache.wicket.util.lang.Generics;
 import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 
-public abstract class JournalScraper<DTO> {
+public abstract class JournalScraper<DTO> extends Scraper {
+    private static final long serialVersionUID = 1L;
+
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
         .getLogger(MethodHandles.lookup().lookupClass());
 
@@ -75,7 +77,7 @@ public abstract class JournalScraper<DTO> {
 
     protected abstract int getAsset();
 
-    protected PasswordManager createPasswordManager() {
+    public PasswordManager createPasswordManager() {
         return new PasswordManager(selen);
     }
 

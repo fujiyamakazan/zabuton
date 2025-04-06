@@ -3,8 +3,6 @@ package com.github.fujiyamakazan.zabuton.selen;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
@@ -271,6 +269,7 @@ public abstract class SelenCommonDriver implements Serializable {
 
         WebDriver driver;
         if (opt == null) {
+
             /* デフォルトではGoogleChromeのWebドライバを生成します。 */
             final DriverFactory factory;
             factory = new ChoromeDriverFactory(getDriverDir());
@@ -291,26 +290,15 @@ public abstract class SelenCommonDriver implements Serializable {
 
             } catch (Exception e) {
                 LOGGER.error(Stringul.ofException(e));
-
                 if (factory.occurredIllegalVersionDetected(e)) {
                     /* ドライバファイルのバージョン不正を検知したときの処理 */
+                    killTask();
                     try {
-                        killTask();
                         Thread.sleep(1000);
-
-                        // TODO 何度も失敗するのは解凍したときにサブフォルダがあるのが問題？
-
-                        LOGGER.info("削除対象：" + driverFile.getAbsolutePath());
-
-                        Files.deleteIfExists(Path.of(driverFile.getAbsolutePath())); // ファイル削除
-
-                    } catch (Exception deleteException) {
-                        throw new RuntimeException("削除失敗", deleteException);
+                    } catch (InterruptedException e1) {
+                        throw new RuntimeException(e1);
                     }
-                    throw new RuntimeException(
-                        "ドライバのファイルがバージョンが不正のため削除しました。"
-                            + "再度実行すると、新しいファイルをダウンロードします。",
-                        e);
+                    throw new RuntimeException("ドライバのバージョンが不正です。", e);
 
                 } else {
                     throw new RuntimeException(e);
@@ -353,7 +341,9 @@ public abstract class SelenCommonDriver implements Serializable {
     /**
      * ダウンロードを指示したときに保存するディレクトリを返すように実装します。
      */
-    protected abstract File getDownloadDir();
+    protected File getDownloadDir() {
+        return null;
+    }
 
     //    /**
     //     * Cookieを保存するフォルダを実装します。
