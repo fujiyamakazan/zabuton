@@ -132,8 +132,4 @@ public abstract class Scraper implements Serializable {
     public abstract void execute();
 
 
-
-
-
-
 }

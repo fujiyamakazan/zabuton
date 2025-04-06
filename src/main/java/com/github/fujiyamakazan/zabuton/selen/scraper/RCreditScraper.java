@@ -38,6 +38,8 @@ import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 
 public class RCreditScraper extends JournalScraper<RCreditDto> {
+    private static final long serialVersionUID = 1L;
+
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 

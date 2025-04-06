@@ -9,8 +9,6 @@ public abstract class JcomScraper extends Scraper {
         .getLogger(MethodHandles.lookup().lookupClass());
 
 
-
-
 //
 //    /**
 //     * 処理をします。

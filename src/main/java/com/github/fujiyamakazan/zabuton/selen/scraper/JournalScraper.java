@@ -77,6 +77,7 @@ public abstract class JournalScraper<DTO> extends Scraper {
 
     protected abstract int getAsset();
 
+    @Override
     public PasswordManager createPasswordManager() {
         return new PasswordManager(selen);
     }
@@ -114,11 +115,11 @@ public abstract class JournalScraper<DTO> extends Scraper {
      * ダウンロード済みのキャッシュの有効期限が切れていないか？
      */
     private boolean isCacheExpired() {
-        boolean hasRecentFile = false;
+        //boolean hasRecentFile = false;
         final long twentyFourHoursInMillis = TimeUnit.HOURS.toMillis(24);
         final long currentTime = System.currentTimeMillis();
         for(File cache: caches) {
-            long creationTime = this.caches.get(0).lastModified();
+            long creationTime = cache.lastModified();
             if (currentTime - creationTime > twentyFourHoursInMillis) {
                 LOGGER.debug("無効なキャッシュがあります。Webから取得する必要があります。");
                 return true;
