@@ -405,25 +405,31 @@ public class SuicaScraper extends JournalScraper<SuicaDto> {
         return asset;
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args)  {
         String workName = MethodHandles.lookup().lookupClass().getSimpleName() + "Test";
         File work = EnvUtils.getUserDesktop(workName);
-        FileUtils.forceMkdir(work);
+        try {
+            FileUtils.forceMkdir(work);
+        } catch(Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
         new SuicaScraper(work, work)
             .download()
             .updateMaster(new File(work, "master.csv"))
             .getAsset();
     }
 
-    @Override
-    protected File getAppDir() {
-        // TODO 自動生成されたメソッド・スタブ
-        return null;
-    }
-
-    @Override
-    public void execute() {
-        // TODO 自動生成されたメソッド・スタブ
-        
-    }
+//    @Override
+//    protected File getAppDir() {
+//        // TODO 自動生成されたメソッド・スタブ
+//        return null;
+//    }
+//
+//    @Override
+//    public void execute() {
+//        // TODO 自動生成されたメソッド・スタブ
+//
+//    }
 }

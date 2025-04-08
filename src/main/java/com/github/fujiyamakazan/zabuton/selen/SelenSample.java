@@ -45,9 +45,8 @@ public class SelenSample implements Serializable {
                 return new File("C:\\tmp");
             }
 
-            @Override
             protected HttpAccessObject createHao() {
-                return new HttpAccessObject("10.2.0.4", 8080);
+                return new HttpAccessObject("proxy", 8080);
             }
 
 

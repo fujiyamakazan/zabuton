@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
 import com.github.fujiyamakazan.zabuton.selen.scraper.RCreditScraper.RCreditDto;
+import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
 import com.opencsv.bean.CsvBindByName;
@@ -169,7 +170,6 @@ public class RCreditScraper extends JournalScraper<RCreditDto> {
             cmd.choiceByText(By.xpath("//select[@id='cardChangeForm:cardtype']"), type);
         }
 
-
         /* ダウンロード */
 
         final String url = "https://www.rakuten-card.co.jp/e-navi/members/statement/"
@@ -186,6 +186,7 @@ public class RCreditScraper extends JournalScraper<RCreditDto> {
         saveCache(cmd, CACHE3);
 
     }
+
     protected String selectCardType() {
         return null;
     }
@@ -377,7 +378,7 @@ public class RCreditScraper extends JournalScraper<RCreditDto> {
                 String text = div.text();
                 if (StringUtils.startsWith(text, "お支払い日")
                     && StringUtils.endsWith(text, ")")) {
-                    Pattern pattern = Pattern.compile("(\\d{4})年(\\d{2})月(\\d{2})日");
+                    Pattern pattern = Pattern.compile("(\\d{4})年(\\d{1,2})月(\\d{1,2})日");
                     Matcher matcher = pattern.matcher(text);
                     if (matcher.find()) {
                         // 抽出した年・月・日を取得
@@ -406,29 +407,11 @@ public class RCreditScraper extends JournalScraper<RCreditDto> {
         return zandaka;
     }
 
-    @Override
-    protected File getAppDir() {
-        // TODO 自動生成されたメソッド・スタブ
-        return null;
+    public static void main(String[] args) {
+        File work = EnvUtils.getUserDesktop(RCreditScraper.class.getSimpleName());
+        RCreditScraper scraper = new RCreditScraper(work, work);
+        scraper.download();
+        scraper.updateMaster(new File(work, "master.csv"));
+        LOGGER.debug("" + scraper.getAsset());
     }
-
-    @Override
-    public void execute() {
-        // TODO 自動生成されたメソッド・スタブ
-
-    }
-
-
-
-
-    //    public static void main(String[] args) throws IOException {
-    //        File work = EnvUtils.getUserDesktop(RCreditScraper.class.getSimpleName());
-    //        RCreditScraper scraper = new RCreditScraper(work);
-    //        if (!scraper.hasCache()) {
-    //            scraper.download(work);
-    //        }
-    //        scraper.updateMaster();
-    //        scraper.getAsset();
-    //
-    //    }
 }

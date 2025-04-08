@@ -77,7 +77,7 @@ public abstract class JournalScraper<DTO> extends Scraper {
 
     protected abstract int getAsset();
 
-    @Override
+    //@Override
     public PasswordManager createPasswordManager() {
         return new PasswordManager(selen);
     }

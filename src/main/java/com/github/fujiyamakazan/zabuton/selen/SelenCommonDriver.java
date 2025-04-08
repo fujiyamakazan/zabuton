@@ -4,47 +4,39 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import org.danekja.java.misc.serializable.SerializableRunnable;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.Keys;
-import org.openqa.selenium.SessionNotCreatedException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.edge.EdgeDriver;
-import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import com.github.fujiyamakazan.zabuton.selen.driverfactory.ChoromeDriverFactory;
+import com.github.fujiyamakazan.zabuton.selen.driverfactory.DriverFactory;
+import com.github.fujiyamakazan.zabuton.selen.driverfactory.EdgeDriverFactory;
 import com.github.fujiyamakazan.zabuton.util.EnvUtils;
-import com.github.fujiyamakazan.zabuton.util.HttpAccessObject;
 import com.github.fujiyamakazan.zabuton.util.RetryWorker;
 import com.github.fujiyamakazan.zabuton.util.exec.CmdAccessObject;
-import com.github.fujiyamakazan.zabuton.util.file.ZipUtils;
 import com.github.fujiyamakazan.zabuton.util.security.CookieManager;
 import com.github.fujiyamakazan.zabuton.util.string.Stringul;
 
 public abstract class SelenCommonDriver implements Serializable {
-
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(SelenCommonDriver.class);
     private static final long serialVersionUID = 1L;
+
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
+        .getLogger(java.lang.invoke.MethodHandles.lookup().lookupClass());
 
     public static final int DEFAULT_TIMEOUT = 5;
 
@@ -55,205 +47,7 @@ public abstract class SelenCommonDriver implements Serializable {
     /** Seleniumの一時ファイルの自動削除を中断する場合はfalseを指定します。 */
     public static boolean deleteTemp = true;
 
-    /**
-     * Webドライバのファクトリです。
-     */
-    private abstract class DriverFactory implements Serializable {
-        private static final long serialVersionUID = 1L;
-
-        public File driverFile;
-
-        public DriverFactory(File driverDir) {
-            this.driverFile = new File(driverDir, getDriverFileName());
-        }
-
-        public File getDriverFile() {
-            return driverFile;
-        }
-
-        /**
-         * ドライバの実行ファイルの名称を返します。
-         */
-        public abstract String getDriverFileName();
-
-        /**
-         * ドライバの実行ファイルを取得できるURLを返します。
-         */
-        public abstract String getDriverUrl();
-
-        /**
-         * ドライバの実行ファイルを取得します。
-         */
-        public abstract void download();
-
-        /**
-         * ドライバの実行ファイルからWebドライバオブジェクトを生成します。
-         */
-        public abstract WebDriver create(File downloadDefaultDir);
-
-        /**
-         * 例外情報から不正なバージョンの発生を検知します。
-         */
-        public abstract boolean occurredIllegalVersionDetected(Exception e);
-
-    }
-
-    /**
-     * GoogleChrome用のWebドライバのファクトリです。
-     */
-    private class ChoromeDriverFactory extends DriverFactory {
-        private static final long serialVersionUID = 1L;
-        private static final String DRIVER_EXE = "chromedriver.exe";
-
-        public ChoromeDriverFactory(File driverDir) {
-            super(driverDir);
-        }
-
-        @Override
-        public String getDriverFileName() {
-            return "" + DRIVER_EXE;
-        }
-
-        @Override
-        public String getDriverUrl() {
-            //return "https://chromedriver.chromium.org/downloads";
-            return "https://googlechromelabs.github.io/chrome-for-testing/";
-        }
-
-        @Override
-        public void download() {
-            HttpAccessObject hao = createHao();
-            String html = hao.get(getDriverUrl());
-
-            Document doc = Jsoup.parse(html);
-            Elements trs = doc.getElementsByTag("tr");
-
-            String url = "";
-            for (Element tr : trs) {
-                Elements ths = tr.getElementsByTag("th");
-                if (ths.size() >= 2) {
-                    if (ths.get(0).text().equals("chromedriver")
-                        && ths.get(1).text().equals("win64")) {
-                        url = tr.getElementsByTag("td").get(0).getElementsByTag("code").text();
-                        break;
-                    }
-                }
-            }
-
-            File zip = new File(driverFile.getAbsolutePath() + ".zip");
-            hao.download(url, zip);
-            LOGGER.debug(url);
-            new ZipUtils.UnzipTask(zip) {
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                protected void runByEntry(String name, File file) {
-                    try {
-                        if (StringUtils.contains(name, DRIVER_EXE)) {
-                            if (StringUtils.contains(name, "/")) {
-                                name = name.substring(name.indexOf('/') + 1);
-                            }
-                            File unpackfile = new File(driverFile.getParentFile(), name);
-                            FileUtils.copyFile(file, unpackfile);
-                        }
-
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }.start();
-
-        }
-
-        @Override
-        public WebDriver create(File downloadDefaultDir) {
-
-            /* Choromeの環境変数を設定します。 */
-            System.setProperty("webdriver.chrome.driver", driverFile.getAbsolutePath());
-
-            /* ダウンロードフォルダを指定します。 */
-            HashMap<String, Object> prefes = new HashMap<String, Object>();
-            prefes.put("profile.default_content_settings.popups", 0);
-            if (downloadDefaultDir != null) {
-                prefes.put("download.default_directory", downloadDefaultDir.getAbsolutePath());
-            }
-
-            ChromeOptions options = new ChromeOptions();
-            options.setExperimentalOption("prefs", prefes);
-
-            /* Webドライバのインスタンスを返します。*/
-            return new ChromeDriver(options);
-
-            /*
-             * Edgeの場合、「自動テストソフトウェアによって制御されています」を非表示にする方法は下記の通り。
-             * TODO Choromeにも適用することを検討
-             */
-            //            EdgeOptions options = new EdgeOptions();
-            //            options.setExperimentalOption("useAutomationExtension", false);
-            //            options.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
-        }
-
-        @Override
-        public boolean occurredIllegalVersionDetected(Exception e) {
-            return e instanceof SessionNotCreatedException
-                && e.getMessage().contains("This version of ChromeDriver only supports Chrome version");
-        }
-
-    }
-
-    /**
-     * MS Edge用のWebドライバのファクトリです。
-     */
-    private class EdgeDriverFactory extends DriverFactory {
-        private static final long serialVersionUID = 1L;
-        private static final String DRIVER_EXE = "msedgedriver.exe";
-
-        public EdgeDriverFactory(File driverDir) {
-            super(driverDir);
-        }
-
-        @Override
-        public String getDriverFileName() {
-            return DRIVER_EXE;
-        }
-
-        @Override
-        public String getDriverUrl() {
-            return "https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/";
-            //throw new UnsupportedOperationException("この仕組みでは自動ダウンロードを目指しています");
-        }
-
-        @Override
-        public void download() {
-            throw new UnsupportedOperationException("未実装です");
-            //throw new UnsupportedOperationException("この仕組みでは自動ダウンロードを目指しています");
-        }
-
-        @Override
-        public WebDriver create(File downloadFilepath) {
-
-            //WebDriverManager.edgedriver().setup();
-            System.setProperty("webdriver.edge.driver", driverFile.getAbsolutePath());
-
-            Map<String, Object> prefs = new HashMap<>();
-            prefs.put("download.default_directory", downloadFilepath); // ダウンロード先の指定
-            prefs.put("download.prompt_for_download", false); // ダウンロード確認ダイアログを無効化
-            prefs.put("profile.default_content_settings.popups", 0); // ポップアップを無効化
-
-            EdgeOptions options = new EdgeOptions();
-            options.addArguments("--start-maximized");
-
-            return new EdgeDriver(options);
-
-        }
-
-        @Override
-        public boolean occurredIllegalVersionDetected(Exception e) {
-            return e instanceof SessionNotCreatedException
-                && e.getMessage().contains("This version of ChromeDriver only supports Chrome version");
-        }
-
-    }
+    private SerializableRunnable onQuit;
 
     /**
      * コンストラクタです。Webドライバを生成ます。
@@ -308,7 +102,42 @@ public abstract class SelenCommonDriver implements Serializable {
         } else if (StringUtils.equals(opt, "edge")) {
             final DriverFactory factory;
             factory = new EdgeDriverFactory(getDriverDir());
-            driver = factory.create(null);
+            driver = factory.create(getDownloadDir());
+
+            /* ファイルダウンロードが中断しないようにする処理 */
+            onQuit = () -> {
+
+                File dir = getDownloadDir();
+                int waited = 0;
+                while (waited < 5) {
+                    boolean downloading = false;
+
+                    File[] files = dir.listFiles();
+                    if (files != null) {
+                        for (File file : files) {
+                            if (file.getName().endsWith(".crdownload") || file.getName().endsWith(".tmp")) {
+                                LOGGER.debug("ダウンロード実行中");
+                                downloading = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!downloading) {
+                        LOGGER.debug("進行中のダウンロードは検出されませんでした。終了します。");
+                        return;
+                    }
+
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    } // 1秒待機
+                    waited++;
+                }
+
+                throw new RuntimeException("進行中のダウンロードの待機がタイムアウトしました。");
+            };
 
         } else {
             throw new IllegalArgumentException(String.format("opt:%s", opt));
@@ -319,9 +148,6 @@ public abstract class SelenCommonDriver implements Serializable {
         this.originalDriver = driver;
     }
 
-    protected HttpAccessObject createHao() {
-        return new HttpAccessObject();
-    }
 
     /**
      * 拡張ポイントです。
@@ -657,6 +483,9 @@ public abstract class SelenCommonDriver implements Serializable {
      * 終了処理をします。
      */
     public void quit() {
+        if (onQuit != null) {
+            onQuit.run();
+        }
         this.originalDriver.quit();
         if (deleteTemp) {
             deleteTempFile();
@@ -737,13 +566,12 @@ public abstract class SelenCommonDriver implements Serializable {
      * ドライバのタスクを強制終了します。
      */
     public static void killTask() {
-        /* 既存の処理を列挙 */
-        LOGGER.trace("終了処理として残留しているドライバのタスクを終了します。");
+        LOGGER.trace("残留しているドライバのタスクを終了します。");
         try {
             CmdAccessObject.executeCmd("taskkill /im " + ChoromeDriverFactory.DRIVER_EXE + " /f");
+            CmdAccessObject.executeCmd("taskkill /im " + EdgeDriverFactory.DRIVER_EXE + " /f");
         } catch (Exception e) {
-            /* プロセスがなくて失敗することもあるが問題としない。 */
-            LOGGER.debug(e.getMessage());
+            /* プロセスがなくて失敗することもある */
         }
     }
 
