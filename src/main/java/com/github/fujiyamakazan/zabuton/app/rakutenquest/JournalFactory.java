@@ -22,10 +22,10 @@ import org.jsoup.select.Elements;
 
 import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
 import com.github.fujiyamakazan.zabuton.selen.SelenUtils;
+import com.github.fujiyamakazan.zabuton.selen.driverfactory.ChoromeDriverFactory;
 import com.github.fujiyamakazan.zabuton.util.CsvUtils;
 import com.github.fujiyamakazan.zabuton.util.date.Chronus;
 import com.github.fujiyamakazan.zabuton.util.jframe.JFrameUtils;
-import com.github.fujiyamakazan.zabuton.util.security.CookieManager;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
 import com.github.fujiyamakazan.zabuton.util.text.TextFile;
@@ -250,30 +250,23 @@ public abstract class JournalFactory implements Serializable {
             }
 
             /* WebDriverを作成 */
-            SelenCommonDriver cmd = new SelenCommonDriver() {
-                private static final long serialVersionUID = 1L;
+//            SelenCommonDriver cmd = new SelenCommonDriver() {
+//                private static final long serialVersionUID = 1L;
+//
+//                @Override
+//                protected File getDriverDir() {
+//                    return appDir;
+//                }
+//
+//                @Override
+//                protected File getDownloadDir() {
+//                    return cache;
+//                }
+//            };
 
-                @Override
-                protected File getDriverDir() {
-                    return appDir;
-                }
-
-                @Override
-                protected File getDownloadDir() {
-                    return cache;
-                }
-
-                @Override
-                protected boolean useCookieManager() {
-                    return JournalFactory.this.useCookieManager();
-                }
-
-                @Override
-                protected CookieManager createCookieManager() {
-                    return new CookieManager(appDir, this);
-                }
-
-            };
+            SelenCommonDriver cmd = new ChoromeDriverFactory(appDir)
+                .downloadDir(cache)
+                .build();
 
             doDownloadByChrome(cmd);
 

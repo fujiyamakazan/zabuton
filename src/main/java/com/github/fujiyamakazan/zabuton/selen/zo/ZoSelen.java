@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.Serializable;
 
 import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
+import com.github.fujiyamakazan.zabuton.selen.driverfactory.ChoromeDriverFactory;
 
 public class ZoSelen implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -11,21 +12,25 @@ public class ZoSelen implements Serializable {
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ZoSelen.class);
 
     public static void main(String[] args) {
-        SelenCommonDriver cmd = new SelenCommonDriver() {
+//        SelenCommonDriver cmd = new SelenCommonDriver() {
+//
+//            private static final long serialVersionUID = 1L;
+//
+//            @Override
+//            protected File getDriverDir() {
+//                //return null;
+//                return new File("C:\\tmp");
+//            }
+//
+//            @Override
+//            protected File getDownloadDir() {
+//                return null;
+//            }
+//        };
 
-            private static final long serialVersionUID = 1L;
+        SelenCommonDriver cmd = new ChoromeDriverFactory(new File("C:\\tmp"))
+            .build();
 
-            @Override
-            protected File getDriverDir() {
-                //return null;
-                return new File("C:\\tmp");
-            }
-
-            @Override
-            protected File getDownloadDir() {
-                return null;
-            }
-        };
 
         cmd.get("http://google.co.jp");
 

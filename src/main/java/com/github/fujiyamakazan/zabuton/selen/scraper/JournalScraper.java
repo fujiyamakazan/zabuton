@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.lang.Generics;
 
 import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
+import com.github.fujiyamakazan.zabuton.selen.driverfactory.EdgeDriverFactory;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 
 public abstract class JournalScraper<DTO> extends Scraper {
@@ -58,7 +59,10 @@ public abstract class JournalScraper<DTO> extends Scraper {
         }
         SelenCommonDriver cmd = null;
         try {
-            cmd = SelenCommonDriver.createEdgeDriver(selen);
+            //cmd = SelenCommonDriver.createEdgeDriver(selen);
+            cmd = new EdgeDriverFactory(selen)
+                .downloadDir(selen)
+                .build();
             //cmd.getDriver().manage().window().setSize(new Dimension(150, 400));
             doDownload(cmd);
         } catch (Exception e) {

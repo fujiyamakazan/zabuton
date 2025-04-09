@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 import org.openqa.selenium.By;
 
-import com.github.fujiyamakazan.zabuton.util.HttpAccessObject;
+import com.github.fujiyamakazan.zabuton.selen.driverfactory.ChoromeDriverFactory;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 
 public class SelenSample implements Serializable {
@@ -18,40 +18,42 @@ public class SelenSample implements Serializable {
      */
     public static void main(String[] args) {
 
-        SelenCommonDriver driver = new SelenCommonDriver() {
+//        SelenCommonDriver driver = new SelenCommonDriver() {
+//
+//            private static final long serialVersionUID = 1L;
+//
+//            //            @Override
+//            //            protected WebDriver createDriver() {
+//            //
+//            //                System.setProperty("webdriver.edge.driver", getDriverFile().getAbsolutePath());
+//            //
+//            //                WebDriver driver = new EdgeDriver();
+//            //
+//            //                driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS); // 暗黙的な待機時間を設定
+//            //
+//            //                return driver;
+//            //            }
+//
+//            @Override
+//            protected File getDownloadDir() {
+//                return new File("C:\\tmp\\");
+//            }
+//
+//            @Override
+//            protected File getDriverDir() {
+//                //return new File("C:\\tmp\\msedgedriver.exe");
+//                return new File("C:\\tmp");
+//            }
+//
+//            protected HttpAccessObject createHao() {
+//                return new HttpAccessObject("proxy", 8080);
+//            }
+//        };
 
-            private static final long serialVersionUID = 1L;
+        SelenCommonDriver driver = new ChoromeDriverFactory(new File("C:\\tmp"))
+            .downloadDir(new File("C:\\tmp"))
+            .build();
 
-            //            @Override
-            //            protected WebDriver createDriver() {
-            //
-            //                System.setProperty("webdriver.edge.driver", getDriverFile().getAbsolutePath());
-            //
-            //                WebDriver driver = new EdgeDriver();
-            //
-            //                driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS); // 暗黙的な待機時間を設定
-            //
-            //                return driver;
-            //            }
-
-            @Override
-            protected File getDownloadDir() {
-                return new File("C:\\tmp\\");
-            }
-
-            @Override
-            protected File getDriverDir() {
-                //return new File("C:\\tmp\\msedgedriver.exe");
-                return new File("C:\\tmp");
-            }
-
-            protected HttpAccessObject createHao() {
-                return new HttpAccessObject("proxy", 8080);
-            }
-
-
-
-        };
 
         driver.get("https://www.amazon.co.jp/gp/css/order-history?ie=UTF8&ref_=nav_orders_first&");
 

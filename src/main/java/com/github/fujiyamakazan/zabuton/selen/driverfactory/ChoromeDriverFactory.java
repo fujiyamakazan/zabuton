@@ -15,8 +15,11 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
+import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
+import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.HttpAccessObject;
 import com.github.fujiyamakazan.zabuton.util.file.ZipUtils;
+import com.github.fujiyamakazan.zabuton.util.string.Stringul;
 
 /**
  * GoogleChrome用のWebドライバのファクトリです。
@@ -26,27 +29,66 @@ public class ChoromeDriverFactory extends DriverFactory {
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
         .getLogger(java.lang.invoke.MethodHandles.lookup().lookupClass());
 
+    private static final String URL_DRIVER = "https://googlechromelabs.github.io/chrome-for-testing/";
     public static final String DRIVER_EXE = "chromedriver.exe";
 
     public ChoromeDriverFactory(File driverDir) {
-        super(driverDir);
+        super(new File(driverDir, DRIVER_EXE));
     }
 
     @Override
-    public String getDriverFileName() {
-        return "" + DRIVER_EXE;
+    public SelenCommonDriver build() {
+
+        if (driverFile.exists() == false) {
+            download(); // ドライバのファイルをダウンロード
+            /* ダウンロードが失敗したら例外情報として返します。 */
+            if (driverFile.exists() == false) {
+                throw new RuntimeException(
+                    "ドライバのファイルが" + driverFile.getAbsolutePath() + "にありません。"
+                        + " [" + ChoromeDriverFactory.URL_DRIVER + "]からダウンロードしてください。");
+            }
+        }
+
+        try {
+            /* Choromeの環境変数を設定します。 */
+            System.setProperty("webdriver.chrome.driver", driverFile.getAbsolutePath());
+
+            /* ダウンロードフォルダを指定します。 */
+            HashMap<String, Object> prefes = new HashMap<String, Object>();
+            prefes.put("profile.default_content_settings.popups", 0);
+            if (this.downloadDir != null) {
+                prefes.put("download.default_directory", this.downloadDir.getAbsolutePath());
+            }
+
+            ChromeOptions options = new ChromeOptions();
+            options.setExperimentalOption("prefs", prefes);
+            WebDriver driver = new ChromeDriver(options);
+
+            return new SelenCommonDriver(driver);
+
+        } catch (Exception e) {
+
+            LOGGER.error(Stringul.ofException(e));
+            if (e instanceof SessionNotCreatedException
+                && e.getMessage().contains("This version of ChromeDriver only supports Chrome version")) {
+                /* ドライバファイルのバージョン不正を検知したときの処理 */
+                SelenCommonDriver.killTask();
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e1) {
+                    throw new RuntimeException(e1);
+                }
+                throw new RuntimeException("ドライバのバージョンが不正です。", e);
+
+            } else {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
-    @Override
-    public String getDriverUrl() {
-        //return "https://chromedriver.chromium.org/downloads";
-        return "https://googlechromelabs.github.io/chrome-for-testing/";
-    }
-
-    @Override
-    public void download() {
+    private void download() {
         HttpAccessObject hao = new HttpAccessObject();
-        String html = hao.get(getDriverUrl());
+        String html = hao.get(URL_DRIVER);
 
         Document doc = Jsoup.parse(html);
         Elements trs = doc.getElementsByTag("tr");
@@ -87,38 +129,19 @@ public class ChoromeDriverFactory extends DriverFactory {
 
     }
 
-    @Override
-    public WebDriver create(File downloadDefaultDir) {
+    /**
+     * 動作確認をします。
+     */
+    public static void main(String[] args) {
+        File driverDir = EnvUtils.getUserDesktop("test");
+        File downloadDir = EnvUtils.getUserDesktop("test/dl");
+        SelenCommonDriver cmd = new ChoromeDriverFactory(driverDir)
+            .downloadDir(downloadDir)
+            .build();
 
-        /* Choromeの環境変数を設定します。 */
-        System.setProperty("webdriver.chrome.driver", driverFile.getAbsolutePath());
-
-        /* ダウンロードフォルダを指定します。 */
-        HashMap<String, Object> prefes = new HashMap<String, Object>();
-        prefes.put("profile.default_content_settings.popups", 0);
-        if (downloadDefaultDir != null) {
-            prefes.put("download.default_directory", downloadDefaultDir.getAbsolutePath());
-        }
-
-        ChromeOptions options = new ChromeOptions();
-        options.setExperimentalOption("prefs", prefes);
-
-        /* Webドライバのインスタンスを返します。*/
-        return new ChromeDriver(options);
-
-        /*
-         * Edgeの場合、「自動テストソフトウェアによって制御されています」を非表示にする方法は下記の通り。
-         * TODO Choromeにも適用することを検討
-         */
-        //            EdgeOptions options = new EdgeOptions();
-        //            options.setExperimentalOption("useAutomationExtension", false);
-        //            options.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
-    }
-
-    @Override
-    public boolean occurredIllegalVersionDetected(Exception e) {
-        return e instanceof SessionNotCreatedException
-            && e.getMessage().contains("This version of ChromeDriver only supports Chrome version");
+        cmd.get("https://haritora.net/look.cgi?script=45");
+        cmd.clickButtonAndWait("全文ダウンロード");
+        cmd.quit();
     }
 
 }

@@ -6,6 +6,7 @@ import java.io.Serializable;
 import org.apache.wicket.model.Model;
 import org.openqa.selenium.WebDriver;
 
+import com.github.fujiyamakazan.zabuton.selen.driverfactory.ChoromeDriverFactory;
 import com.github.fujiyamakazan.zabuton.util.jframe.JPage;
 import com.github.fujiyamakazan.zabuton.util.jframe.JPageAction;
 import com.github.fujiyamakazan.zabuton.util.jframe.JPageApplication;
@@ -31,23 +32,27 @@ public class SelenBrowser implements Serializable {
      * コンストラクタです。
      */
     public SelenBrowser() {
-        this.cmd = new SelenCommonDriver() {
+//        this.cmd = new SelenCommonDriver() {
+//
+//            private static final long serialVersionUID = 1L;
+//
+//            @Override
+//            protected File getDownloadDir() {
+//                File dir = new File("C:\\\\tmp");
+//                return dir;
+//            }
+//
+//            @Override
+//            protected File getDriverDir() {
+//                //File driverFile = new File("C:\\tmp\\chromedriver.exe");
+//                File driverFile = new File("C:\\tmp");
+//                return driverFile;
+//            }
+//        };
 
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            protected File getDownloadDir() {
-                File dir = new File("C:\\\\tmp");
-                return dir;
-            }
-
-            @Override
-            protected File getDriverDir() {
-                //File driverFile = new File("C:\\tmp\\chromedriver.exe");
-                File driverFile = new File("C:\\tmp");
-                return driverFile;
-            }
-        };
+        this.cmd = new ChoromeDriverFactory(new File("C:\\\\tmp"))
+            .downloadDir(new File("C:\\tmp"))
+            .build();
     }
 
     private void execute() {

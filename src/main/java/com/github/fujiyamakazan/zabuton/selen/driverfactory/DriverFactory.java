@@ -3,7 +3,7 @@ package com.github.fujiyamakazan.zabuton.selen.driverfactory;
 import java.io.File;
 import java.io.Serializable;
 
-import org.openqa.selenium.WebDriver;
+import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
 
 /**
  * Webドライバのファクトリです。
@@ -11,39 +11,41 @@ import org.openqa.selenium.WebDriver;
 public abstract class DriverFactory implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    public File driverFile;
+    protected File driverFile;
+    protected File downloadDir;
 
-    public DriverFactory(File driverDir) {
-        this.driverFile = new File(driverDir, getDriverFileName());
+    public DriverFactory(File driverFile) {
+        this.driverFile = driverFile;
     }
 
-    public File getDriverFile() {
-        return driverFile;
+    public final DriverFactory downloadDir(File downloadDir) {
+        this.downloadDir = downloadDir;
+        return this;
     }
 
-    /**
-     * ドライバの実行ファイルの名称を返します。
-     */
-    public abstract String getDriverFileName();
+    public abstract SelenCommonDriver build();
 
-    /**
-     * ドライバの実行ファイルを取得できるURLを返します。
-     */
-    public abstract String getDriverUrl();
+//    public DriverFactory(File driverDir) {
+//        this.driverFile = new File(driverDir, getDriverFileName());
+//    }
+//
+//    public File getDriverFile() {
+//        return driverFile;
+//    }
 
-    /**
-     * ドライバの実行ファイルを取得します。
-     */
-    public abstract void download();
-
-    /**
-     * ドライバの実行ファイルからWebドライバオブジェクトを生成します。
-     */
-    public abstract WebDriver create(File downloadDefaultDir);
-
-    /**
-     * 例外情報から不正なバージョンの発生を検知します。
-     */
-    public abstract boolean occurredIllegalVersionDetected(Exception e);
+//    /**
+//     * ドライバの実行ファイルの名称を返します。
+//     */
+//    public abstract String getDriverFileName();
+//
+//    /**
+//     * ドライバの実行ファイルからWebドライバオブジェクトを生成します。
+//     */
+//    public abstract WebDriver create(File downloadDefaultDir);
+//
+//    /**
+//     * 例外情報から不正なバージョンの発生を検知します。
+//     */
+//    public abstract boolean occurredIllegalVersionDetected(Exception e);
 
 }
