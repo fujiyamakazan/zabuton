@@ -415,21 +415,9 @@ public class SuicaScraper extends JournalScraper<SuicaDto> {
         }
 
 
-        new SuicaScraper(work, work)
-            .download()
-            .updateMaster(new File(work, "master.csv"))
-            .getAsset();
+        SuicaScraper me = new SuicaScraper(work, work);
+        me.download();
+        me.updateMaster(new File(work, "master.csv"));
+        me.getAsset();
     }
-
-//    @Override
-//    protected File getAppDir() {
-//        // TODO 自動生成されたメソッド・スタブ
-//        return null;
-//    }
-//
-//    @Override
-//    public void execute() {
-//        // TODO 自動生成されたメソッド・スタブ
-//
-//    }
 }

@@ -4,10 +4,6 @@ import java.io.File;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 
-import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
-import com.github.fujiyamakazan.zabuton.selen.driverfactory.EdgeDriverFactory;
-import com.github.fujiyamakazan.zabuton.util.EnvUtils;
-
 /**
  * スクレイピングをします。
  * @author fujiyama
@@ -16,16 +12,22 @@ public abstract class Scraper implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @SuppressWarnings("unused")
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
         .getLogger(MethodHandles.lookup().lookupClass());
 
-    public static void main(String[] args) {
-        
-        SelenCommonDriver cmd = new EdgeDriverFactory(EnvUtils.getUserDesktop("test"))
-            .downloadDir(new File(EnvUtils.getUserDesktop("test"), "dl"))
-            .build();
+    /**
+     * 作業フォルダです
+     * このフォルダにキャッシュファイルが作成されます。
+     */
+    protected final File work;
 
-    }
+    /**
+     * Seleniumの制御情報を保存するディレクトリです。
+     * このフォルダにWebDriverを配備して使用します。
+     * このフォルダにPasswordManagerの情報を保存します。
+     */
+    protected final File selen;
 
     //    protected SelenCommonDriver cmd;
 
@@ -36,14 +38,19 @@ public abstract class Scraper implements Serializable {
     /**
      * コンストラクタです。
      */
-    public Scraper() {
+    public Scraper(final File work, final File selen) {
         //String name = getName();
         //this.driverDir = new File(getAppDir(), "selen");
         //this.dir = Path.of(getAppDir().getAbsolutePath(), "selen", "Scraper-sights", name).toFile();
         //if (this.dir.exists() == false) {
         //    Files.mkdirs(this.dir);
         //}
+
+        this.work = work;
+        this.selen = selen;
     }
+
+    public abstract void download();
 
     //protected abstract File getAppDir();
 

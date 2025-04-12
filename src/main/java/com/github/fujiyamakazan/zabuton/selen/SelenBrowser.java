@@ -32,24 +32,6 @@ public class SelenBrowser implements Serializable {
      * コンストラクタです。
      */
     public SelenBrowser() {
-//        this.cmd = new SelenCommonDriver() {
-//
-//            private static final long serialVersionUID = 1L;
-//
-//            @Override
-//            protected File getDownloadDir() {
-//                File dir = new File("C:\\\\tmp");
-//                return dir;
-//            }
-//
-//            @Override
-//            protected File getDriverDir() {
-//                //File driverFile = new File("C:\\tmp\\chromedriver.exe");
-//                File driverFile = new File("C:\\tmp");
-//                return driverFile;
-//            }
-//        };
-
         this.cmd = new ChoromeDriverFactory(new File("C:\\\\tmp"))
             .downloadDir(new File("C:\\tmp"))
             .build();
@@ -91,22 +73,6 @@ public class SelenBrowser implements Serializable {
             super.run();
             WebDriver driver = cmd.getDriver();
             driver.get(modelUrl.getObject());
-            //cmd.clickAndWait(locator);
-            //            cmd.originalDriver.findElement(locator).click();
-            //
-            //            while (true) {
-            //
-            //                //By locator = By.cssSelector("form *[type='submit']");
-            //
-            //                WebElement e = cmd.originalDriver.findElement(link);
-            //                System.out.println("isEnabled:" + e.isEnabled());
-            //                System.out.println("displayes:" + e.isDisplayed());
-            //
-            //
-            //                Thread.sleep(100);
-            //
-            //                cmd.originalDriver.findElement(link).click();
-            //            }
 
         }
 

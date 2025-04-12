@@ -13,10 +13,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.lang.Generics;
 
 import com.github.fujiyamakazan.zabuton.util.CsvUtils;
+import com.github.fujiyamakazan.zabuton.util.date.Chronus;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
 import com.opencsv.CSVParser;
 
-public class JournalCsv implements Serializable {
+public abstract class JournalCsv implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JournalCsv.class);
 
@@ -68,6 +69,7 @@ public class JournalCsv implements Serializable {
                 continue;
             }
             rows.add(new Row(line));
+            //rows.add(rowFactory.apply(line));
         }
         return rows;
     }
@@ -142,6 +144,41 @@ public class JournalCsv implements Serializable {
             return "Row [line=" + this.line + ", csv=" + Arrays.toString(this.csv) + "]";
         }
 
+        public String pickupDate() {
+            return JournalCsv.this.pickupDate(this);
+        }
+
+        public String pickupMemo() {
+            return JournalCsv.this.pickupMemo(this);
+        }
+
+        public String pickupKeywordOnsource() {
+            return JournalCsv.this.pickupKeywordOnsource(this);
+        }
+
+        public String pickupAmount() {
+            return JournalCsv.this.pickupAmount(this);
+        }
+
+        public Date getDateFromCsv(JournalsTerm term) {
+            String strDate = pickupDate();
+            if (StringUtils.length(strDate) == 5) {
+                throw new RuntimeException("不正日付:" + this);
+            }
+            return getDateFromCsv(strDate, term);
+        }
+
+        protected Date getDateFromCsv(String strDate, JournalsTerm term) {
+            final Date date;
+            String pattern = JournalCsv.this.getDateFormat();
+            if (term.in(strDate, pattern) == false) {
+                date = null;
+            } else {
+                date = Chronus.parse(strDate, pattern);
+            }
+            return date;
+        }
+
     }
 
     public static int getRowIndex(String line) throws IOException {
@@ -151,5 +188,32 @@ public class JournalCsv implements Serializable {
     public int getColumnIndex(String name) {
         return Arrays.asList(this.fieldNames).indexOf(name);
     }
+
+    /**
+     * 行データから日付情報を取り出します。
+     */
+    public abstract String pickupDate(Row row);
+
+    /**
+     * 行データから金額情報を取り出します。
+     */
+    public abstract String pickupAmount(Row row);
+
+    /**
+     * 行データからメモ情報を取り出します。
+     */
+    public abstract String pickupMemo(Row row);
+    /**
+     * 行データからキーワード情報を抽出します。
+     * 既定では、メモ情報をそのまま使用します。
+     */
+    public String pickupKeywordOnsource(Row row) {
+        return pickupMemo(row);
+    }
+
+    /**
+     * 日付情報のフォーマットを返します。
+     */
+    public abstract String getDateFormat();
 
 }

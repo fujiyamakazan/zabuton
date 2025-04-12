@@ -11,6 +11,7 @@ import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
 
 import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
+import com.github.fujiyamakazan.zabuton.selen.SelenUtils;
 import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 
 /**
@@ -41,6 +42,8 @@ public class EdgeDriverFactory extends DriverFactory {
         prefs.put("download.default_directory", downloadDir.getAbsolutePath()); // ダウンロード先の指定
         prefs.put("download.prompt_for_download", false); // ダウンロード確認ダイアログを無効化
         prefs.put("profile.default_content_settings.popups", 0); // ポップアップを無効化
+        prefs.put("credentials_enable_service", false); // パスワードマネージャ自体を無効に
+        prefs.put("profile.password_manager_enabled", false); // パスワード保存ダイアログを出さない
 
         EdgeOptions options = new EdgeOptions();
         //options.addArguments("--start-maximized");
@@ -61,7 +64,7 @@ public class EdgeDriverFactory extends DriverFactory {
                 File[] files = downloadDir.listFiles();
                 if (files != null) {
                     for (File file : files) {
-                        if (file.getName().endsWith(".crdownload") || file.getName().endsWith(".tmp")) {
+                        if (SelenUtils.isDownloadTemp(file)) {
                             LOGGER.debug("ダウンロード実行中");
                             downloading = true;
                             break;

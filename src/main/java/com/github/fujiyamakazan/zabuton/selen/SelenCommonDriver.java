@@ -6,7 +6,6 @@ import java.io.Serializable;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.danekja.java.misc.serializable.SerializableRunnable;
@@ -398,15 +397,14 @@ public class SelenCommonDriver implements Serializable {
     public boolean containsText(String text) {
 
         /* タイムアウトを短くする */
-        this.originalDriver.manage().timeouts().implicitlyWait(200, TimeUnit.MILLISECONDS);
+        this.originalDriver.manage().timeouts().implicitlyWait(Duration.ofMillis(200));
 
         try {
             return findElements(By.xpath("//*[contains(., '" + text + "')]")).isEmpty() == false;
         } finally {
             //this.originalDriver.manage().timeouts().implicitlyWait(recoveryTimeoutSec * 1000,
             //    TimeUnit.MILLISECONDS);
-            this.originalDriver.manage().timeouts().implicitlyWait(DEFAULT_TIMEOUT,
-                TimeUnit.SECONDS);
+            this.originalDriver.manage().timeouts().implicitlyWait(Duration.ofSeconds(DEFAULT_TIMEOUT));
         }
 
     }

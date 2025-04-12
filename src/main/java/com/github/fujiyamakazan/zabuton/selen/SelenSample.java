@@ -5,7 +5,9 @@ import java.io.Serializable;
 
 import org.openqa.selenium.By;
 
-import com.github.fujiyamakazan.zabuton.selen.driverfactory.ChoromeDriverFactory;
+import com.github.fujiyamakazan.zabuton.selen.driverfactory.EdgeDriverFactory;
+import com.github.fujiyamakazan.zabuton.util.EnvUtils;
+import com.github.fujiyamakazan.zabuton.util.jframe.JFrameUtils;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 
 public class SelenSample implements Serializable {
@@ -18,39 +20,33 @@ public class SelenSample implements Serializable {
      */
     public static void main(String[] args) {
 
-//        SelenCommonDriver driver = new SelenCommonDriver() {
-//
-//            private static final long serialVersionUID = 1L;
-//
-//            //            @Override
-//            //            protected WebDriver createDriver() {
-//            //
-//            //                System.setProperty("webdriver.edge.driver", getDriverFile().getAbsolutePath());
-//            //
-//            //                WebDriver driver = new EdgeDriver();
-//            //
-//            //                driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS); // 暗黙的な待機時間を設定
-//            //
-//            //                return driver;
-//            //            }
-//
+//        new Thread() {
 //            @Override
-//            protected File getDownloadDir() {
-//                return new File("C:\\tmp\\");
-//            }
+//            public void run() {
+//                main();
+//            };
+//        }.start();
 //
+//        new Thread() {
 //            @Override
-//            protected File getDriverDir() {
-//                //return new File("C:\\tmp\\msedgedriver.exe");
-//                return new File("C:\\tmp");
-//            }
-//
-//            protected HttpAccessObject createHao() {
-//                return new HttpAccessObject("proxy", 8080);
-//            }
-//        };
+//            public void run() {
+//                main();
+//            };
+//        }.start();
 
-        SelenCommonDriver driver = new ChoromeDriverFactory(new File("C:\\tmp"))
+        SelenCommonDriver cmd = new EdgeDriverFactory(EnvUtils.getUserDesktop("test"))
+            .downloadDir(new File(EnvUtils.getUserDesktop("test"), "dl"))
+            .build();
+        cmd.get("https://haritora.net/look.cgi?script=1245");
+        cmd.clickButtonAndWait("全文ダウンロード");
+        cmd.sleep(300);
+        
+        cmd.quit();
+
+    }
+
+    protected static void main() {
+        SelenCommonDriver driver = new EdgeDriverFactory(new File("C:\\tmp"))
             .downloadDir(new File("C:\\tmp"))
             .build();
 
@@ -65,7 +61,11 @@ public class SelenSample implements Serializable {
         driver.type(By.name("password"), pm.getPassword());
         driver.clickAndWait(By.id("signInSubmit"));
 
-        driver.clickLinkPartialAndWait("過去3か月");
+        //driver.clickLinkPartialAndWait("過去3か月");
+
+        if(JFrameUtils.showConfirmDialog("終了しますか?")) {
+            driver.quit();
+        }
 
     }
 

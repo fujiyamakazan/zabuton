@@ -22,25 +22,26 @@ public abstract class JournalScraper<DTO> extends Scraper {
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
         .getLogger(MethodHandles.lookup().lookupClass());
 
-    /**
-     * 作業フォルダです
-     * このフォルダにキャッシュファイルが作成されます。
-     */
-    private final File work;
+//    /**
+//     * 作業フォルダです
+//     * このフォルダにキャッシュファイルが作成されます。
+//     */
+//    private final File work;
 
-    /**
-     * Seleniumの制御情報を保存するディレクトリです。
-     * このフォルダにWebDriverを配備して使用します。
-     * このフォルダにPasswordManagerの情報を保存します。
-     */
-    private final File selen;
+//    /**
+//     * Seleniumの制御情報を保存するディレクトリです。
+//     * このフォルダにWebDriverを配備して使用します。
+//     * このフォルダにPasswordManagerの情報を保存します。
+//     */
+//    private final File selen;
 
     /** キャッシュファイル */
     private final List<File> caches = Generics.newArrayList();
 
-    public JournalScraper(File work, File selen) {
-        this.work = work;
-        this.selen = selen;
+    public JournalScraper(final File work, final File selen) {
+        //this.work = work;
+        //this.selen = selen;
+        super(work, selen);
     }
 
     protected void addcache(String name) {
@@ -50,12 +51,11 @@ public abstract class JournalScraper<DTO> extends Scraper {
     /**
      * ダウンロードしキャッシュを作成します。
      * すでに有効なキャッシュがあれば、スキップします。
-     *
-     * @param selenDir WebDriverが保存されているディレクトリ
      */
-    public final JournalScraper<DTO> download() {
+    @Override
+    public final void download() {
         if (!isCacheExpired()) {
-            return this;
+            return;
         }
         SelenCommonDriver cmd = null;
         try {
@@ -72,7 +72,6 @@ public abstract class JournalScraper<DTO> extends Scraper {
                 cmd.quit();
             }
         }
-        return this;
     }
 
     protected abstract void doDownload(final SelenCommonDriver cmd);
