@@ -13,7 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.lang.Generics;
 
 import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
-import com.github.fujiyamakazan.zabuton.selen.driverfactory.EdgeDriverFactory;
+import com.github.fujiyamakazan.zabuton.selen.SelenDeck;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
 
 public abstract class JournalScraper<DTO> extends Scraper {
@@ -22,11 +22,11 @@ public abstract class JournalScraper<DTO> extends Scraper {
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
         .getLogger(MethodHandles.lookup().lookupClass());
 
-//    /**
-//     * 作業フォルダです
-//     * このフォルダにキャッシュファイルが作成されます。
-//     */
-//    private final File work;
+    /**
+     * 作業フォルダです
+     * このフォルダにキャッシュファイルが作成されます。
+     */
+    private final File work;
 
 //    /**
 //     * Seleniumの制御情報を保存するディレクトリです。
@@ -35,45 +35,48 @@ public abstract class JournalScraper<DTO> extends Scraper {
 //     */
 //    private final File selen;
 
-    /** キャッシュファイル */
+    ///** キャッシュファイル */
     private final List<File> caches = Generics.newArrayList();
 
-    public JournalScraper(final File work, final File selen) {
-        //this.work = work;
+    //public JournalScraper(final File work, final File selen) {
+    public JournalScraper(final SelenDeck deck, final File work) {
+        super(deck);
+        this.work = work;
         //this.selen = selen;
-        super(work, selen);
+        //super(work, selen);
     }
 
     protected void addcache(String name) {
         caches.add(new File(work, name));
     }
 
-    /**
-     * ダウンロードしキャッシュを作成します。
-     * すでに有効なキャッシュがあれば、スキップします。
-     */
-    @Override
-    public final void download() {
-        if (!isCacheExpired()) {
-            return;
-        }
-        SelenCommonDriver cmd = null;
-        try {
-            //cmd = SelenCommonDriver.createEdgeDriver(selen);
-            cmd = new EdgeDriverFactory(selen)
-                .downloadDir(selen)
-                .build();
-            //cmd.getDriver().manage().window().setSize(new Dimension(150, 400));
-            doDownload(cmd);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (cmd != null) {
-                cmd.quit();
-            }
-        }
-    }
+//    /**
+//     * ダウンロードしキャッシュを作成します。
+//     * すでに有効なキャッシュがあれば、スキップします。
+//     */
+//    @Override
+//    public final void download() {
+//        if (!isCacheExpired()) {
+//            return;
+//        }
+//        SelenCommonDriver cmd = null;
+//        try {
+//            //cmd = SelenCommonDriver.createEdgeDriver(selen);
+//            cmd = new EdgeDriverFactory(selen)
+//                .downloadDir(selen)
+//                .build();
+//            //cmd.getDriver().manage().window().setSize(new Dimension(150, 400));
+//            doDownload(cmd);
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        } finally {
+//            if (cmd != null) {
+//                cmd.quit();
+//            }
+//        }
+//    }
 
+    @Override
     protected abstract void doDownload(final SelenCommonDriver cmd);
 
     protected abstract JournalScraper<DTO> updateMaster(File masterCsv);
@@ -81,8 +84,9 @@ public abstract class JournalScraper<DTO> extends Scraper {
     protected abstract int getAsset();
 
     //@Override
-    public PasswordManager createPasswordManager() {
-        return new PasswordManager(selen);
+    protected PasswordManager createPasswordManager() {
+        //return new PasswordManager(selen);
+        return new PasswordManager();
     }
 
     protected void saveCache(SelenCommonDriver cmd, String name) {
@@ -115,9 +119,12 @@ public abstract class JournalScraper<DTO> extends Scraper {
     }
 
     /**
-     * ダウンロード済みのキャッシュの有効期限が切れていないか？
+     * 前提条件を実装します。
+     * すでにダウンロード済みのキャッシュが取得済みであれば、
+     * ダウンロードをキャンセルするために条件を設定します。
      */
-    private boolean isCacheExpired() {
+    @Override
+    protected final boolean isNeeded() {
         //boolean hasRecentFile = false;
         final long twentyFourHoursInMillis = TimeUnit.HOURS.toMillis(24);
         final long currentTime = System.currentTimeMillis();

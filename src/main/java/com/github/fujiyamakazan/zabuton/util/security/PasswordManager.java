@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 
 import org.apache.wicket.model.Model;
 
+import com.github.fujiyamakazan.zabuton.Zabuton;
 import com.github.fujiyamakazan.zabuton.security.CipherUtils;
 import com.github.fujiyamakazan.zabuton.util.KeyValue;
 import com.github.fujiyamakazan.zabuton.util.StringSeparator;
@@ -45,6 +46,12 @@ public class PasswordManager extends JPageApplication {
     //        }
     //    }
 
+    /**
+     * コンストラクタです。
+     */
+    public PasswordManager() {
+        this(Zabuton.getDir());
+    }
     /**
      * コンストラクタです。
      */

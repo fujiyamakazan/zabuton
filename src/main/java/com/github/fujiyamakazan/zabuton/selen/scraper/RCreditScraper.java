@@ -27,6 +27,7 @@ import org.openqa.selenium.By;
 import org.slf4j.LoggerFactory;
 
 import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
+import com.github.fujiyamakazan.zabuton.selen.SelenDeck;
 import com.github.fujiyamakazan.zabuton.selen.scraper.RCreditScraper.RCreditDto;
 import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.security.PasswordManager;
@@ -150,11 +151,18 @@ public class RCreditScraper extends JournalScraper<RCreditDto> {
         }
     }
 
-    public RCreditScraper(final File work, final File selen) {
-        super(work, selen);
+    //public RCreditScraper(final File work, final File selen) {
+    public RCreditScraper(final SelenDeck deck, final File work) {
+        //super(work, selen);
+        super(deck, work);
         addcache(CACHE1); // 直近
         addcache(CACHE2); // ひと月前
         addcache(CACHE3); // ふた月前
+    }
+
+    @Override
+    protected SelenCommonDriver createCmd() {
+        return SelenCommonDriver.ofEdge();
     }
 
     @Override
@@ -409,9 +417,11 @@ public class RCreditScraper extends JournalScraper<RCreditDto> {
 
     public static void main(String[] args) {
         File work = EnvUtils.getUserDesktop(RCreditScraper.class.getSimpleName());
-        RCreditScraper scraper = new RCreditScraper(work, work);
+        RCreditScraper scraper = new RCreditScraper(null, work);
         scraper.download();
         scraper.updateMaster(new File(work, "master.csv"));
         LOGGER.debug("" + scraper.getAsset());
     }
+
+
 }

@@ -10,6 +10,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
 
+import com.github.fujiyamakazan.zabuton.Zabuton;
 import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
 import com.github.fujiyamakazan.zabuton.selen.SelenUtils;
 import com.github.fujiyamakazan.zabuton.util.EnvUtils;
@@ -26,6 +27,9 @@ public class EdgeDriverFactory extends DriverFactory {
     //private static final String URL_DRIVER = "https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/";
     public static final String DRIVER_EXE = "msedgedriver.exe";
 
+    public EdgeDriverFactory() {
+        super(new File(new File(Zabuton.getDir(), "selen_driver"), DRIVER_EXE));
+    }
 
     public EdgeDriverFactory(File driverDir) {
         super(new File(driverDir, DRIVER_EXE));
@@ -38,9 +42,10 @@ public class EdgeDriverFactory extends DriverFactory {
         System.setProperty("webdriver.edge.driver", driverFile.getAbsolutePath());
 
         Map<String, Object> prefs = new HashMap<>();
-        //prefs.put("download.default_directory", downloadFilepath); // ダウンロード先の指定
-        prefs.put("download.default_directory", downloadDir.getAbsolutePath()); // ダウンロード先の指定
-        prefs.put("download.prompt_for_download", false); // ダウンロード確認ダイアログを無効化
+        if (downloadDir != null && downloadDir.isDirectory()) {
+            prefs.put("download.default_directory", downloadDir.getAbsolutePath()); // ダウンロード先の指定
+            prefs.put("download.prompt_for_download", false); // ダウンロード確認ダイアログを無効化
+        }
         prefs.put("profile.default_content_settings.popups", 0); // ポップアップを無効化
         prefs.put("credentials_enable_service", false); // パスワードマネージャ自体を無効に
         prefs.put("profile.password_manager_enabled", false); // パスワード保存ダイアログを出さない
@@ -56,46 +61,46 @@ public class EdgeDriverFactory extends DriverFactory {
 
         /* ファイルダウンロードが中断しないようにする処理 */
         SerializableRunnable onQuit = () -> {
+            if (downloadDir != null) {
+                int waited = 0;
+                while (waited < 5) {
+                    boolean downloading = false;
 
-            int waited = 0;
-            while (waited < 5) {
-                boolean downloading = false;
-
-                File[] files = downloadDir.listFiles();
-                if (files != null) {
-                    for (File file : files) {
-                        if (SelenUtils.isDownloadTemp(file)) {
-                            LOGGER.debug("ダウンロード実行中");
-                            downloading = true;
-                            break;
+                    File[] files = downloadDir.listFiles();
+                    if (files != null) {
+                        for (File file : files) {
+                            if (SelenUtils.isDownloadTemp(file)) {
+                                LOGGER.debug("ダウンロード実行中");
+                                downloading = true;
+                                break;
+                            }
                         }
                     }
-                }
 
-                if (!downloading) {
-                    LOGGER.debug("進行中のダウンロードは検出されませんでした。終了します。");
-                    return;
-                }
+                    if (!downloading) {
+                        LOGGER.debug("進行中のダウンロードは検出されませんでした。終了します。");
+                        return;
+                    }
 
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                } // 1秒待機
-                waited++;
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    } // 1秒待機
+                    waited++;
+                }
+                throw new RuntimeException("進行中のダウンロードの待機がタイムアウトしました。");
             }
-
-            throw new RuntimeException("進行中のダウンロードの待機がタイムアウトしました。");
         };
 
         return new SelenCommonDriver(driver, onQuit);
     }
 
-//    @Override
-//    public boolean occurredIllegalVersionDetected(Exception e) {
-//        return e instanceof SessionNotCreatedException
-//            && e.getMessage().contains("This version of ChromeDriver only supports Chrome version");
-//    }
+    //    @Override
+    //    public boolean occurredIllegalVersionDetected(Exception e) {
+    //        return e instanceof SessionNotCreatedException
+    //            && e.getMessage().contains("This version of ChromeDriver only supports Chrome version");
+    //    }
 
     /**
      * 動作確認をします。
@@ -111,12 +116,5 @@ public class EdgeDriverFactory extends DriverFactory {
         cmd.clickButtonAndWait("全文ダウンロード");
         cmd.quit();
     }
-
-
-
-
-
-
-
 
 }

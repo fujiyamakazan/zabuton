@@ -3,28 +3,23 @@ package com.github.fujiyamakazan.zabuton.app.rakutenquest;
 import java.io.File;
 import java.io.Serializable;
 import java.nio.charset.Charset;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.lang.Generics;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
-import com.github.fujiyamakazan.zabuton.selen.driverfactory.EdgeDriverFactory;
-import com.github.fujiyamakazan.zabuton.util.CsvUtils;
-import com.github.fujiyamakazan.zabuton.util.file.FileDirUtils;
-import com.github.fujiyamakazan.zabuton.util.jframe.JFrameUtils;
+import com.github.fujiyamakazan.zabuton.selen.SelenDeck;
 import com.github.fujiyamakazan.zabuton.util.string.MoneyUtils;
 import com.github.fujiyamakazan.zabuton.util.text.TextFile;
 
 public abstract class JournalFactory implements Serializable {
     private static final long serialVersionUID = 1L;
+    @SuppressWarnings("unused")
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
         .getLogger(java.lang.invoke.MethodHandles.lookup().lookupClass());
 
@@ -72,57 +67,57 @@ public abstract class JournalFactory implements Serializable {
      * 明細の元となる情報をダウンロードします。
      */
     public abstract void download();
-
-    /**
-     * 明細の元となる情報をダウンロードします。
-     */
-    protected final void doDownloadOnce(File appDir, File cacheDir, Consumer<SelenCommonDriver> downloader) {
-
-        final File fileToday = FileDirUtils.getLastOne(cacheDir);
-        /* 本日分のダウンロードファイルがあれば、ダウンロード処理を中断するように判定します。 */
-        boolean isSkip = false;
-        if (fileToday != null) {
-            Date date = new Date(fileToday.lastModified());
-            Calendar yesterday = Calendar.getInstance();
-            yesterday.add(Calendar.DAY_OF_MONTH, -1);
-            isSkip = date.after(yesterday.getTime());
-        }
-        boolean skipDownload = isSkip;
-        if (skipDownload) {
-            return;
-        }
-
-        try {
-            /* 前回の処理結果を削除 */
-            for (File f : cacheDir.listFiles()) {
-                f.delete();
-            }
-
-            /* WebDriverを作成 */
-            //SelenCommonDriver cmd = new ChoromeDriverFactory(appDir)
-            SelenCommonDriver cmd = new EdgeDriverFactory(appDir)
-                .downloadDir(cacheDir)
-                .build();
-
-            //doDownloadByChrome(cmd);
-            downloader.accept(cmd);
-
-            cmd.quit();
-
-        } catch (Exception e) {
-
-            /* 完了しなかった処理結果を削除 */
-            for (File f : cacheDir.listFiles()) {
-                f.delete();
-            }
-
-            //e.printStackTrace(); // 標準出力
-            LOGGER.error("ダウンロード失敗", e);
-            JFrameUtils.showErrorDialog("[" + getClass().getSimpleName() + "]"
-                + "エラーが発生しました。終了します。詳細なエラー情報を標準出力しました。");
-            throw new RuntimeException(e);
-        }
-    }
+//
+//    /**
+//     * 明細の元となる情報をダウンロードします。
+//     */
+//    protected final void doDownloadOnce(File appDir, File cacheDir, Consumer<SelenCommonDriver> downloader) {
+//
+//        final File fileToday = FileDirUtils.getLastOne(cacheDir);
+//        /* 本日分のダウンロードファイルがあれば、ダウンロード処理を中断するように判定します。 */
+//        boolean isSkip = false;
+//        if (fileToday != null) {
+//            Date date = new Date(fileToday.lastModified());
+//            Calendar yesterday = Calendar.getInstance();
+//            yesterday.add(Calendar.DAY_OF_MONTH, -1);
+//            isSkip = date.after(yesterday.getTime());
+//        }
+//        boolean skipDownload = isSkip;
+//        if (skipDownload) {
+//            return;
+//        }
+//
+//        try {
+//            /* 前回の処理結果を削除 */
+//            for (File f : cacheDir.listFiles()) {
+//                f.delete();
+//            }
+//
+//            /* WebDriverを作成 */
+//            //SelenCommonDriver cmd = new ChoromeDriverFactory(appDir)
+//            SelenCommonDriver cmd = new EdgeDriverFactory(appDir)
+//                .downloadDir(cacheDir)
+//                .build();
+//
+//            //doDownloadByChrome(cmd);
+//            downloader.accept(cmd);
+//
+//            cmd.quit();
+//
+//        } catch (Exception e) {
+//
+//            /* 完了しなかった処理結果を削除 */
+//            for (File f : cacheDir.listFiles()) {
+//                f.delete();
+//            }
+//
+//            //e.printStackTrace(); // 標準出力
+//            LOGGER.error("ダウンロード失敗", e);
+//            JFrameUtils.showErrorDialog("[" + getClass().getSimpleName() + "]"
+//                + "エラーが発生しました。終了します。詳細なエラー情報を標準出力しました。");
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     /**
      * Dailyフォルダに書き出します。
@@ -178,61 +173,41 @@ public abstract class JournalFactory implements Serializable {
     //        textMerger.flash();
     //    }
 
-    /**
-     * 明細データを作成します。
-     * @param existDatas すでに登録済みのデータです。これにもとづき、新しい明細に絞り込みます。
-     * @param templates テンプレートデータ。これにもとづき、内容を修正します。
-     */
-    //public abstract List<Journal> createJournals(List<Journal> existDatas, List<Journal> templates);
+//    /**
+//     * 明細データを作成します。
+//     * @param existDatas すでに登録済みのデータです。これにもとづき、新しい明細に絞り込みます。
+//     * @param templates テンプレートデータ。これにもとづき、内容を修正します。
+//     */
+//    //public abstract List<Journal> createJournals(List<Journal> existDatas, List<Journal> templates);
+//
+//    public final List<Journal> createJournals(List<Journal> existDatas, List<Journal> templates) {
+//
+//        /* マスターを更新します */
+//        doUpdateMaster();
+//
+//        /* マスターからからジャーナル形式のデータを作成し、以下の項目を設定します。
+//         * 仕訳.記録元 ← JournalFactory.記録元名(インスタンス化時に指定)
+//         * 仕訳.生データ ← 一行のテキスト
+//         * 仕訳.Index(ID) ← CSVの行番号
+//         * 仕訳.日付 ← CSVの日付
+//         * 仕訳.キーワード ← キーワード情報（規定はpickupMemo()の実装による）
+//         * 仕訳.メモ ← キーワード情報（JpickupMemo()の実装による）
+//         * 仕訳.金額 ← CSVの金額
+//         */
+//        List<Journal> journals = createJournalsStep2();
+//
+//        /* テンプレート適用し、
+//         * 借方、貸方、活動科目、メモを登録します。
+//         */
+//        createJornalStep3(templates, journals);
+//
+//        /* 仕訳済みを除外する */
+//        return createJornalStep4(existDatas, journals);
+//    }
 
-    public final List<Journal> createJournals(List<Journal> existDatas, List<Journal> templates) {
+    public abstract void doUpdateMaster();
 
-        /* マスターを更新します */
-        doUpdateMaster();
-
-        /* マスターからからジャーナル形式のデータを作成し、以下の項目を設定します。
-         * 仕訳.記録元 ← JournalFactory.記録元名(インスタンス化時に指定)
-         * 仕訳.生データ ← 一行のテキスト
-         * 仕訳.Index(ID) ← CSVの行番号
-         * 仕訳.日付 ← CSVの日付
-         * 仕訳.キーワード ← キーワード情報（規定はpickupMemo()の実装による）
-         * 仕訳.メモ ← キーワード情報（JpickupMemo()の実装による）
-         * 仕訳.金額 ← CSVの金額
-         */
-        //List<Journal> journals = masterToJournals(sourceName, term);
-        List<Journal> journals = createJurnalsStep2();
-
-        /* テンプレート適用し、
-         * 借方、貸方、活動科目、メモを登録します。
-         */
-        createJornalStep3(templates, journals);
-
-        /* 仕訳済みを除外する */
-        return createJornalStep4(existDatas, journals);
-    }
-
-
-
-    //protected void createCashe() {
-    //    this.cache = new File(this.crawlerDir, "cache");
-    //    this.cache.mkdirs();
-    //}
-    //abstract protected void createCashe();
-
-    //    /**
-    //     * 明細の元となる情報をダウンロードします。
-    //     *
-    //     * 既定の実装ではGoogleChromeを使用します。
-    //     * 本日ダウンロード分があればスキップします。
-    //     */
-    //    public void download() {
-    //        doDownloadOnceByChrome();
-    //    }
-
-
-
-
-    protected abstract List<Journal> createJurnalsStep2(); // TODO 誤字修正
+    public abstract List<Journal> createJournalsStep2(); // TODO 誤字修正
 
     /**
      * CSVから仕訳レコードを作成します。
@@ -296,7 +271,7 @@ public abstract class JournalFactory implements Serializable {
      * テンプレート適用し、
      * 借方、貸方、活動科目、メモを登録します。
      */
-    protected static void createJornalStep3(List<Journal> templates, List<Journal> journals) {
+    public static void createJornalStep3(List<Journal> templates, List<Journal> journals) {
         if (templates != null) {
             for (Journal journal : journals) {
                 for (Journal template : templates) {
@@ -341,7 +316,7 @@ public abstract class JournalFactory implements Serializable {
     }
 
     /* 仕訳済みを除外する */
-    protected static List<Journal> createJornalStep4(List<Journal> existDatas, List<Journal> journals) {
+    public static List<Journal> createJornalStep4(List<Journal> existDatas, List<Journal> journals) {
         for (Iterator<Journal> iterator = journals.iterator(); iterator.hasNext();) {
             Journal journal = iterator.next();
             if (existDatas != null) {
@@ -378,7 +353,7 @@ public abstract class JournalFactory implements Serializable {
 
 
 
-    protected abstract void doUpdateMaster();
+
 
     //    protected JournalMerger createMerger(JournalCsv master) {
     //        final JournalMerger textMerger = new JournalMerger(
@@ -419,29 +394,46 @@ public abstract class JournalFactory implements Serializable {
         return Jsoup.parse(read).getElementsByTag("body").first();
     }
 
-    /**
-     * 行データを生成します。
-     * 既定の処理：
-     * ・tr要素、td要素からデータを取得します。
-     */
-    protected List<String> createCsvRow(Element body) {
-        List<String> rows = Generics.newArrayList();
-        for (Element tr : getTrElement(body)) {
-            List<String> row = Generics.newArrayList();
-            for (Element td : tr.select("td")) {
-                row.add(td.text());
-            }
-            String strCols = CsvUtils.convertString(row);
-            rows.add(strCols);
-        }
-        return rows;
+//    /**
+//     * 行データを生成します。
+//     * 既定の処理：
+//     * ・tr要素、td要素からデータを取得します。
+//     */
+//    protected List<String> createCsvRow(Element body) {
+//        List<String> rows = Generics.newArrayList();
+//        for (Element tr : getTrElement(body)) {
+//            List<String> row = Generics.newArrayList();
+//            for (Element td : tr.select("td")) {
+//                row.add(td.text());
+//            }
+//            String strCols = CsvUtils.convertString(row);
+//            rows.add(strCols);
+//        }
+//        return rows;
+//    }
+//
+//    /**
+//     * tr要素を取り出します。
+//     */
+//    protected Elements getTrElement(Element body) {
+//        return body.select("tr");
+//    }
+
+    public void setDownloadException(Exception e) {
+        this.downloadException = e;
     }
 
-    /**
-     * tr要素を取り出します。
-     */
-    protected Elements getTrElement(Element body) {
-        return body.select("tr");
+    public Exception getDownloadException() {
+        return downloadException;
+    }
+
+    public SelenDeck deck;
+
+    public void set(SelenDeck deck) {
+        this.deck = deck;
+    }
+    public void remove(SelenCommonDriver cmd) {
+        this.deck.unregister(cmd);
     }
 
     //    /**
@@ -602,12 +594,5 @@ public abstract class JournalFactory implements Serializable {
     //        return createJurnalsException;
     //    }
 
-    public void setDownloadException(Exception e) {
-        this.downloadException = e;
-    }
-
-    public Exception getDownloadException() {
-        return downloadException;
-    }
 
 }

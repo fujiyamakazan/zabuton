@@ -23,6 +23,7 @@ import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 
 import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
+import com.github.fujiyamakazan.zabuton.selen.SelenDeck;
 import com.github.fujiyamakazan.zabuton.selen.scraper.SuicaScraper.SuicaDto;
 import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.date.Chronus;
@@ -161,9 +162,14 @@ public class SuicaScraper extends JournalScraper<SuicaDto> {
         }
     }
 
-    public SuicaScraper(final File work, final File selen) {
-        super(work, selen);
+    public SuicaScraper(final SelenDeck deck, final File work) {
+        super(deck, work);
         addcache(CACHE1);
+    }
+
+    @Override
+    protected SelenCommonDriver createCmd() {
+        return SelenCommonDriver.ofEdge();
     }
 
     @Override
@@ -415,7 +421,7 @@ public class SuicaScraper extends JournalScraper<SuicaDto> {
         }
 
 
-        SuicaScraper me = new SuicaScraper(work, work);
+        SuicaScraper me = new SuicaScraper(null, work);
         me.download();
         me.updateMaster(new File(work, "master.csv"));
         me.getAsset();

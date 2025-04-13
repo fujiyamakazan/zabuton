@@ -27,7 +27,7 @@ import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.RetryWorker;
 import com.github.fujiyamakazan.zabuton.util.exec.CmdAccessObject;
 
-public class SelenCommonDriver implements Serializable {
+public class SelenCommonDriver implements Serializable, AutoCloseable {
     private static final long serialVersionUID = 1L;
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
@@ -483,7 +483,8 @@ public class SelenCommonDriver implements Serializable {
                     FileUtils.deleteDirectory(f);
                 } catch (IOException e) {
                     //throw new RuntimeException(e);
-                    LOGGER.warn("scoped_dirの削除に失敗", e);
+                    //LOGGER.warn("scoped_dirの削除に失敗", e);
+                    LOGGER.debug("scoped_dirの削除に失敗(他に実行中のプロセスがある場合にも失敗することがあります。)");
                 }
             }
             if (f.getName().equals("screenshot")) {
@@ -555,49 +556,14 @@ public class SelenCommonDriver implements Serializable {
         }
     }
 
-    //    /**
-    //     * Edgeでドライバを作成します。
-    //     */
-    //    public static SelenCommonDriver createEdgeDriver(File work) {
-    //        return new SelenCommonDriver("edge") {
-    //
-    //            private static final long serialVersionUID = 1L;
-    //
-    //            @Override
-    //            protected File getDriverDir() {
-    //                return work;
-    //            }
-    //
-    //            @Override
-    //            protected File getDownloadDir() {
-    //                return work;
-    //            }
-    //
-    //        };
-    //    }
-    //
-    //    /**
-    //     * テストをします。
-    //     */
-    //    public static void main(String[] args) {
-    //        SelenCommonDriver cmd = new SelenCommonDriver() {
-    //
-    //            private static final long serialVersionUID = 1L;
-    //
-    //            @Override
-    //            protected File getDriverDir() {
-    //                //return null;
-    //                return new File("C:\\tmp");
-    //            }
-    //
-    //            @Override
-    //            protected File getDownloadDir() {
-    //                return null;
-    //            }
-    //        };
-    //
-    //        cmd.get("http://google.co.jp");
-    //
-    //    }
+    @Override
+    public void close() {
+        quit();
+    }
+
+    public static SelenCommonDriver ofEdge() {
+        return new EdgeDriverFactory().build();
+    }
+
 
 }

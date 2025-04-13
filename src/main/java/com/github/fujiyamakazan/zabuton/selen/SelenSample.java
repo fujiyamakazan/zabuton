@@ -40,7 +40,7 @@ public class SelenSample implements Serializable {
         cmd.get("https://haritora.net/look.cgi?script=1245");
         cmd.clickButtonAndWait("全文ダウンロード");
         cmd.sleep(300);
-        
+
         cmd.quit();
 
     }
@@ -53,7 +53,7 @@ public class SelenSample implements Serializable {
 
         driver.get("https://www.amazon.co.jp/gp/css/order-history?ie=UTF8&ref_=nav_orders_first&");
 
-        PasswordManager pm = new PasswordManager(new File("C:\\tmp"));
+        PasswordManager pm = new PasswordManager();
         pm.executeBySightKey("amazon");
 
         driver.type(By.name("email"), pm.getId());

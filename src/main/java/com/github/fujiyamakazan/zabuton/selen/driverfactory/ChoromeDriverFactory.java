@@ -15,6 +15,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
+import com.github.fujiyamakazan.zabuton.Zabuton;
 import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
 import com.github.fujiyamakazan.zabuton.util.EnvUtils;
 import com.github.fujiyamakazan.zabuton.util.HttpAccessObject;
@@ -31,6 +32,10 @@ public class ChoromeDriverFactory extends DriverFactory {
 
     private static final String URL_DRIVER = "https://googlechromelabs.github.io/chrome-for-testing/";
     public static final String DRIVER_EXE = "chromedriver.exe";
+
+    public ChoromeDriverFactory() {
+        super(new File(new File(Zabuton.getDir(), "selen_driver"), DRIVER_EXE));
+    }
 
     public ChoromeDriverFactory(File driverDir) {
         super(new File(driverDir, DRIVER_EXE));
