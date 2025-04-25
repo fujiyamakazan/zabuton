@@ -22,69 +22,70 @@ public class SelenDeck {
     private final Map<Integer, BrowserEntry> browserMap = new HashMap<>();
     private final AtomicInteger idCounter = new AtomicInteger(1);
 
-    private int columns;
+    private final int columns;
     //private final List<Integer> launchOrder = new ArrayList<>();
 
-    private int rows;
+    private final int rows;
 
     // 内部的に保持するブラウザインスタンスの情報
     private static class BrowserEntry {
         final SelenCommonDriver driver;
+        @SuppressWarnings("unused")
         final int id;
 
-        BrowserEntry(SelenCommonDriver driver, int id) {
+        BrowserEntry(final SelenCommonDriver driver, final int id) {
             this.driver = driver;
             this.id = id;
         }
     }
 
-    public SelenDeck(int columns, int rows) {
+    public SelenDeck(final int columns, final int rows) {
         this.columns = columns;
         this.rows = rows;
     }
 
-    public synchronized int register(SelenCommonDriver selenCommonDriver) {
-        int id = idCounter.getAndIncrement();
-        BrowserEntry entry = new BrowserEntry(selenCommonDriver, id);
+    public synchronized int register(final SelenCommonDriver selenCommonDriver) {
+        final int id = idCounter.getAndIncrement();
+        final BrowserEntry entry = new BrowserEntry(selenCommonDriver, id);
         browserMap.put(id, entry);
         //launchOrder.add(id);
         layoutGrid(columns, rows);
         return id;
     }
 
-    public synchronized void unregister(SelenCommonDriver cmd) {
+    public synchronized void unregister(final SelenCommonDriver cmd) {
         //browserMap.remove(id);
         browserMap.entrySet().removeIf(e->e.getValue().driver.equals(cmd));
         layoutGrid(columns, rows); // 残ったブラウザで再レイアウト
     }
 
     public synchronized void minimizeAll() {
-        for (BrowserEntry info : browserMap.values()) {
+        for (final BrowserEntry info : browserMap.values()) {
             info.driver.getDriver().manage().window().minimize();
         }
     }
 
 
-    public void layoutGrid(int columns, int rows) {
+    public void layoutGrid(final int columns, final int rows) {
         // ディスプレイサイズ取得
-        Rectangle screenBounds = GraphicsEnvironment.getLocalGraphicsEnvironment()
+        final Rectangle screenBounds = GraphicsEnvironment.getLocalGraphicsEnvironment()
                 .getMaximumWindowBounds(); // タスクバーを除いた表示領域
 
-        int totalWidth = screenBounds.width;
-        int totalHeight = screenBounds.height;
+        final int totalWidth = screenBounds.width;
+        final int totalHeight = screenBounds.height;
 
-        int cellWidth = totalWidth / columns;
-        int cellHeight = totalHeight / rows;
+        final int cellWidth = totalWidth / columns;
+        final int cellHeight = totalHeight / rows;
 
         int i = 0;
-        for (BrowserEntry entry : browserMap.values()) {
-            int col = i % columns;
-            int row = i / columns;
+        for (final BrowserEntry entry : browserMap.values()) {
+            final int col = i % columns;
+            final int row = i / columns;
 
-            int x = col * cellWidth + screenBounds.x;
-            int y = row * cellHeight + screenBounds.y;
+            final int x = col * cellWidth + screenBounds.x;
+            final int y = row * cellHeight + screenBounds.y;
 
-            WebDriver driver = entry.driver.getDriver();
+            final WebDriver driver = entry.driver.getDriver();
             driver.manage().window().setSize(new Dimension(cellWidth, cellHeight));
             driver.manage().window().setPosition(new Point(x, y));
 
@@ -93,12 +94,12 @@ public class SelenDeck {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
 
 
-        SelenDeck deck = new SelenDeck(2,2);
+        final SelenDeck deck = new SelenDeck(2,2);
 
-        List<SelenCommonDriver> cmds = Generics.newArrayList();
+        final List<SelenCommonDriver> cmds = Generics.newArrayList();
         for (int i = 0; i < 4; i++) {
             final int index = i;
             new Thread() {

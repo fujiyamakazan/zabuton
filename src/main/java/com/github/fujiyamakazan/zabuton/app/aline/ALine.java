@@ -13,6 +13,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
@@ -55,15 +56,15 @@ public class ALine implements Serializable {
         return new SimpleDateFormat(getDfYyyyMMdd().toPattern() + " HH:mm:ss");
     }
 
-    private File setting;
+    private final File setting;
     private File aliveLog;
-    private File logDir;
+    private final File logDir;
 
     /**
      * コンストラクタです。
      * @param appDir 設定ファイルを保存するディレクトリ
      */
-    public ALine(File appDir) {
+    public ALine(final File appDir) {
         setting = new File(appDir, "a-line.setting.txt");
         aliveLog = new File(appDir, "a-line.log.txt");
         logDir = new File(appDir, "a-line.send.logs");
@@ -72,7 +73,7 @@ public class ALine implements Serializable {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         new ALine(new File(EnvUtils.getUserAppData(), "ALine")).run(new String[] { "test" });
     }
 
@@ -88,9 +89,9 @@ public class ALine implements Serializable {
         /**
          * コンストラクタです。
          */
-        public SettingItems(String params) {
+        public SettingItems(final String params) {
 
-            String[] settings = params.split(",");
+            final String[] settings = params.split(",");
 
             /* メンバ変数設定 */
             for (String setting : settings) {
@@ -98,8 +99,8 @@ public class ALine implements Serializable {
                 if (setting.contains("=") == false) {
                     continue;
                 }
-                String[] keyValue = setting.split("=");
-                String key = keyValue[0].trim();
+                final String[] keyValue = setting.split("=");
+                final String key = keyValue[0].trim();
                 final String value;
                 if (keyValue.length > 1) {
                     value = keyValue[1].trim();
@@ -133,7 +134,7 @@ public class ALine implements Serializable {
             return this.use;
         }
 
-        public void setUse(boolean use) {
+        public void setUse(final boolean use) {
             this.use = use;
         }
 
@@ -141,7 +142,7 @@ public class ALine implements Serializable {
             return this.hour;
         }
 
-        public void setHour(Integer hour) {
+        public void setHour(final Integer hour) {
             this.hour = hour;
         }
 
@@ -149,7 +150,7 @@ public class ALine implements Serializable {
             return this.token;
         }
 
-        public void setToken(String token) {
+        public void setToken(final String token) {
             this.token = token;
         }
 
@@ -157,7 +158,7 @@ public class ALine implements Serializable {
             return this.message;
         }
 
-        public void setMessage(String message) {
+        public void setMessage(final String message) {
             this.message = message;
         }
 
@@ -165,7 +166,7 @@ public class ALine implements Serializable {
             return this.start;
         }
 
-        public void setStart(boolean start) {
+        public void setStart(final boolean start) {
             this.start = start;
         }
 
@@ -179,14 +180,14 @@ public class ALine implements Serializable {
 
     private SettingItems settingItems;
 
-    public static void execute(String[] args, File appDir) {
+    public static void execute(final String[] args, final File appDir) {
         new ALine(appDir).run(args);
     }
 
     /**
      * 設定処理です。
      */
-    public void setting(SettingItems settingItem) {
+    public void setting(final SettingItems settingItem) {
         this.settingItems = settingItem;
 
         /* 設定保存 */
@@ -214,7 +215,7 @@ public class ALine implements Serializable {
      * 　さらに、指定した時間帯ならLineに通知します。
      * 　一日の最初の起動の時には、最後に成功したバックアップの日付をメッセージ。
      */
-    public void run(String[] args) {
+    public void run(final String[] args) {
 
         boolean test = false;
         /*
@@ -237,7 +238,7 @@ public class ALine implements Serializable {
 
         try {
             /* 処理の前に本日分のログがあるかを判定 */
-            boolean isFirst = getLogLinesToday().isEmpty();
+            final boolean isFirst = getLogLinesToday().isEmpty();
 
             /* ログを記録する */
             writeLog("PcAlive");
@@ -297,9 +298,9 @@ public class ALine implements Serializable {
                         msg += "本日最初の確認です。";
 
                         /* 最後のバックアップの情報も追加 */
-                        List<String> logLines = new Utf8Text(this.aliveLog).readLines();
+                        final List<String> logLines = new Utf8Text(this.aliveLog).readLines();
                         Collections.reverse(logLines);
-                        for (String line : logLines) {
+                        for (final String line : logLines) {
                             if (StringUtils.endsWith(line, "WindowsBackupEnd")) {
                                 msg += " 最後のバックアップ情報[" + line + "]";
                                 break;
@@ -312,7 +313,7 @@ public class ALine implements Serializable {
                     /* 送信 */
                     line(msg);
 
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     /* ログ出力 */
                     writeLog("通知に失敗しました。「有効化」をオフにします。" + e.getMessage());
 
@@ -323,7 +324,7 @@ public class ALine implements Serializable {
                 }
             }
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
 
             /* ログ出力 */
             writeLog("エラーが発生しました。" + e.getMessage());
@@ -342,7 +343,7 @@ public class ALine implements Serializable {
         String text;
         try {
             text = FileUtils.readFileToString(this.setting, StandardCharsets.UTF_8);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
         this.settingItems = new SettingItems(text);
@@ -372,7 +373,7 @@ public class ALine implements Serializable {
 
         try {
             FileUtils.write(this.setting, text, StandardCharsets.UTF_8);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -380,18 +381,18 @@ public class ALine implements Serializable {
     /**
      * LINE Notify を呼出します。
      */
-    public void line(String message) throws Exception {
+    public void line(final String message) throws Exception {
 
         HttpURLConnection conn = null;
         try {
-            URL url = new URL("https://notify-api.line.me/api/notify");
+            final URL url = new URI("https://notify-api.line.me/api/notify").toURL();
 
-            boolean useProxy = (proxyHost() != null) && (proxyPort() != null);
+            final boolean useProxy = (proxyHost() != null) && (proxyPort() != null);
             if (useProxy) {
-                SocketAddress addr = new InetSocketAddress(
+                final SocketAddress addr = new InetSocketAddress(
                     proxyHost(),
                     Integer.valueOf(proxyPort()));
-                Proxy proxy = new Proxy(Proxy.Type.HTTP, addr);
+                final Proxy proxy = new Proxy(Proxy.Type.HTTP, addr);
                 conn = (HttpURLConnection) url.openConnection(proxy);
             } else {
                 conn = (HttpURLConnection) url.openConnection();
@@ -406,14 +407,14 @@ public class ALine implements Serializable {
                 writer.append("message=").append(URLEncoder.encode(
                     "[" + getHostName() + "]" + message, "UTF-8")).flush();
 
-                int httpStatus = conn.getResponseCode();
+                final int httpStatus = conn.getResponseCode();
                 if (httpStatus == 401) {
                     throw new Exception("トークンに誤りがあります。");
                 }
 
                 try (InputStream is = conn.getInputStream();
                     BufferedReader r = new BufferedReader(new InputStreamReader(is))) {
-                    String result = r.lines().collect(Collectors.joining());
+                    final String result = r.lines().collect(Collectors.joining());
                     if (result.contains("\"message\":\"ok\"") == false) {
                         throw new Exception(result);
                     }
@@ -430,13 +431,13 @@ public class ALine implements Serializable {
     /**
      * ログファイルへ書込みます。
      */
-    public void writeLog(String msg) {
-        String text = getNow()
+    public void writeLog(final String msg) {
+        final String text = getNow()
             + "[" + getHostName() + "]"
             + "" + msg;
         try {
             FileUtils.write(this.aliveLog, text + "\r\n", StandardCharsets.UTF_8, true);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -445,14 +446,14 @@ public class ALine implements Serializable {
      * 本日のログを取得します。
      */
     private List<String> getLogLinesToday() {
-        List<String> logs = new ArrayList<String>();
+        final List<String> logs = new ArrayList<String>();
         if (this.aliveLog.exists() == false) {
             return logs;
         }
         List<String> lines;
         try {
             lines = FileUtils.readLines(this.aliveLog, StandardCharsets.UTF_8);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
         for (String line : lines) {
@@ -468,15 +469,15 @@ public class ALine implements Serializable {
      * 通知時間帯のときにTrueを返します。
      */
     private boolean isOnTime() {
-        Calendar calendar = Calendar.getInstance();
-        int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
+        final Calendar calendar = Calendar.getInstance();
+        final int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
         return Integer.compare(currentHour, this.settingItems.hour) == 0;
     }
 
     private static String getHostName() {
         try {
             return InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
+        } catch (final UnknownHostException e) {
             throw new RuntimeException(e);
         }
     }
@@ -497,7 +498,7 @@ public class ALine implements Serializable {
         return null;
     }
 
-    public void setLog(File log) {
+    public void setLog(final File log) {
         this.aliveLog = log;
     }
 
@@ -514,12 +515,12 @@ public class ALine implements Serializable {
      * @param title 区分名
      * @param distance 前回同じ区分のメッセージを送信してから、次に送ってもよい期間
      */
-    public boolean canSend(String title, Duration distance) {
-        File subDir = new File(this.logDir, title);
+    public boolean canSend(final String title, final Duration distance) {
+        final File subDir = new File(this.logDir, title);
         if (subDir.exists()) {
-            for (File log : subDir.listFiles()) {
+            for (final File log : subDir.listFiles()) {
                 /* 指定期間を過ぎていないログがあればfalseを返す。*/
-                LocalDateTime mod = Chronus.localDateTimeOf(new Date(log.lastModified()));
+                final LocalDateTime mod = Chronus.localDateTimeOf(new Date(log.lastModified()));
                 if (Chronus.isPast(mod, distance) == false) {
                     return false;
                 }
@@ -531,12 +532,12 @@ public class ALine implements Serializable {
     /**
      * ラインとともにログに記録します。
      */
-    public void lineWithLog(String msg, String title) throws Exception {
+    public void lineWithLog(final String msg, final String title) throws Exception {
         this.line(msg);
-        File subDir = new File(this.logDir, title);
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HHmmss");
-        File log = new File(subDir, now.format(formatter) + ".log");
+        final File subDir = new File(this.logDir, title);
+        final LocalDateTime now = LocalDateTime.now();
+        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HHmmss");
+        final File log = new File(subDir, now.format(formatter) + ".log");
         Utf8Text.writeData(log, msg);
     }
 

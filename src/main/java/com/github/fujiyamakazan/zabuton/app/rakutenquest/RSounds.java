@@ -1,12 +1,11 @@
 package com.github.fujiyamakazan.zabuton.app.rakutenquest;
 
-import java.applet.Applet;
-import java.applet.AudioClip;
+//import java.applet.Applet;
+//import java.applet.AudioClip;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.MalformedURLException;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiSystem;
@@ -14,16 +13,17 @@ import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 
-@SuppressWarnings("deprecation")
+import org.apache.commons.lang3.NotImplementedException;
+
 public class RSounds implements Serializable {
     private static final long serialVersionUID = 1L;
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RSounds.class);
 
     private final File appDir;
-    private boolean enabel;
+    private final boolean enabel;
 
-    public RSounds(File dir, boolean enabel) {
+    public RSounds(final File dir, final boolean enabel) {
         this.appDir = dir;
         this.enabel = enabel;
     }
@@ -78,7 +78,7 @@ public class RSounds implements Serializable {
 
                 // デバイスを開き、リソースを獲得する。
                 sequencer.open();
-            } catch (MidiUnavailableException e) {
+            } catch (final MidiUnavailableException e) {
                 throw new RuntimeException(e);
             }
 
@@ -89,14 +89,14 @@ public class RSounds implements Serializable {
 
             try {
                 // MIDIファイルからMIDIデータ(Sequenceオブジェクト)を取得。
-                File file = new File(this.appDir, "魔王魂  フィールド11.mid");
-                Sequence sequence = MidiSystem.getSequence(file);
+                final File file = new File(this.appDir, "魔王魂  フィールド11.mid");
+                final Sequence sequence = MidiSystem.getSequence(file);
 
                 // 取得したMIDIデータをシーケンサに設定する。
                 sequencer.setSequence(sequence);
-            } catch (InvalidMidiDataException e) {
+            } catch (final InvalidMidiDataException e) {
                 throw new RuntimeException(e);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
 
@@ -105,7 +105,7 @@ public class RSounds implements Serializable {
 
             try {
                 Thread.sleep(1000 * 5);
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 throw new RuntimeException(e);
             }
 
@@ -132,30 +132,32 @@ public class RSounds implements Serializable {
             return;
         }
 
-        //File file = new File(APP_DIR, "bgm\\GM115-110921-youseihouse-wav.wav");
-        File file = new File(this.appDir, "se\\決定、ボタン押下2.wav");
+        throw new NotImplementedException();
 
-        AudioClip ac;
-        try {
-            ac = Applet.newAudioClip(file.toURI().toURL());
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-
-        //BGMのループ再生
-        //ac.loop();
-
-        //BGMを一回再生
-        ac.play();
-        //
-        //        try {
-        //            Thread.sleep(1000 * 30);
-        //        } catch (InterruptedException e) {
-        //            throw new RuntimeException(e);
-        //        }
-        //
-        //        //BGMを停止
-        //        ac.stop();
+//        //File file = new File(APP_DIR, "bgm\\GM115-110921-youseihouse-wav.wav");
+//        final File file = new File(this.appDir, "se\\決定、ボタン押下2.wav");
+//
+//        AudioClip ac;
+//        try {
+//            ac = Applet.newAudioClip(file.toURI().toURL());
+//        } catch (final MalformedURLException e) {
+//            throw new RuntimeException(e);
+//        }
+//
+//        //BGMのループ再生
+//        //ac.loop();
+//
+//        //BGMを一回再生
+//        ac.play();
+//        //
+//        //        try {
+//        //            Thread.sleep(1000 * 30);
+//        //        } catch (InterruptedException e) {
+//        //            throw new RuntimeException(e);
+//        //        }
+//        //
+//        //        //BGMを停止
+//        //        ac.stop();
     }
 
     /**
@@ -165,31 +167,32 @@ public class RSounds implements Serializable {
         if (this.enabel == false) {
             return;
         }
+        throw new NotImplementedException();
 
-        //File file = new File(APP_DIR, "bgm\\GM115-110921-youseihouse-wav.wav");
-        File file = new File(this.appDir, "se\\kettei-01.wav");
-
-        AudioClip ac;
-        try {
-            ac = Applet.newAudioClip(file.toURI().toURL());
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-
-        //BGMのループ再生
-        //ac.loop();
-
-        //BGMを一回再生
-        ac.play();
-        //
-        //        try {
-        //            Thread.sleep(1000 * 30);
-        //        } catch (InterruptedException e) {
-        //            throw new RuntimeException(e);
-        //        }
-        //
-        //        //BGMを停止
-        //        ac.stop();
+//        //File file = new File(APP_DIR, "bgm\\GM115-110921-youseihouse-wav.wav");
+//        final File file = new File(this.appDir, "se\\kettei-01.wav");
+//
+//        AudioClip ac;
+//        try {
+//            ac = Applet.newAudioClip(file.toURI().toURL());
+//        } catch (final MalformedURLException e) {
+//            throw new RuntimeException(e);
+//        }
+//
+//        //BGMのループ再生
+//        //ac.loop();
+//
+//        //BGMを一回再生
+//        ac.play();
+//        //
+//        //        try {
+//        //            Thread.sleep(1000 * 30);
+//        //        } catch (InterruptedException e) {
+//        //            throw new RuntimeException(e);
+//        //        }
+//        //
+//        //        //BGMを停止
+//        //        ac.stop();
     }
 
     /**

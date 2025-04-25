@@ -1,5 +1,6 @@
 package com.github.fujiyamakazan.zabuton.app.rakutenquest;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.lang.Generics;
 
+import com.github.fujiyamakazan.zabuton.util.CsvUtils;
 import com.github.fujiyamakazan.zabuton.util.date.Chronus;
 import com.github.fujiyamakazan.zabuton.util.jframe.JFrameUtils;
 import com.github.fujiyamakazan.zabuton.util.text.Utf8Text;
@@ -26,7 +28,10 @@ public class JournalMerger implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private final JournalCsv masterCsv;
+    //private final JournalCsv masterCsv;
+    private final File fileMaster;
+    private final String[] csvhead;
+
     private final List<String> masterLines = Generics.newArrayList();
 
     /** 標準化されたマスターです。 */
@@ -42,24 +47,35 @@ public class JournalMerger implements Serializable {
 
     private final String name;
 
+
     public boolean hasNext() {
         return this.hasNext;
     }
 
     /**
      * コンストラクタです。マスターテキストを登録します。
+     * @param csvhead
      */
-    public JournalMerger(String name, JournalCsv masterCsv, String datePattern) {
+    public JournalMerger(
+        final String name,
+        //final JournalCsv masterCsv,
+        final File fileMaster,
+        final String[] csvhead,
+        final String datePattern) {
+
         this.name = name;
-        this.masterCsv = masterCsv;
+        //this.masterCsv = masterCsv;
+        this.fileMaster = fileMaster;
+        this.csvhead = csvhead;
+
         this.datePattern = datePattern;
         boolean first = true;
 
-        for (String line : new Utf8Text(masterCsv.getFile()).readLines()) {
+        for (String line : new Utf8Text(this.fileMaster).readLines()) {
             line = line.trim();
 
             if (first) {
-                if (masterCsv.validHeader(line) == false) {
+                if (validHeader(line) == false) {
                     throw new RuntimeException("見出し行を持たない不正なマスターです。" + line);
                 }
                 first = false;
@@ -72,13 +88,13 @@ public class JournalMerger implements Serializable {
 
             /* 行番号取得 */
             try {
-                int rowIndex = JournalCsv.getRowIndex(line);
+                final int rowIndex = JournalCsvRow.getRowIndex(line);
                 this.maxRowIndex = Math.max(this.maxRowIndex, rowIndex);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 throw new RuntimeException(e);
             }
 
-            int headIndex = line.indexOf(',') + 1; // 行番号除去
+            final int headIndex = line.indexOf(',') + 1; // 行番号除去
             line = line.substring(headIndex);
 
             if (isSkipLine(line)) {
@@ -89,6 +105,22 @@ public class JournalMerger implements Serializable {
 
         }
         this.standardMasterLines = standardize(this.masterLines);
+    }
+
+    /**
+     * ヘッダーのチェックをします。
+     */
+    private boolean validHeader(final String line) {
+        if (csvhead == null) {
+            //return line.startsWith("\"#\"");
+            throw new RuntimeException("列名が未定義");
+        }
+        //return line.equals(getHeader() + "," + CsvUtils.convertString(this.fieldNames));
+        return StringUtils.equals(line, getHeader());
+    }
+
+    private String getHeader() {
+        return "\"#\"," + CsvUtils.convertString(csvhead);
     }
 
     /** マスターがあるにもかかわらず、
@@ -103,9 +135,9 @@ public class JournalMerger implements Serializable {
      * マスターにある同一のレコード以外をbufferに仮保存する。
      * @return 続きがあればTrueを返す。
      */
-    public boolean stock(List<String> dailyLines) {
+    public boolean stock(final List<String> dailyLines) {
 
-        List<String> joins = Generics.newArrayList();
+        final List<String> joins = Generics.newArrayList();
 
         for (String dailyLine : dailyLines) {
             dailyLine = dailyLine.trim();
@@ -116,7 +148,7 @@ public class JournalMerger implements Serializable {
                 continue;
             }
 
-            String al = standardize(dailyLine); // 標準化
+            final String al = standardize(dailyLine); // 標準化
 
             //if (standardMasterLines.contains(al) ||  contains(masterCsv, dailyLine)) {
             if (standardMasterLines.contains(al)) {
@@ -144,9 +176,9 @@ public class JournalMerger implements Serializable {
     /**
      * 標準化するための実装で上書きすることができます。
      */
-    private List<String> standardize(List<String> lines) {
-        List<String> result = Generics.newArrayList();
-        for (String line : lines) {
+    private List<String> standardize(final List<String> lines) {
+        final List<String> result = Generics.newArrayList();
+        for (final String line : lines) {
             result.add(standardize(line));
         }
         return result;
@@ -155,7 +187,7 @@ public class JournalMerger implements Serializable {
     /**
      * 標準化するための実装で上書きすることができます。
      */
-    protected String standardize(String line) {
+    protected String standardize(final String line) {
         //        List<String> list = Generics.newArrayList();
         //        list.add(line);
         //        return standardize(list).get(0);
@@ -176,15 +208,15 @@ public class JournalMerger implements Serializable {
             }
         }
 
-        Utf8Text master = new Utf8Text(this.masterCsv.getFile());
-        if (this.masterCsv.getFile().exists()) {
+        final Utf8Text master = new Utf8Text(this.fileMaster);
+        if (this.fileMaster.exists()) {
             if (master.read().endsWith("\n") == false) {
                 this.buffer.add(0, "\n");
             }
         }
 
         /* 行番号付与 */
-        List<String> tmp = Generics.newArrayList();
+        final List<String> tmp = Generics.newArrayList();
         for (String line : this.buffer) {
             this.maxRowIndex = this.maxRowIndex + 1;
             line = "\"" + this.maxRowIndex + "\"," + line;
@@ -194,40 +226,40 @@ public class JournalMerger implements Serializable {
         this.buffer.addAll(tmp);
 
         /* マスターテキストに、追加テキストのレコードを追記する。ただし、マスターが無ければ新規作成する。 */
-        if (this.masterCsv.getFile().exists()) {
+        if (this.fileMaster.exists()) {
             master.writeLines(this.buffer, true);
         } else {
-            this.buffer.add(0, this.masterCsv.getHeader()); // 見出し行
+            this.buffer.add(0, getHeader()); // 見出し行
             master.writeLines(this.buffer);
         }
 
         this.buffer.clear(); // 使用済みの為削除
     }
 
-    protected boolean isSkipLine(String line) {
+    protected boolean isSkipLine(final String line) {
         if (StringUtils.isEmpty(line)) {
             return false;
         }
         return isAvailableLine(line) == false;
     }
 
-    protected boolean isAvailableLine(String line) {
+    protected boolean isAvailableLine(final String line) {
         try {
 
             //return new CSVParser().parseLine(line)[0].startsWith(availableKeyWord);
 
             return in(new CSVParser().parseLine(line)[0]);
 
-        } catch (IOException e) {
+        } catch (final IOException e) {
             return false;
         }
     }
 
-    protected boolean in(String value) {
+    protected boolean in(final String value) {
         try {
             Chronus.parse(value, this.datePattern);
             return true;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             return false;
         }
     }

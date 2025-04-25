@@ -16,7 +16,7 @@ import com.github.fujiyamakazan.zabuton.util.date.Chronus;
 public class Journal implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final DateFormat df = new SimpleDateFormat(Chronus.POPULAR_JP);
+    //private final DateFormat df = new SimpleDateFormat(Chronus.POPULAR_JP);
 
     /** 日付です。 */
     private Date date;
@@ -42,14 +42,14 @@ public class Journal implements Serializable {
     /** 活動科目です。 */
     private String activity;
 
-    /** 記録元での生データです。 */
-    private String rawOnSource;
+    ///** 記録元での生データです。 */
+    //private String rawOnSource;
 
-    /** 記録元でのキーワードです。 */
-    private String keywordOnSource;
+    ///** 記録元でのキーワードです。 */
+    //private String keywordOnSource;
 
-    /** 記録元での残高です。 */
-    private int summaryOnSource;
+//    /** 記録元での残高です。 */
+//    private int summaryOnSource;
 
     /** 記録元での行Index(ID)です。 */
     private String rowIndex;
@@ -66,28 +66,29 @@ public class Journal implements Serializable {
         this.rowIndex = rowIndex;
     }
 
-    public String getRawOnSource() {
-        return this.rawOnSource;
-    }
+    //public String getRawOnSource() {
+    //    return this.rawOnSource;
+    //}
 
-    public void setRawOnSource(String rawOnSource) {
-        this.rawOnSource = rawOnSource;
-    }
+    //public void setRawOnSource(String rawOnSource) {
+    //    this.rawOnSource = rawOnSource;
+    //}
 
-    public int getSummaryOnSource() {
-        return this.summaryOnSource;
-    }
-
-    public void setSummaryOnSource(int summaryOnSource) {
-        this.summaryOnSource = summaryOnSource;
-    }
+//    public int getSummaryOnSource() {
+//        return this.summaryOnSource;
+//    }
+//
+//    public void setSummaryOnSource(int summaryOnSource) {
+//        this.summaryOnSource = summaryOnSource;
+//    }
 
     public Date getDate() {
         return this.date;
     }
 
     public String getDateString() {
-        return this.df.format(this.date);
+        DateFormat df = new SimpleDateFormat(Chronus.POPULAR_JP);
+        return df.format(this.date);
     }
 
     public void setDate(Date date) {
@@ -100,7 +101,8 @@ public class Journal implements Serializable {
      */
     public void setDate(String strDate) {
         try {
-            this.date = this.df.parse(strDate);
+            DateFormat df = new SimpleDateFormat(Chronus.POPULAR_JP);
+            this.date = df.parse(strDate);
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
@@ -170,13 +172,13 @@ public class Journal implements Serializable {
         return this.amount;
     }
 
-    public String getKeywordOnSource() {
-        return this.keywordOnSource;
-    }
+    //public String getKeywordOnSource() {
+    //    return this.keywordOnSource;
+    //}
 
-    public void setKeywordOnSource(String keywordOnSource) {
-        this.keywordOnSource = keywordOnSource;
-    }
+    //public void setKeywordOnSource(String keywordOnSource) {
+    //   this.keywordOnSource = keywordOnSource;
+    //}
 
     public final class JournalComparator implements Comparator<Journal> {
         @Override
@@ -206,15 +208,15 @@ public class Journal implements Serializable {
     //        }
     //    }
 
-    public static final String HEADER = "日付" + "\t"
-        + "金額" + "\t"
-        + "借方" + "\t"
-        + "貸方" + "\t"
-        + "メモ" + "\t"
-        + "メモ2" + "\t"
-        + "活動科目" + "\t"
-        + "記録元" + "\t"
-        + "#";
+//    public static final String HEADER = "日付" + "\t"
+//        + "金額" + "\t"
+//        + "借方" + "\t"
+//        + "貸方" + "\t"
+//        + "メモ" + "\t"
+//        + "メモ2" + "\t"
+//        + "活動科目" + "\t"
+//        + "記録元" + "\t"
+//        + "#";
 
     /**
      * 仕訳用文字列を返します。
@@ -222,7 +224,8 @@ public class Journal implements Serializable {
     public String getJournalString() {
         String formatedDate = null;
         if (this.date != null) {
-            formatedDate = this.df.format(this.date);
+            DateFormat df = new SimpleDateFormat(Chronus.POPULAR_JP);
+            formatedDate = df.format(this.date);
         }
 
         return formatedDate + "\t"

@@ -29,7 +29,7 @@ public class NgWordCheck implements Serializable {
     /**
      * 動作確認をします。
      */
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         //execute(new File("."));
         execute(Zabuton.getDir());
     }
@@ -37,18 +37,18 @@ public class NgWordCheck implements Serializable {
     /**
      * 禁則文字をチェックします。
      */
-    public static void execute(File userAppDir) {
-        File fileSettings = new File(userAppDir, "CheckNgWords.settings.txt");
+    public static void execute(final File userAppDir) {
+        final File fileSettings = new File(userAppDir, "CheckNgWords.settings.txt");
         if (fileSettings.exists() == false) {
             LOGGER.debug("禁則文字のチェックをする場合は、" + fileSettings.getAbsolutePath() + "を設置してください。");
             return;
         }
         LOGGER.debug("禁則文字のチェックをします。");
 
-        KeyValuesText settings = new SeparateKeyValuesText(fileSettings);
+        final KeyValuesText settings = new SeparateKeyValuesText(fileSettings);
 
         final String[] words;
-        String strWords = settings.get("words");
+        final String strWords = settings.get("words");
         if (StringUtils.isNotEmpty(strWords)) {
             words = strWords.split(",");
         } else {
@@ -56,7 +56,7 @@ public class NgWordCheck implements Serializable {
         }
 
         final String[] fileOmits;
-        String strFileOmits = settings.get("fileOmits");
+        final String strFileOmits = settings.get("fileOmits");
         if (StringUtils.isNotEmpty(strFileOmits)) {
             fileOmits = strFileOmits.split(",");
         } else {
@@ -64,22 +64,22 @@ public class NgWordCheck implements Serializable {
         }
 
         final String[] dirOmits;
-        String strDirOmits = settings.get("dirOmits");
+        final String strDirOmits = settings.get("dirOmits");
         if (StringUtils.isNotEmpty(strDirOmits)) {
             dirOmits = strDirOmits.split(",");
         } else {
             dirOmits = new String[] {};
         }
 
-        IOFileFilter fileFilter = new IOFileFilter() {
+        final IOFileFilter fileFilter = new IOFileFilter() {
 
             @Override
-            public boolean accept(File dir, String name) {
+            public boolean accept(final File dir, final String name) {
                 return true;
             }
 
             @Override
-            public boolean accept(File file) {
+            public boolean accept(final File file) {
 
                 final String name = file.getName();
                 if (name.endsWith(".jar")
@@ -88,7 +88,7 @@ public class NgWordCheck implements Serializable {
                     return false;
                 }
 
-                for (String o : fileOmits) {
+                for (final String o : fileOmits) {
                     if (name.matches(o)) {
                         return false;
                     }
@@ -98,20 +98,20 @@ public class NgWordCheck implements Serializable {
         };
 
 
-        IOFileFilter dirFilter = new IOFileFilter() {
+        final IOFileFilter dirFilter = new IOFileFilter() {
 
             @Override
-            public boolean accept(File dir, String name) {
+            public boolean accept(final File dir, final String name) {
                 return accept(dir.getName());
             }
 
             @Override
-            public boolean accept(File file) {
+            public boolean accept(final File file) {
                 return accept(file.getName());
             }
 
-            protected boolean accept(String dirName) {
-                for (String o : dirOmits) {
+            protected boolean accept(final String dirName) {
+                for (final String o : dirOmits) {
                     if (dirName.matches(o)) {
                         return false;
                     }
@@ -127,7 +127,7 @@ public class NgWordCheck implements Serializable {
             File file;
             String word;
 
-            public FileWord(File file, String word) {
+            public FileWord(final File file, final String word) {
                 this.file = file;
                 this.word = word;
             }
@@ -139,30 +139,30 @@ public class NgWordCheck implements Serializable {
 
         }
 
-        List<FileWord> errors = Generics.newArrayList();
-        for (File f : FileUtils.listFiles(new File("./"), fileFilter, dirFilter)) {
+        final List<FileWord> errors = Generics.newArrayList();
+        for (final File f : FileUtils.listFiles(new File("./"), fileFilter, dirFilter)) {
             //LOGGER.debug(f.getAbsolutePath());
             //String text = Utf8Text.readData(f);
             LOGGER.debug(f.getAbsolutePath());
-            String text = Utf8Text.readData(f);
-            for (String word : words) {
+            final String text = Utf8Text.readString(f);
+            for (final String word : words) {
                 if (StringUtils.containsIgnoreCase(text, word)) {
                     errors.add(new FileWord(f, word));
                 }
             }
         }
         if (errors.isEmpty() == false) {
-            List<KeyValue> ignores = Generics.newArrayList();
-            String str = settings.get("ignores");
+            final List<KeyValue> ignores = Generics.newArrayList();
+            final String str = settings.get("ignores");
             if (StringUtils.isNotEmpty(str)) {
-                for (String ignore : str.split(",")) {
+                for (final String ignore : str.split(",")) {
                     ignores.add(new KeyValue(ignore.split("=")[0], ignore.split("=")[1]));
                 }
             }
-            for (Iterator<FileWord> ite = errors.iterator(); ite.hasNext();) {
-                FileWord e = ite.next();
+            for (final Iterator<FileWord> ite = errors.iterator(); ite.hasNext();) {
+                final FileWord e = ite.next();
                 boolean contains = false;
-                for (KeyValue ignore : ignores) {
+                for (final KeyValue ignore : ignores) {
                     if (ignore.getKey().equals(e.file.getName())
                         && ignore.getValue().equals(e.word)) {
                         contains = true;

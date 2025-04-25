@@ -3,12 +3,18 @@ package com.github.fujiyamakazan.zabuton.selen.scraper;
 import java.io.File;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
+import java.nio.charset.Charset;
 import java.util.Calendar;
 import java.util.Date;
+
+import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
 
 import com.github.fujiyamakazan.zabuton.selen.SelenCommonDriver;
 import com.github.fujiyamakazan.zabuton.selen.SelenDeck;
 import com.github.fujiyamakazan.zabuton.util.file.FileDirUtils;
+import com.github.fujiyamakazan.zabuton.util.text.TextFile;
 
 /**
  * スクレイピングをします。
@@ -130,7 +136,7 @@ public abstract class Scraper implements Serializable {
      * 最新のファイルが一日以上経過して入ればTrueを返します。
      * ディレクトリが空のときもTrueを返します。
      */
-    protected static boolean isCacheExpired(File dir) {
+    public static boolean isCacheExpired(File dir) {
         final File fileToday = FileDirUtils.getLastOne(dir);
         if (fileToday == null) {
             return true; // キャッシュが無い
@@ -138,9 +144,31 @@ public abstract class Scraper implements Serializable {
             Date date = new Date(fileToday.lastModified());
             Calendar yesterday = Calendar.getInstance();
             yesterday.add(Calendar.DAY_OF_MONTH, -1);
-            return date.after(yesterday.getTime()); // 一日以上経過
+            return !date.after(yesterday.getTime()); // 一日以上経過
         }
     }
+
+    /**
+     * HTMLファイルからbodyタグを取得します。
+     */
+    public static final Element getHtmlBody(File file, Charset charset) {
+        TextFile textObj = new TextFile(file) {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected Charset getCharset() {
+                //return getReadCharset();
+                return charset;
+            }
+        };
+        String read = textObj.read();
+        if (StringUtils.isEmpty(read)) {
+            return null;
+        }
+        return Jsoup.parse(read).getElementsByTag("body").first();
+    }
+
+
 
     //protected abstract File getAppDir();
 

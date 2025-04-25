@@ -28,7 +28,7 @@ public class CookieManager implements Serializable {
     /**
      * コンストラクタです。
      */
-    public CookieManager(File appDir, SelenCommonDriver cmd) {
+    public CookieManager(final File appDir, final SelenCommonDriver cmd) {
         this.saveDir = new File(appDir, "CookieManager");
         if (this.saveDir.exists() == false) {
             this.saveDir.mkdirs();
@@ -40,10 +40,10 @@ public class CookieManager implements Serializable {
      * Cookieを読み込みます。
      * URLをキーとします。
      */
-    public void executeByUrl(String url) {
+    public void executeByUrl(final String url) {
         try {
             this.sightKey = new URI(url).getRawAuthority();
-        } catch (URISyntaxException e) {
+        } catch (final URISyntaxException e) {
             throw new RuntimeException(e);
         }
 
@@ -54,15 +54,15 @@ public class CookieManager implements Serializable {
 
         try {
             if (cookieDir.exists()) {
-                for (File f : cookieDir.listFiles()) {
+                for (final File f : cookieDir.listFiles()) {
 
-                    String data = Utf8Text.readData(f);
-                    String[] datas = CsvUtils.splitCsv(data);
-                    String name = datas[0];
-                    String value = datas[1];
-                    String domain = datas[2];
-                    String path = datas[3];
-                    String strExpiry = datas[4];
+                    final String data = Utf8Text.readString(f);
+                    final String[] datas = CsvUtils.splitCsv(data);
+                    final String name = datas[0];
+                    final String value = datas[1];
+                    final String domain = datas[2];
+                    final String path = datas[3];
+                    final String strExpiry = datas[4];
                     final Date expiry;
                     if (StringUtils.equals(strExpiry, NONE)) {
                         expiry = null;
@@ -70,12 +70,12 @@ public class CookieManager implements Serializable {
                         expiry = new Date(Long.parseLong(strExpiry));
                     }
                     //LOGGER.debug("domain:" + domain);
-                    Cookie cookie = new Cookie(name, value, domain, path, expiry);
+                    final Cookie cookie = new Cookie(name, value, domain, path, expiry);
 
                     cmd.addCookie(cookie);
                 }
             }
-        } catch (org.openqa.selenium.InvalidCookieDomainException e) {
+        } catch (final org.openqa.selenium.InvalidCookieDomainException e) {
             throw new RuntimeException("InvalidCookieDomainExceptionが発生しました。"
                 + "Cooikeを操作する前にドメインへ移動してください。", e);
         }
@@ -89,13 +89,13 @@ public class CookieManager implements Serializable {
      * Cookieを書き出します。
      */
     public void save() {
-        Set<Cookie> cookies = cmd.getDriver().manage().getCookies();
-        for (Cookie cookie : cookies) {
-            String name = cookie.getName();
-            String value = cookie.getValue();
-            String domain = cookie.getDomain();
-            String path = cookie.getPath();
-            Date dateExpiy = cookie.getExpiry();
+        final Set<Cookie> cookies = cmd.getDriver().manage().getCookies();
+        for (final Cookie cookie : cookies) {
+            final String name = cookie.getName();
+            final String value = cookie.getValue();
+            final String domain = cookie.getDomain();
+            final String path = cookie.getPath();
+            final Date dateExpiy = cookie.getExpiry();
             final String expiry;
             if (dateExpiy == null) {
                 expiry = NONE;
@@ -103,9 +103,9 @@ public class CookieManager implements Serializable {
                 expiry = String.valueOf(dateExpiy.getTime());
             }
 
-            String datas = CsvUtils.convertString(new String[] { name, value, domain, path, expiry });
+            final String datas = CsvUtils.convertString(new String[] { name, value, domain, path, expiry });
 
-            File f = new File(cookieDir, name);
+            final File f = new File(cookieDir, name);
             Utf8Text.writeData(f, datas);
         }
     }

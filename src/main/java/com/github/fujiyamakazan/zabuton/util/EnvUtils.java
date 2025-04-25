@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
  */
 public class EnvUtils implements Serializable {
     private static final long serialVersionUID = 1L;
-    @SuppressWarnings("unused")
     private static final Logger LOGGER = LoggerFactory.getLogger(EnvUtils.class);
 
     public static String getUserName() {
@@ -32,7 +31,7 @@ public class EnvUtils implements Serializable {
         return new File(getUserProfile(), "Desktop");
     }
 
-    public static File getUserDesktop(String path) {
+    public static File getUserDesktop(final String path) {
         return new File(getUserDesktop(), path);
     }
 
@@ -68,7 +67,7 @@ public class EnvUtils implements Serializable {
         return new File(System.getProperty("user.dir"));
     }
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         LOGGER.debug(getCurrentDir().getAbsolutePath());
     }
 }

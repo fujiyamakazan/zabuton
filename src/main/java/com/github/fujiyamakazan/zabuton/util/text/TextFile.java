@@ -16,7 +16,6 @@ import org.apache.wicket.util.lang.Generics;
  * @author fujiyama
  */
 public abstract class TextFile implements Serializable {
-    @SuppressWarnings("unused")
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
         .getLogger(java.lang.invoke.MethodHandles.lookup().lookupClass());
 
@@ -30,7 +29,7 @@ public abstract class TextFile implements Serializable {
 
     protected final File file;
 
-    public TextFile(File file) {
+    public TextFile(final File file) {
         this.file = file;
     }
 
@@ -38,7 +37,7 @@ public abstract class TextFile implements Serializable {
         return this.file;
     }
 
-    public TextFile(String pathname) {
+    public TextFile(final String pathname) {
         this(new File(pathname));
     }
 
@@ -63,12 +62,12 @@ public abstract class TextFile implements Serializable {
      * ignoreHead からはじまる行（コメント行）は除外します。
      * @return ファイルから取得したテキスト。ファイルが無ければ空のリストを返します。
      */
-    public List<String> readLines(String ignoreHead) {
-        String string = read();
+    public List<String> readLines(final String ignoreHead) {
+        final String string = read();
         if (string == null) {
             return Generics.newArrayList();
         }
-        List<String> lines = Generics.newArrayList();
+        final List<String> lines = Generics.newArrayList();
         for (String line : string.split(LINE_SEPARATOR_LF)) {
             if (doTrim()) {
                 line = line.trim();
@@ -103,14 +102,14 @@ public abstract class TextFile implements Serializable {
         String text;
         try {
             text = FileUtils.readFileToString(this.file, getCharset());
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
         /* 先頭にBOMがあれば除去する */
         if (text == null || text.length() == 0) {
             /* 処理なし */
         } else {
-            String first = Integer.toHexString(text.charAt(0));
+            final String first = Integer.toHexString(text.charAt(0));
             if (StringUtils.equals(first, "feff")) {
                 text = text.substring(1); // 先頭を除去
             }
@@ -123,7 +122,7 @@ public abstract class TextFile implements Serializable {
      * 文字セットを指定してテキストを保存します。
      * @param data テキスト
      */
-    public void write(String data) {
+    public void write(final String data) {
         write(data, false);
     }
 
@@ -132,10 +131,10 @@ public abstract class TextFile implements Serializable {
      * @param data テキスト
      * @param append 追記モードを指定する場合はTrue
      */
-    public void write(String data, boolean append) {
+    public void write(final String data, final boolean append) {
         try {
             FileUtils.write(this.file, data, getWriteCharset(), append);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -151,7 +150,7 @@ public abstract class TextFile implements Serializable {
      * 文字セット「UTF-8」を指定して複数行のテキストを保存します。
      * @param lines 複数行のテキスト
      */
-    public void writeLines(List<String> lines) {
+    public void writeLines(final List<String> lines) {
         writeLines(lines, false);
     }
 
@@ -159,10 +158,10 @@ public abstract class TextFile implements Serializable {
      * 文字セット「UTF-8」を指定して複数行のテキストを保存します。
      * @param lines 複数行のテキスト
      */
-    public void writeLines(List<String> lines, boolean append) {
+    public void writeLines(final List<String> lines, final boolean append) {
         try {
             FileUtils.writeLines(this.file, getWriteCharset().toString(), lines, append);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -172,7 +171,7 @@ public abstract class TextFile implements Serializable {
      */
     public String getFinalLine() {
         String text = read().trim();
-        int lastLn = text.lastIndexOf("\n");
+        final int lastLn = text.lastIndexOf("\n");
         if (lastLn != -1) {
             text = text.substring(lastLn + 1);
         }
@@ -182,11 +181,11 @@ public abstract class TextFile implements Serializable {
     /**
      * 標準APIを使用して読み取ります。
      */
-    public static String readString(File file, Charset charset) {
+    public static String readString(final File file, final Charset charset) {
         String str;
         try {
             str = Files.readString(file.toPath(), charset);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             LOGGER.error(file.getAbsolutePath() + "の読取りに失敗しました。");
             throw new RuntimeException(e);
         }

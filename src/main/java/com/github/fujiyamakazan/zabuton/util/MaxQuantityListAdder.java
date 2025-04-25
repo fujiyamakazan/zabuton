@@ -8,7 +8,6 @@ import java.util.List;
  * 質量をもつオブジェクトを指定量までリストに追加する処理です。
  */
 public class MaxQuantityListAdder {
-    @SuppressWarnings("unused")
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
         .getLogger(java.lang.invoke.MethodHandles.lookup().lookupClass());
 
@@ -22,11 +21,11 @@ public class MaxQuantityListAdder {
         int getMass();
     }
 
-    public static <T extends IMassObject> List<T> extecute(List<T> source, int limit) {
-        List<T> list = new ArrayList<T>();
+    public static <T extends IMassObject> List<T> extecute(final List<T> source, final int limit) {
+        final List<T> list = new ArrayList<T>();
         double totalMass = 0;
 
-        for (T obj : source) {
+        for (final T obj : source) {
             if (totalMass + obj.getMass() > limit) {
                 // 質量オーバーなので追加しない。
                 // breakはしない。この後に、質量が小さいオブジェクトで満たされる可能性があるため。
@@ -39,13 +38,13 @@ public class MaxQuantityListAdder {
         return list;
     }
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
 
         class MassObj implements IMassObject {
             private final String name;
             private final int mass;
 
-            public MassObj(String name, int mass) {
+            public MassObj(final String name, final int mass) {
                 this.name = name;
                 this.mass = mass;
             }
@@ -61,7 +60,7 @@ public class MaxQuantityListAdder {
             }
         }
 
-        List<MassObj> list = new ArrayList<>();
+        final List<MassObj> list = new ArrayList<>();
         list.add(new MassObj("①", 2));
         list.add(new MassObj("②", 1));
         list.add(new MassObj("③", 1));
@@ -69,7 +68,7 @@ public class MaxQuantityListAdder {
 
         for (int i = 0; i < 10; i++) {
             Collections.shuffle(list);
-            List<MassObj> results = MaxQuantityListAdder.extecute(list, 3);
+            final List<MassObj> results = MaxQuantityListAdder.extecute(list, 3);
             LOGGER.debug(results.toString() + " 合計："+ results.stream().mapToInt(MassObj::getMass).sum());
 
         }

@@ -46,7 +46,7 @@ public abstract class JournalScraper<DTO> extends Scraper {
         //super(work, selen);
     }
 
-    protected void addcache(String name) {
+    protected void addcache(final String name) {
         caches.add(new File(work, name));
     }
 
@@ -89,15 +89,15 @@ public abstract class JournalScraper<DTO> extends Scraper {
         return new PasswordManager();
     }
 
-    protected void saveCache(SelenCommonDriver cmd, String name) {
+    protected void saveCache(final SelenCommonDriver cmd, final String name) {
         if (!caches.stream().anyMatch(c -> StringUtils.equals(c.getName(), name))) {
             throw new IllegalArgumentException(name);
         }
-        for (File cache : caches) {
+        for (final File cache : caches) {
             if (StringUtils.equals(cache.getName(), name)) {
                 try {
                     FileUtils.write(cache, cmd.getPageSource(), StandardCharsets.UTF_8);
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -108,8 +108,8 @@ public abstract class JournalScraper<DTO> extends Scraper {
         return caches;
     }
 
-    protected File getCache(String name) {
-        Optional<File> first = caches.stream().filter(
+    protected File getCache(final String name) {
+        final Optional<File> first = caches.stream().filter(
             c -> StringUtils.equals(c.getName(), name)).findFirst();
         if (first.isPresent()) {
             return first.get();
@@ -126,10 +126,10 @@ public abstract class JournalScraper<DTO> extends Scraper {
     @Override
     protected final boolean isNeeded() {
         //boolean hasRecentFile = false;
-        final long twentyFourHoursInMillis = TimeUnit.HOURS.toMillis(24);
+        final long twentyFourHoursInMillis = TimeUnit.DAYS.toMillis(3);
         final long currentTime = System.currentTimeMillis();
-        for(File cache: caches) {
-            long creationTime = cache.lastModified();
+        for(final File cache: caches) {
+            final long creationTime = cache.lastModified();
             if (currentTime - creationTime > twentyFourHoursInMillis) {
                 LOGGER.debug("無効なキャッシュがあります。Webから取得する必要があります。");
                 return true;

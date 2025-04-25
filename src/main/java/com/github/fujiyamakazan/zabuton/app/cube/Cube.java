@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.wicket.util.lang.Generics;
 
 public class Cube implements Serializable {
+    private static final long serialVersionUID = 1L;
     @SuppressWarnings("unused")
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(Cube.class);
 
@@ -72,15 +73,15 @@ public class Cube implements Serializable {
             ;
 
         /** 操作の回転軸です。 */
-        private Axis axis;
+        private final Axis axis;
         /** 回転軸に対して正方向ならtrue, 逆方向ならfalseです。 */
-        private boolean clockwise;
+        private final boolean clockwise;
         /** 操作で移動するコーナーの位置です。順序は回転軸の時計回りです。*/
-        private Pos[] corners;
+        private final Pos[] corners;
         /** 操作で移動するエッジの位置です。順序は回転軸の時計回りです。*/
-        private Pos[] edges;
+        private final Pos[] edges;
 
-        private Face(Axis axis, boolean clockwise, Pos[] corners, Pos[] edges) {
+        private Face(final Axis axis, final boolean clockwise, final Pos[] corners, final Pos[] edges) {
             this.axis = axis;
             this.clockwise = clockwise;
             this.corners = corners;
@@ -94,18 +95,18 @@ public class Cube implements Serializable {
      */
     private static class Fc {
         private Face face;
-        private Color color;
+        private final Color color;
 
-        public static Fc of(Face face, Color color) {
+        public static Fc of(final Face face, final Color color) {
             return new Fc(face, color);
         }
 
-        public Fc(Face face, Color color) {
+        public Fc(final Face face, final Color color) {
             this.face = face;
             this.color = color;
         }
 
-        public Fc(Fc orz) {
+        public Fc(final Fc orz) {
             this.face = orz.face;
             this.color = orz.color;
         }
@@ -126,25 +127,25 @@ public class Cube implements Serializable {
         private Pos pos;
         protected final List<Fc> fcs;
 
-        public Piece(Fc... fcs) {
+        public Piece(final Fc... fcs) {
             this.fcs = Arrays.asList(fcs);
         }
 
-        public Piece(Piece orz) {
+        public Piece(final Piece orz) {
             this.fcs = Generics.newArrayList();
-            for (Fc fc : orz.fcs) {
+            for (final Fc fc : orz.fcs) {
                 this.fcs.add(new Fc(fc));
             }
             this.pos = orz.pos;
         }
 
-        public Piece pos(Pos pos) {
+        public Piece pos(final Pos pos) {
             this.pos = pos;
             return this;
         }
 
-        public void rollAll(Axis axis, boolean clockwise) {
-            for (Fc v : fcs) {
+        public void rollAll(final Axis axis, final boolean clockwise) {
+            for (final Fc v : fcs) {
                 final Face[] faces;
                 switch (axis) {
                     case X:
@@ -163,7 +164,7 @@ public class Cube implements Serializable {
             }
         }
 
-        private Face roll(Face face, boolean clockwise, Face[] pattern) {
+        private Face roll(final Face face, final boolean clockwise, Face[] pattern) {
             if (!clockwise) {
                 pattern = reverse(pattern).toArray(new Face[pattern.length]);
             }
@@ -225,9 +226,9 @@ public class Cube implements Serializable {
     /**
      * コピーコンストラクタです。
      */
-    public Cube(Cube orz) {
+    public Cube(final Cube orz) {
         piecies = Generics.newArrayList();
-        for (Piece p : orz.piecies) {
+        for (final Piece p : orz.piecies) {
             piecies.add(new Piece(p));
         }
     }
@@ -236,10 +237,10 @@ public class Cube implements Serializable {
      * 完成状態かを判定します。
      */
     private boolean isGoal() {
-        for (Face face : Face.values()) {
+        for (final Face face : Face.values()) {
             Color color = null;
-            for (Piece p : piecies) {
-                for (Fc fc : p.fcs) {
+            for (final Piece p : piecies) {
+                for (final Fc fc : p.fcs) {
                     if (fc.face.equals(face)) {
                         if (color == null) {
                             color = fc.color;
@@ -258,9 +259,9 @@ public class Cube implements Serializable {
     /**
      * 指定された位置、面の色を返します。
      */
-    public String getColorString(Pos pos, Face face) {
-        Piece p = pick(pos);
-        for (Fc v : p.fcs) {
+    public String getColorString(final Pos pos, final Face face) {
+        final Piece p = pick(pos);
+        for (final Fc v : p.fcs) {
             if (v.face.equals(face)) {
                 return v.color.name();
             }
@@ -268,8 +269,8 @@ public class Cube implements Serializable {
         throw new RuntimeException("pos=" + pos + ", face=" + face);
     }
 
-    private Piece pick(Pos pos) {
-        for (Piece p : piecies) {
+    private Piece pick(final Pos pos) {
+        for (final Piece p : piecies) {
             if (p.pos.equals(pos)) {
                 return p;
             }
@@ -277,25 +278,25 @@ public class Cube implements Serializable {
         throw new RuntimeException("pos=" + pos);
     }
 
-    private List<String> history = Generics.newArrayList();
+    private final List<String> history = Generics.newArrayList();
 
     /**
      * ある面を時計周りに回転させます。複数の操作をコマンドで指定します。
      */
-    private void rotate(CubeCommand... commands) {
+    private void rotate(final CubeCommand... commands) {
 
         for (int i = 0; i < commands.length; i++) {
 
-            CubeCommand command = commands[i];
+            final CubeCommand command = commands[i];
 
             history.add(command.toString());
 
             //Face face = Face.valueOf(String.valueOf(cmd));
             //rotate_(face, o);
 
-            int dist = command.getDist();
-            Face face = command.getFace();
-            boolean prime = dist <= -1;
+            final int dist = command.getDist();
+            final Face face = command.getFace();
+            final boolean prime = dist <= -1;
             for (int j = 0; j < Math.abs(dist); j++) {
                 rotate_(face, prime);
             }
@@ -307,7 +308,7 @@ public class Cube implements Serializable {
      * ある面を時計周りに回転させます。移動量は1です。
      * @param face 面
      */
-    private void rotate_(Face face, boolean prime) {
+    private void rotate_(final Face face, final boolean prime) {
 
         List<Pos> posCorners;
         List<Pos> posEdges;
@@ -329,9 +330,9 @@ public class Cube implements Serializable {
         move(face.axis, clockwise, posEdges);
     }
 
-    private void move(Axis axis, boolean clockwise, List<Pos> pos) {
+    private void move(final Axis axis, final boolean clockwise, final List<Pos> pos) {
         /* 移動 1>2>3>4 */
-        Piece buffer = pick(pos.get(3));
+        final Piece buffer = pick(pos.get(3));
         pick(pos.get(2)).pos(pos.get(3)).rollAll(axis, clockwise);
         pick(pos.get(1)).pos(pos.get(2)).rollAll(axis, clockwise);
         pick(pos.get(0)).pos(pos.get(1)).rollAll(axis, clockwise);
@@ -341,8 +342,8 @@ public class Cube implements Serializable {
     /**
      * 配列を反転させます。
      */
-    private static <T> List<T> reverse(T[] ary) {
-        List<T> list = new ArrayList<T>(Arrays.asList(ary));
+    private static <T> List<T> reverse(final T[] ary) {
+        final List<T> list = new ArrayList<T>(Arrays.asList(ary));
         Collections.reverse(list);
         return list;
         //return asList.toArray(new T[asList.size()]);
@@ -351,13 +352,13 @@ public class Cube implements Serializable {
     /**
      * 動作確認をします。
      */
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         final Cube cube = new Cube();
         final CubeViewer viewer = new CubeViewer(cube);
 
         final String org = viewer.getColorString();
 
-        String op = "RUR'U'";
+        final String op = "RUR'U'";
         System.out.println("-- " + op + " --");
         for (int i = 0; i < 6; i++) {
             cube.rotate(CubeCommand.of(op));
@@ -366,7 +367,7 @@ public class Cube implements Serializable {
         }
         //cube.rotate(CubeCommand.of("R'"));
 
-        String after = viewer.getColorString();
+        final String after = viewer.getColorString();
         System.out.println(dfAfter(org, after));
         System.out.println(cube.history);
 
@@ -383,14 +384,14 @@ public class Cube implements Serializable {
             cube.rotate(CubeCommand.ofRandome());
         }
         System.out.println(cube.history);
-        String shuffle = viewer.getColorString();
+        final String shuffle = viewer.getColorString();
         System.out.println("-- df --");
         System.out.println(dfAfter(org, shuffle));
 
         /* 繰り返し実験 */
         for (int i = 0; i < 10; i++) {
             System.out.println("〓" + i + "〓");
-            Cube c1 = new Cube(cube);
+            final Cube c1 = new Cube(cube);
             final CubeViewer v1 = new CubeViewer(c1);
             for (int j = 0; j < 7; j++) {
 
@@ -406,7 +407,7 @@ public class Cube implements Serializable {
                 }
 
             }
-            String after = v1.getColorString1Line();
+            final String after = v1.getColorString1Line();
             System.out.println(c1.history);
             System.out.println(after);
             if (c1.isGoal()) {
@@ -421,11 +422,11 @@ public class Cube implements Serializable {
      * @param b B
      */
     @SuppressWarnings("unused")
-    private static String df(String a, String b) {
-        char[] c1 = a.toCharArray();
-        char[] c2 = b.toCharArray();
+    private static String df(final String a, final String b) {
+        final char[] c1 = a.toCharArray();
+        final char[] c2 = b.toCharArray();
 
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         for (int i = 0; i < c1.length; i++) {
             if (c1[i] == c2[i]) {
                 sb.append(c1[i]);
@@ -442,10 +443,10 @@ public class Cube implements Serializable {
      * @param a A
      * @param b B
      */
-    private static String dfAfter(String a, String b) {
-        char[] c1 = a.toCharArray();
-        char[] c2 = b.toCharArray();
-        StringBuilder sb = new StringBuilder();
+    private static String dfAfter(final String a, final String b) {
+        final char[] c1 = a.toCharArray();
+        final char[] c2 = b.toCharArray();
+        final StringBuilder sb = new StringBuilder();
         for (int i = 0; i < c1.length; i++) {
             if (c1[i] == c2[i] && c1[i] != '\n' && c1[i] != ' ') {
                 //sb.append(c1[i]);
