@@ -18,11 +18,11 @@ public class Utf8Text extends TextFile {
         .getLogger(java.lang.invoke.MethodHandles.lookup().lookupClass());
     public static final Charset CHARSET = StandardCharsets.UTF_8;
 
-    public Utf8Text(File file) {
+    public Utf8Text(final File file) {
         super(file);
     }
 
-    public Utf8Text(String path) {
+    public Utf8Text(final String path) {
         super(path);
     }
 
@@ -34,10 +34,10 @@ public class Utf8Text extends TextFile {
     /**
      * UTF8でテキストデータを保存します。
      */
-    public static void writeData(File file, String data) {
+    public static void writeData(final File file, final String data) {
         try {
             FileUtils.write(file, data, CHARSET);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -47,10 +47,10 @@ public class Utf8Text extends TextFile {
      * @deprecated readStringの利用を検討してください。（Charsetの検査が厳密になります。）
      */
     @Deprecated
-    public static String readData(File file) {
+    public static String readData(final File file) {
         try {
             return FileUtils.readFileToString(file, CHARSET);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
 
@@ -59,8 +59,18 @@ public class Utf8Text extends TextFile {
     /**
      * UTF8でテキストデータを読み出します。Java標準APIを使用。
      */
-    public static String readString(File file) {
-        return readString(file, CHARSET);
+    public static String readString(final File file) {
+        return readString(file, false);
+    }
+
+    /**
+     * UTF8でテキストデータを読み出します。Java標準APIを使用。
+     * @param lenient trueのとき、org.apache.commons.io.FileUtilsを使用して、文字コードの不整合を許容します。
+     */
+    public static String readString(
+        final File file,
+        final boolean lenient) {
+        return readString(file, CHARSET, lenient);
     }
 
 }

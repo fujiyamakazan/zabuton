@@ -18,7 +18,7 @@ public class ShiftJisText extends TextFile {
 
     private static final Charset CHARSET = Charset.forName("Shift_JIS");
 
-    public ShiftJisText(File file) {
+    public ShiftJisText(final File file) {
         super(file);
     }
 
@@ -32,10 +32,10 @@ public class ShiftJisText extends TextFile {
      * @deprecated readStringの利用を検討してください。（Charsetの検査が厳密になります。）
      */
     @Deprecated
-    public static String readData(File file) {
+    public static String readData(final File file) {
         try {
             return FileUtils.readFileToString(file, CHARSET);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -43,8 +43,8 @@ public class ShiftJisText extends TextFile {
     /**
      * UTF8でテキストデータを読み出します。Java標準APIを使用。
      */
-    public static String readString(File file) {
-        return readString(file, CHARSET);
+    public static String readString(final File file) {
+        return readString(file, CHARSET, false);
     }
 
 }

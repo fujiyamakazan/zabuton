@@ -144,7 +144,7 @@ public class NgWordCheck implements Serializable {
             //LOGGER.debug(f.getAbsolutePath());
             //String text = Utf8Text.readData(f);
             LOGGER.debug(f.getAbsolutePath());
-            final String text = Utf8Text.readString(f);
+            final String text = Utf8Text.readString(f, true);
             for (final String word : words) {
                 if (StringUtils.containsIgnoreCase(text, word)) {
                     errors.add(new FileWord(f, word));

@@ -180,12 +180,24 @@ public abstract class TextFile implements Serializable {
 
     /**
      * 標準APIを使用して読み取ります。
+     * @param lenient trueのとき、org.apache.commons.io.FileUtilsを使用して、文字コードの不整合を許容します。
      */
-    public static String readString(final File file, final Charset charset) {
+    public static String readString(
+        final File file,
+        final Charset charset,
+        final boolean lenient) {
+
         String str;
         try {
             str = Files.readString(file.toPath(), charset);
         } catch (final IOException e) {
+            if (lenient) {
+                try {
+                    return FileUtils.readFileToString(file, charset);
+                } catch (final IOException e1) {
+                    throw new RuntimeException(e1);
+                }
+            }
             LOGGER.error(file.getAbsolutePath() + "の読取りに失敗しました。");
             throw new RuntimeException(e);
         }
